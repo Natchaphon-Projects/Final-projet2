@@ -5,7 +5,7 @@ import sadFace from "../assets/sad.png";
 import happyFace from "../assets/happiness.png";
 
 const featureLabels = {
-  Guardian: "บุคคลที่รับผิดชอบในการดูแล เด็ก",
+  Guardian: "เป็นบุคคลที่รับผิดชอบในการดูแล เด็กหรือไม่",
   Vitamin_A_Intake_First_8_Weeks: "เด็กได้รับวิตามินเอภายใน 8 สัปดาห์แรกหลังคลอดใช่หรือไม่",
   Sanitary_Disposal: "ระบุว่ามีการกำจัดอุจจาระของเด็กด้วยวิธีที่ถูกสุขลักษณะหรือไม่",
   Mom_wash_hand_before_or_after_cleaning_children: "แม่ล้างมือก่อนหรือหลังจากทำความสะอาดเด็กหรือไม่",
