@@ -1,0 +1,107 @@
+/* General Reset */
+* {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+}
+
+/* Container */
+.view-results-container {
+  font-family: 'Arial', sans-serif;
+  background-color: #f8f9fa;
+  padding: 20px;
+  min-height: 100vh;
+  display: flex;
+  flex-direction: column;
+}
+
+/* Title */
+h2 {
+  font-size: 28px;
+  color: #34c38f;
+  margin-bottom: 40px; /* เพิ่มระยะห่างระหว่าง title และ filter */
+}
+
+/* Filter Container */
+.filter-container {
+  display: flex;
+  justify-content: flex-end; /* ชิดขวาสุด */
+  align-items: center;
+  gap: 15px; /* ระยะห่างระหว่าง filter */
+  margin-bottom: 20px;
+  width: 100%; /* ใช้พื้นที่ทั้งหมดของ container */
+}
+
+.filter-item {
+  display: flex;
+  align-items: center; /* จัด label และ input/select ให้อยู่ในแนวเดียวกัน */
+  font-size: 14px;
+}
+
+.filter-item label {
+  display: flex;
+  align-items: center;
+  color: #333;
+  gap: 5px; /* ระยะห่างระหว่าง label และ input/select */
+}
+
+.filter-item input,
+.filter-item select {
+  width: 150px; /* กำหนดขนาด input และ dropdown */
+  padding: 5px;
+  font-size: 14px;
+  border: 1px solid #ccc;
+  border-radius: 4px;
+  outline: none;
+  transition: border-color 0.3s ease;
+}
+
+.filter-item input:hover,
+.filter-item select:hover {
+  border-color: #34c38f;
+}
+
+/* Table Layout */
+.patient-table table {
+  width: 100%;
+  border-collapse: collapse;
+  margin-top: 20px;
+}
+
+.patient-table th,
+.patient-table td {
+  padding: 12px;
+  border: 1px solid #ddd;
+  text-align: center;
+}
+
+.patient-table th {
+  background-color: #34c38f;
+  color: white;
+}
+
+.patient-table td {
+  background-color: white;
+  color: #333;
+}
+
+.patient-table tr:nth-child(even) {
+  background-color: #f2f2f2;
+}
+
+.view-button {
+  padding: 10px 20px;
+  font-size: 14px;
+  font-weight: bold;
+  background-color: #34c38f;
+  color: white;
+  border: none;
+  border-radius: 20px;
+  cursor: pointer;
+  transition: background-color 0.3s ease, transform 0.2s ease;
+}
+
+.view-button:hover {
+  background-color: #2b8f69;
+  transform: translateY(-3px);
+}

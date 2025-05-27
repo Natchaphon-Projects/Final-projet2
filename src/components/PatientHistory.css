@@ -1,0 +1,140 @@
+/* General Reset */
+* {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+}
+
+/* Main Container */
+.history-container {
+  display: grid;
+  grid-template-columns: 1fr 2fr;
+  gap: 20px;
+  font-family: "Poppins", sans-serif;
+  background-color: #f3f6fa;
+  padding: 40px;
+  min-height: 100vh;
+}
+
+.left-column {
+  position: relative; /* เพื่อจัดตำแหน่งปุ่มในส่วนล่าง */
+  background: #ffffff;
+  border-radius: 12px;
+  box-shadow: 0px 4px 8px rgba(0, 0, 0, 0.1);
+  padding: 20px;
+  padding-bottom: 60px; /* เพิ่มพื้นที่ด้านล่างสำหรับปุ่ม */
+}
+
+/* ปุ่มหน้าแรกและย้อนกลับในส่วนล่าง */
+.card-footer {
+  display: flex;
+  justify-content: center;
+  gap: 10px; /* เพิ่มระยะห่างระหว่างปุ่ม */
+  position: absolute;
+  bottom: 20px;
+  left: 0;
+  right: 0;
+}
+
+.back-button {
+  padding: 10px 20px;
+  font-size: 16px;
+  font-weight: bold;
+  color: white;
+  background-color: #ff6b6b;
+  border: none;
+  border-radius: 8px;
+  cursor: pointer;
+  transition: background-color 0.3s ease;
+}
+
+.back-button:hover {
+  background-color: #e55656;
+}
+
+header {
+  text-align: center;
+}
+
+header h1 {
+  font-size: 36px;
+  color: #34c38f;
+  font-weight: 700;
+  margin-bottom: 10px;
+}
+
+header p {
+  font-size: 18px;
+  color: #7a7f85;
+}
+
+.patient-details {
+  text-align: center;
+  margin-top: 20px;
+}
+
+.patient-details h2 {
+  font-size: 24px;
+  color: #34c38f;
+}
+
+.patient-details p {
+  font-size: 16px;
+  color: #555;
+}
+
+/* Right Column */
+.right-column {
+  background: #ffffff;
+  border-radius: 12px;
+  box-shadow: 0px 4px 8px rgba(0, 0, 0, 0.1);
+  padding: 20px;
+}
+
+.patient-history-details {
+  text-align: left;
+}
+
+.patient-history-details h2 {
+  font-size: 24px;
+  color: #34c38f;
+  margin-bottom: 10px;
+}
+
+.patient-history-details ul {
+  list-style: none;
+  padding: 0;
+}
+
+.history-item {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 8px 0;
+  border-bottom: 1px solid #ddd;
+}
+
+.history-icon {
+  width: 20px;
+  height: 20px;
+  margin-right: 10px;
+}
+
+.history-text {
+  flex-grow: 1;
+}
+
+.view-detail-button {
+  padding: 5px 10px;
+  font-size: 14px;
+  color: #fff;
+  background-color: #34c38f;
+  border: none;
+  border-radius: 5px;
+  cursor: pointer;
+  transition: background-color 0.3s ease;
+}
+
+.view-detail-button:hover {
+  background-color: #2b8f69;
+}
