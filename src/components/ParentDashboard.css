@@ -1,262 +1,201 @@
-/* RESET */
-* {
-  font-family: 'Sarabun', sans-serif;
-  margin: 0;
-  padding: 0;
-  box-sizing: border-box;
+/* Groups Grid Layout */
+.groups-grid {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr); /* 👉 คงที่ 2 คอลัมน์ */
+  gap: 2rem;
+  max-width: 960px;
+  margin: 3rem auto;
 }
 
-/* Layout */
-.dashboard-container {
-  background-color: #f0fff7;
+
+/* Card Layout */
+.group-card {
+  background: white;
+  border-radius: 1.5rem;
+  padding: 2rem;
+  box-shadow: 0 10px 20px rgba(0, 0, 0, 0.05);
+  border: 1px solid #f3f4f6;
+  transition: 0.3s ease;
   display: flex;
   flex-direction: column;
-  min-height: 100vh;
-  width: 100%;
+  justify-content: space-between;
 }
 
-.dashboard-header {
-  background-color: #34c38f;
-  padding: 15px 30px;
+.group-card:hover {
+  transform: translateY(-4px);
+  box-shadow: 0 16px 32px rgba(0, 0, 0, 0.1);
+}
+
+/* Header with Emoji and Status */
+.card-header {
   display: flex;
   justify-content: space-between;
   align-items: center;
+  margin-bottom: 1.2rem;
 }
 
-.dashboard-logo {
-  width: 50px;
+.emoji {
+  font-size: 2.5rem;
 }
 
-.nav-links {
-  display: flex;
-  list-style: none;
-  gap: 20px;
-}
-
-.nav-button,
-.logout-button {
-  background-color: white;
-  color: #34c38f;
-  font-weight: bold;
-  padding: 8px 16px;
-  border: none;
-  border-radius: 8px;
-  cursor: pointer;
-  transition: all 0.3s ease;
+.status-container {
   display: flex;
   align-items: center;
-  gap: 8px;
+  gap: 0.5rem;
+  font-size: 0.875rem;
+  color: #6b7280;
 }
 
-.nav-button:hover,
-.logout-button:hover {
-  background-color: #dff0e2;
-  color: #2b8f69;
+.status-icon {
+  font-size: 1.1rem;
 }
 
-/* ✅ Main Content กว้างเต็มจอพอดี */
-.dashboard-main {
-  flex: 1;
+/* Card Text */
+.card-title {
+  font-size: 1.25rem;
+  font-weight: 700;
+  color: #1f2937;
+}
+
+.card-description {
+  font-size: 0.95rem;
+  color: #6b7280;
+  margin-bottom: 1.2rem;
+}
+
+/* Progress Section */
+.progress-section {
+  margin-bottom: 1.2rem;
+}
+
+.progress-header {
+  display: flex;
+  justify-content: space-between;
+  font-size: 0.9rem;
+  margin-bottom: 0.4rem;
+}
+
+.progress-container {
   width: 100%;
-  max-width: 1400px;
-  padding: 40px 5vw;
-  margin: 0 auto;
-  box-sizing: border-box;
+  height: 10px;
+  background-color: #e5e7eb;
+  border-radius: 6px;
+  overflow: hidden;
 }
 
-/* ✅ บล็อกแสดงข้อมูลผู้ใช้ด้านบน */
-.user-info-header {
-  display: flex;
-  align-items: center;
-  gap: 24px;
-  margin-bottom: 40px;
-  justify-content: flex-start;
+.progress-bar {
+  height: 100%;
+  border-radius: 6px;
+  transition: width 0.4s ease-in-out;
 }
 
-.profile-circle {
-  background-color: #34c38f;
-  color: white;
-  width: 100px;
-  height: 100px;
-  border-radius: 50%;
-  font-size: 28px;
-  font-weight: bold;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  box-shadow: 0 4px 14px rgba(0, 0, 0, 0.15);
-}
-
-.user-details {
-  display: flex;
-  flex-direction: column;
-  align-items: flex-start;
-}
-
-.greeting {
-  font-size: 18px;
-  color: #555;
-}
-
-.role {
-  font-size: 28px;
-  color: #222;
-  font-weight: bold;
-}
-
-.username {
-  color: #34c38f;
-  font-size: 18px;
-  font-weight: bold;
-  margin-top: 4px;
-}
-
-.underline {
-  width: 130px;
-  height: 4px;
-  background-color: #34c38f;
-  margin-top: 6px;
-  border-radius: 2px;
-}
-
-/* เมนูประเมินความเสี่ยง */
-.menu-container {
-  display: flex;
-  justify-content: center;
-  margin: 40px 0;
-}
-
-.menu-item {
-  width: 320px;
-  height: 220px;
+/* Main progress bar */
+.overall-progress {
+  max-width: 480px;
+  margin: 2rem auto 2rem auto; 
   background: white;
-  border: 1px solid #bceede;
-  border-radius: 16px;
-  padding: 24px;
-  text-align: center;
-  box-shadow: 0 4px 14px rgba(0, 0, 0, 0.08);
+  border-radius: 1rem;
+  padding: 1.5rem;
+  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.05);
+}
+
+.progress-info {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 0.5rem;
+}
+
+.progress-label-main {
+  font-size: 0.9rem;
+  font-weight: 500;
+  color: #374151;
+}
+
+.progress-percentage {
+  font-size: 1.4rem;
+  font-weight: 700;
+  color: #059669;
+}
+
+.main-progress-container {
+  width: 100%;
+  background-color: #e5e7eb;
+  border-radius: 9999px;
+  height: 1rem;
+  overflow: hidden;
+  margin-bottom: 0.5rem;
+}
+
+.main-progress-bar {
+  height: 100%;
+  background: linear-gradient(90deg, #34d399 0%, #059669 100%);
+  border-radius: 9999px;
+  transition: width 1s ease-out;
+}
+
+.progress-status {
+  font-size: 0.85rem;
+  color: #6b7280;
+}
+
+/* Button */
+.action-button {
+  width: 100%;
+  font-weight: 600;
+  padding: 1rem;
+  border-radius: 1rem;
+  transition: all 0.3s ease;
+  border: none;
+  color: white;
+  font-size: 1rem;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  gap: 0.5rem;
   cursor: pointer;
+}
+
+.gradient-general {
+  background: linear-gradient(90deg, #3b82f6 0%, #1d4ed8 100%);
+}
+
+.gradient-caregiver {
+  background: linear-gradient(90deg, #8b5cf6 0%, #7c3aed 100%);
+}
+
+.gradient-nutrition {
+  background: linear-gradient(90deg, #f97316 0%, #ea580c 100%);
+}
+
+.gradient-sanitation {
+  background: linear-gradient(90deg, #14b8a6 0%, #0d9488 100%);
+}
+
+.arrow {
   transition: transform 0.3s ease;
 }
 
-.menu-item:hover {
-  transform: scale(1.05);
+.action-button:hover .arrow {
+  transform: translateX(0.25rem);
 }
 
-.menu-icon {
-  width: 52px;
-  margin-bottom: 18px;
+@media (max-width: 768px) {
+  .groups-grid {
+    grid-template-columns: 1fr;
+  }
 }
-
-.menu-title {
-  font-weight: bold;
-  font-size: 20px;
-  color: #222;
-  margin-bottom: 6px;
-}
-
-.menu-description {
-  font-size: 15px;
-  color: #666;
-}
-
-/* คำแนะนำด้านโภชนาการ */
-.recommendation-section {
-  margin-top: 30px;
-  padding: 30px 20px;
-  background-color: #ffffff;
-  border-radius: 16px;
-  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.06);
-  width: 100%;
-}
-
-.recommendation-section h3 {
-  font-size: 24px;
-  font-weight: bold;
-  color: #222;
-  margin-bottom: 24px;
-  border-bottom: 3px solid #34c38f;
-  display: inline-block;
-  padding-bottom: 4px;
-}
-
-.recommendation-cards {
-  display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
-  gap: 30px;
-  width: 100%;
-}
-
-/* การ์ดคำแนะนำ */
-.recommendation-card {
-  background-color: white;
-  border-radius: 16px;
-  padding: 24px;
+.main-title {
+  font-size: 1.75rem;          /* ขนาดใหญ่ขึ้นเล็กน้อย */
+  font-weight: 700;
+  color: #065f46;              /* สีเขียวเข้ม */
   text-align: center;
-  box-shadow: 0 6px 16px rgba(0, 0, 0, 0.08);
-  transition: 0.3s;
+  margin-bottom: 0.5rem;       /* ลดช่องว่างด้านล่าง */
 }
 
-.recommendation-card:hover {
-  transform: translateY(-6px);
-  box-shadow: 0 12px 24px rgba(0, 0, 0, 0.12);
-}
-
-.icon-circle {
-  width: 50px;
-  height: 50px;
-  border-radius: 50%;
-  display: inline-flex;
-  align-items: center;
-  justify-content: center;
-  font-size: 22px;
-  margin-bottom: 16px;
-}
-
-/* Flat pastel icon colors */
-.red { background-color: #ffe6e6; color: #e74c3c; }
-.blue { background-color: #e0f0ff; color: #2980b9; }
-.green { background-color: #e6ffe6; color: #27ae60; }
-.cyan { background-color: #e6faff; color: #00bcd4; }
-.orange { background-color: #fff2e0; color: #e67e22; }
-.purple { background-color: #f3e6ff; color: #9b59b6; }
-
-.recommendation-card h4 {
-  font-size: 18px;
-  margin-bottom: 8px;
-  color: #222;
-}
-
-.recommendation-card p {
-  font-size: 15px;
-  color: #555;
-  margin-bottom: 16px;
-}
-
-.read-more-button {
-  background-color: #34c38f;
-  color: white;
-  border: none;
-  padding: 10px 0;
-  width: 100%;
-  border-radius: 8px;
-  font-weight: bold;
-  cursor: pointer;
-  font-size: 15px;
-  transition: 0.2s ease-in-out;
-}
-
-.read-more-button:hover {
-  background-color: #2b8f69;
-  transform: scale(1.02);
-}
-
-/* Footer */
-.dashboard-footer {
-  background-color: #34c38f;
+.main-description {
+  font-size: 1rem;             /* อ่านง่ายขึ้น */
+  color: #4b5563;              /* สีเทาเข้ม */
   text-align: center;
-  padding: 24px;
-  color: white;
-  font-size: 14px;
-  margin-top: auto;
+  margin-bottom: 2.5rem;       /* เพิ่มช่องว่างระหว่างข้อความกับกล่อง progress */
 }
