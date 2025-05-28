@@ -1,24 +1,25 @@
-/* Groups Grid Layout */
+/* กล่อง Grid แสดงการ์ดกลุ่มข้อมูล */
 .groups-grid {
   display: grid;
-  grid-template-columns: repeat(2, 1fr); /* 👉 คงที่ 2 คอลัมน์ */
+  grid-template-columns: repeat(4, 1fr);  /* 4 คอลัมน์ */
   gap: 2rem;
-  max-width: 960px;
+  max-width: 1200px;                      /* กำหนดความกว้างรวมของแถว */
   margin: 3rem auto;
+  overflow-x: auto;                       /* เพิ่ม scrollbar ถ้าจอกว้างไม่พอ */
 }
 
 
-/* Card Layout */
+/* การ์ดแต่ละกลุ่ม */
 .group-card {
   background: white;
   border-radius: 1.5rem;
   padding: 2rem;
   box-shadow: 0 10px 20px rgba(0, 0, 0, 0.05);
   border: 1px solid #f3f4f6;
-  transition: 0.3s ease;
   display: flex;
   flex-direction: column;
   justify-content: space-between;
+  transition: 0.3s ease;
 }
 
 .group-card:hover {
@@ -26,7 +27,7 @@
   box-shadow: 0 16px 32px rgba(0, 0, 0, 0.1);
 }
 
-/* Header with Emoji and Status */
+/* ส่วนหัวของการ์ด */
 .card-header {
   display: flex;
   justify-content: space-between;
@@ -50,7 +51,7 @@
   font-size: 1.1rem;
 }
 
-/* Card Text */
+/* ข้อความภายในการ์ด */
 .card-title {
   font-size: 1.25rem;
   font-weight: 700;
@@ -63,7 +64,7 @@
   margin-bottom: 1.2rem;
 }
 
-/* Progress Section */
+/* ความคืบหน้าแต่ละการ์ด */
 .progress-section {
   margin-bottom: 1.2rem;
 }
@@ -89,10 +90,10 @@
   transition: width 0.4s ease-in-out;
 }
 
-/* Main progress bar */
+/* ความคืบหน้าโดยรวม */
 .overall-progress {
-  max-width: 480px;
-  margin: 2rem auto 2rem auto; 
+  max-width: 1200px;
+  margin: 2rem auto;
   background: white;
   border-radius: 1rem;
   padding: 1.5rem;
@@ -139,7 +140,7 @@
   color: #6b7280;
 }
 
-/* Button */
+/* ปุ่มลิงก์ไปยังแบบฟอร์ม */
 .action-button {
   width: 100%;
   font-weight: 600;
@@ -161,15 +162,15 @@
 }
 
 .gradient-caregiver {
-  background: linear-gradient(90deg, #8b5cf6 0%, #7c3aed 100%);
+  background: linear-gradient(90deg, #3b82f6 0%, #1d4ed8 100%);
 }
 
 .gradient-nutrition {
-  background: linear-gradient(90deg, #f97316 0%, #ea580c 100%);
+  background: linear-gradient(90deg, #3b82f6 0%, #1d4ed8 100%);
 }
 
 .gradient-sanitation {
-  background: linear-gradient(90deg, #14b8a6 0%, #0d9488 100%);
+  background: linear-gradient(90deg, #3b82f6 0%, #1d4ed8 100%);
 }
 
 .arrow {
@@ -180,22 +181,32 @@
   transform: translateX(0.25rem);
 }
 
-@media (max-width: 768px) {
-  .groups-grid {
-    grid-template-columns: 1fr;
-  }
-}
+/* ข้อความหัวเรื่อง */
 .main-title {
-  font-size: 1.75rem;          /* ขนาดใหญ่ขึ้นเล็กน้อย */
+  font-size: 1.75rem;
   font-weight: 700;
-  color: #065f46;              /* สีเขียวเข้ม */
+  color: #065f46;
   text-align: center;
-  margin-bottom: 0.5rem;       /* ลดช่องว่างด้านล่าง */
+  margin-bottom: 0.5rem;
 }
 
 .main-description {
-  font-size: 1rem;             /* อ่านง่ายขึ้น */
-  color: #4b5563;              /* สีเทาเข้ม */
+  font-size: 1rem;
+  color: #4b5563;
   text-align: center;
-  margin-bottom: 2.5rem;       /* เพิ่มช่องว่างระหว่างข้อความกับกล่อง progress */
+  margin-bottom: 2.5rem;
 }
+
+/* Responsive */
+@media (max-width: 1024px) {
+  .groups-grid {
+    grid-template-columns: repeat(2, 1fr); /* เปลี่ยนเป็น 2 คอลัมน์ในจอเล็ก */
+  }
+}
+
+@media (max-width: 600px) {
+  .groups-grid {
+    grid-template-columns: 1fr; /* เปลี่ยนเป็นแนวตั้งบนจอมือถือ */
+  }
+}
+
