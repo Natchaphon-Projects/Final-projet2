@@ -1,7 +1,10 @@
 import React, { useState } from "react";
 import { useNavigate } from "react-router-dom";
-import "./ParentDashboard.css";
-import logo from "../assets/logo.png";
+import "./GroupedDataInput.css";
+import clockwiseIcon from "../assets/clockwise.png";
+import doneIcon from "../assets/done.png";
+import Header from "../components/layout/Header";
+import Footer from "../components/layout/Footer";
 
 function Groupdatainput() {
   const navigate = useNavigate();
@@ -23,7 +26,7 @@ function Groupdatainput() {
   const groups = [
     {
       key: "general",
-      emoji: "📋",
+      emoji: "",
       label: "ข้อมูลทั่วไป",
       description: "ข้อมูลพื้นฐานและข้อมูลทั่วไป",
       color: "#22c55e",
@@ -31,7 +34,7 @@ function Groupdatainput() {
     },
     {
       key: "caregiver",
-      emoji: "👨‍👩‍👧",
+      emoji: "",
       label: "ผู้เลี้ยงดูหลัก",
       description: "ข้อมูลผู้ดูแลและครอบครัว",
       color: "#f59e0b",
@@ -39,7 +42,7 @@ function Groupdatainput() {
     },
     {
       key: "nutrition",
-      emoji: "🍚",
+      emoji: "",
       label: "อาหารที่เด็กได้รับ",
       description: "ข้อมูลโภชนาการและการรับประทาน",
       color: "#ef4444",
@@ -47,7 +50,7 @@ function Groupdatainput() {
     },
     {
       key: "sanitation",
-      emoji: "🚿",
+      emoji: "",
       label: "สุขาภิบาล",
       description: "ข้อมูลความสะอาดและสุขอนามัย",
       color: "#06b6d4",
@@ -56,30 +59,19 @@ function Groupdatainput() {
   ];
 
   const getProgressStatus = (progress) => {
-    if (progress === 100) return { icon: "✅", text: "เสร็จสิ้น" };
-    if (progress > 0) return { icon: "⏳", text: "กำลังดำเนินการ" };
-    return { icon: "❌", text: "ยังไม่เริ่ม" };
-  };
+  if (progress === 100) return { icon: <img src={doneIcon} alt="loading" style={{ width: "16px", height: "16px" }} />, text: "เสร็จสิ้น" };
+  if (progress > 0)
+    return {
+      icon: <img src={clockwiseIcon} alt="loading" style={{ width: "16px", height: "16px" }} />,
+      text: "กำลังดำเนินการ",
+    };
+  return { icon: "❌", text: "ยังไม่เริ่ม" };
+};
 
   return (
     <div className="dashboard-container">
       {/* Header */}
-      <header className="dashboard-header">
-        <img src={logo} alt="Logo" className="dashboard-logo" />
-        <nav>
-          <ul className="nav-links">
-            <li>
-              <button className="nav-button" onClick={() => navigate("/parent-dashboard")}>หน้าแรก</button>
-            </li>
-            <li>
-              <button className="nav-button" onClick={() => navigate("/parent-risk-assessment")}>ประเมินความเสี่ยงเบื้องต้น</button>
-            </li>
-            <li>
-              <button className="logout-button" onClick={() => navigate("/")}>ออกจากระบบ</button>
-            </li>
-          </ul>
-        </nav>
-      </header>
+      <Header />
 
       {/* Main */}
       <main className="dashboard-main center-content">

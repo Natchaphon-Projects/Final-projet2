@@ -1,0 +1,77 @@
+.custom-header {
+  background: linear-gradient(to right, #10b981, #14b8a6);
+  color: white;
+  padding: 8px 32px;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  min-height: 64px; /* ✅ ให้มีความสูงพอดี ไม่ลอยเกินไป */
+}
+
+.header-left {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.hospital-icon {
+  font-size: 24px;
+  background-color: white;
+  color: #10b981;
+  border-radius: 50%;
+  padding: 6px;
+}
+
+.hospital-name {
+  font-size: 20px;
+  font-weight: 600;
+}
+
+.header-right {
+  display: flex;
+  gap: 20px;
+  align-items: center;
+  padding-bottom: 16px;
+}
+
+.header-btn {
+  background: none;
+  border: none;
+  color: white;
+  font-weight: 500;
+  font-size: 15px;
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  padding: 8px 12px;
+  height: 40px;
+  cursor: pointer;
+  transition: opacity 0.2s;
+}
+
+.header-btn:hover {
+  opacity: 0.85;
+}
+
+.logout-btn {
+  background: white;
+  color: #10b981;
+  padding: 16px 14px;
+  border-radius: 8px;
+  font-weight: 600;
+  border: none;
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  height: 40px;
+  cursor: pointer;
+  transition: transform 0.2s;
+}
+
+.logout-btn:hover {
+  transform: scale(1.03);
+}
+
+.icon {
+  font-size: 16px;
+}

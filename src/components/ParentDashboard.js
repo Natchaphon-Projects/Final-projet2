@@ -3,6 +3,8 @@ import { useNavigate } from "react-router-dom";
 import "./ParentDashboard.css";
 import logo from "../assets/logo.png";
 import loupeIcon from "../assets/loupe.png";
+import Header from "../components/layout/Header";
+import Footer from "../components/layout/Footer";
 import {
   FaHeart,
   FaDumbbell,
@@ -61,28 +63,7 @@ function ParentDashboard() {
   return (
     <div className="dashboard-container">
       {/* Header */}
-      <header className="dashboard-header">
-        <img src={logo} alt="Logo" className="dashboard-logo" />
-        <nav>
-          <ul className="nav-links">
-            <li>
-              <button className="nav-button" onClick={() => navigate("/parent-dashboard")}>
-                หน้าแรก
-              </button>
-            </li>
-            <li>
-              <button className="nav-button" onClick={() => navigate("/parent-risk-assessment")}>
-                ประเมินความเสี่ยงเบื้องต้น
-              </button>
-            </li>
-            <li>
-              <button className="logout-button" onClick={() => navigate("/")}>
-                ออกจากระบบ
-              </button>
-            </li>
-          </ul>
-        </nav>
-      </header>
+      <Header />
 
       {/* Main */}
       <main className="dashboard-main">
@@ -126,10 +107,7 @@ function ParentDashboard() {
         </div>
       </main>
 
-      {/* Footer */}
-      <footer className="dashboard-footer">
-        <p>© 2023 - Project Hospital</p>
-      </footer>
+      <Footer />
     </div>
   );
 }
