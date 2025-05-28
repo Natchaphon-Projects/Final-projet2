@@ -1,14 +1,39 @@
 import React from "react";
 import { useNavigate } from "react-router-dom";
 import "./AdminDashboard.css";
-import logo from "../assets/logo.png"; // Hospital logo
-import profileImage from "../assets/admin.jpg"; // Admin profile image
-import managePediatricsIcon from "../assets/baby-boy.png"; // Icon for managing pediatric department
-import manageParentsIcon from "../assets/manage.png"; // Icon for managing parents department
-import manageDoctorsIcon from "../assets/doctor.png"; // Icon for managing doctors department
+import logo from "../assets/logo.png";
+import {
+  FaChild,
+  FaUserShield,
+  FaUserMd
+} from "react-icons/fa";
 
 function AdminDashboard() {
   const navigate = useNavigate();
+
+  const adminMenus = [
+    {
+      icon: <FaChild />,
+      title: "การจัดการข้อมูลเด็ก",
+      description: "Manage Pediatric Department",
+      onClick: () => navigate("/manage-department"),
+      color: "blue",
+    },
+    {
+      icon: <FaUserShield />,
+      title: "การจัดการข้อมูลผู้ปกครอง",
+      description: "Manage Parents Department",
+      onClick: () => navigate("/manage-parents"),
+      color: "orange",
+    },
+    {
+      icon: <FaUserMd />,
+      title: "การจัดการข้อมูลหมอ",
+      description: "Manage Doctors Department",
+      onClick: () => navigate("/manage-doctors"),
+      color: "purple",
+    },
+  ];
 
   return (
     <div className="dashboard-container">
@@ -31,36 +56,24 @@ function AdminDashboard() {
       </header>
 
       <main className="dashboard-main">
-        <div className="header-content">
-          <div className="user-info-left">
-            <p>ยินดีต้อนรับ</p>
-            <h1>ผู้ดูแลระบบ</h1>
-          </div>
-          <div className="profile-container-right">
-            <img src={profileImage} alt="Admin Profile" className="profile-image" />
+        <div className="user-info-header">
+          <div className="profile-circle">NT</div>
+          <div className="user-details">
+            <p className="greeting">ยินดีต้อนรับ</p>
+            <h2 className="role">ผู้ดูแลระบบ</h2>
+            <p className="username">คุณ ณัชพล ทองอนันต์</p>
+            <div className="underline" />
           </div>
         </div>
 
-        <div className="centered-user-name">ผู้ดูแลระบบ ณัชพล ทองอนันต์</div>
-
         <div className="menu-container">
-          <div className="menu-item" onClick={() => navigate("/manage-department")}>
-            <img src={managePediatricsIcon} alt="Manage Pediatric Department" className="menu-icon" />
-            <p className="menu-title">การจัดการข้อมูลเด็ก</p>
-            <small className="menu-description">Manage Pediatric Department</small>
-          </div>
-
-          <div className="menu-item" onClick={() => navigate("/manage-parents")}>
-            <img src={manageParentsIcon} alt="Manage Parents Department" className="menu-icon" />
-            <p className="menu-title">การจัดการข้อมูลผู้ปกครอง</p>
-            <small className="menu-description">Manage Parents Department</small>
-          </div>
-
-          <div className="menu-item" onClick={() => navigate("/manage-doctors")}>
-            <img src={manageDoctorsIcon} alt="Manage Doctors Department" className="menu-icon" />
-            <p className="menu-title">การจัดการข้อมูลหมอ</p>
-            <small className="menu-description">Manage Doctors Department</small>
-          </div>
+          {adminMenus.map((item, index) => (
+            <div key={index} className="menu-item" onClick={item.onClick}>
+              <div className={`icon-circle ${item.color}`}>{item.icon}</div>
+              <p className="menu-title">{item.title}</p>
+              <small className="menu-description">{item.description}</small>
+            </div>
+          ))}
         </div>
       </main>
 
