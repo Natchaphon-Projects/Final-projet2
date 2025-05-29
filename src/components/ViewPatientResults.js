@@ -59,13 +59,13 @@ function ViewPatientResults() {
 
       {/* Summary Cards */}
       <div className="summary-cards">
-        <div className="card total"><span>ผู้ป่วยทั้งหมด</span><strong>{patients.length}</strong></div>
-        <div className="card normal"><span>ปกติ</span><strong>{statusCount["Normal"]}</strong></div>
-        <div className="card fat"><span>อ้วน</span><strong>{statusCount["Obesity"]}</strong></div>
-        <div className="card over"><span>น้ำหนักมากเกินไป</span><strong>{statusCount["Overweight"]}</strong></div>
+        <div className="card total"><span>All Patients</span><strong>{patients.length}</strong></div>
+        <div className="card normal"><span>Normal</span><strong>{statusCount["Normal"]}</strong></div>
+        <div className="card fat"><span>Obisity</span><strong>{statusCount["Obesity"]}</strong></div>
+        <div className="card over"><span>Overweight</span><strong>{statusCount["Overweight"]}</strong></div>
         <div className="card sam"><span>SAM</span><strong>{statusCount["SAM"]}</strong></div>
         <div className="card stunt"><span>Stunting</span><strong>{statusCount["Stunting"]}</strong></div>
-        <div className="card under"><span>น้ำหนักน้อยเกินไป</span><strong>{statusCount["Underweight"]}</strong></div>
+        <div className="card under"><span>Underweight</span><strong>{statusCount["Underweight"]}</strong></div>
       </div>
 
       {/* Filters */}
