@@ -29,12 +29,19 @@ function EnterOTP() {
     const { hnNumber, role } = location.state || {};
 
     if (otpValue === validOtp) {
-      if (role === "parent") {
-        navigate("/parent-dashboard");
-      } else if (role === "doctor") {
-        navigate("/doctor-dashboard");
-      } else if (role === "admin") {
-        navigate("/admin-dashboard");
+      const dashboardPath =
+        role === "parent"
+          ? "/parent-dashboard"
+          : role === "doctor"
+          ? "/doctor-dashboard"
+          : role === "admin"
+          ? "/admin-dashboard"
+          : null;
+
+      if (dashboardPath) {
+        navigate(dashboardPath, {
+          state: { hnNumber, role }, // ✅ ส่งข้อมูล hnNumber และ role ไปด้วย
+        });
       } else {
         alert("Unknown role. Please try again.");
       }
@@ -70,7 +77,10 @@ function EnterOTP() {
           />
         ))}
       </div>
-      <button className="primary-button" onClick={() => handleSubmit(otp.join(""))}>
+      <button
+        className="primary-button"
+        onClick={() => handleSubmit(otp.join(""))}
+      >
         Submit
       </button>
       <p className="resend-link" onClick={resetOtp}>

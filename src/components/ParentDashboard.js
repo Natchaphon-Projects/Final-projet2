@@ -20,14 +20,23 @@ function ParentDashboard() {
   const location = useLocation();
   const [parentData, setParentData] = useState(null);
 
+  // ✅ รับจาก location แล้วเก็บลง localStorage
+  useEffect(() => {
+    const { hnNumber, role } = location.state || {};
+    if (hnNumber && role) {
+      localStorage.setItem("hnNumber", hnNumber);
+      localStorage.setItem("role", role);
+    }
+  }, [location.state]);
+
   const hnNumber = location.state?.hnNumber || localStorage.getItem("hnNumber");
 
   useEffect(() => {
     if (hnNumber) {
-      // ✅ เรียก API เพื่อดึงข้อมูลผู้ปกครองตาม HN
-      axios.get(`http://localhost:5000/parents/${hnNumber}`)
-        .then(res => setParentData(res.data))
-        .catch(err => console.error("ไม่สามารถโหลดข้อมูลผู้ปกครองได้", err));
+      axios
+        .get(`http://localhost:5000/parents/${hnNumber}`)
+        .then((res) => setParentData(res.data))
+        .catch((err) => console.error("ไม่สามารถโหลดข้อมูลผู้ปกครองได้", err));
     }
   }, [hnNumber]);
 
@@ -59,7 +68,10 @@ function ParentDashboard() {
             <p className="greeting">ยินดีต้อนรับ</p>
             <h2 className="role">ผู้ปกครอง</h2>
             <p className="username">
-              คุณ {parentData ? `${parentData.first_name_parent} ${parentData.last_name_parent}` : "Loading..."}
+              คุณ{" "}
+              {parentData
+                ? `${parentData.first_name_parent} ${parentData.last_name_parent}`
+                : "Loading..."}
             </p>
             <div className="underline" />
           </div>
@@ -67,10 +79,19 @@ function ParentDashboard() {
 
         {/* Menu */}
         <div className="menu-container">
-          <div className="menu-item" onClick={() => navigate("/parent-risk-assessment", { state: { hnNumber } })}>
+          <div
+            className="menu-item"
+            onClick={() =>
+              navigate("/parent-risk-assessment", {
+                state: { hnNumber },
+              })
+            }
+          >
             <img src={loupeIcon} alt="Risk Assessment" className="menu-icon" />
             <p className="menu-title">ประเมินความเสี่ยงเบื้องต้น</p>
-            <small className="menu-description">Preliminary Risk Assessment</small>
+            <small className="menu-description">
+              Preliminary Risk Assessment
+            </small>
           </div>
         </div>
 
@@ -83,7 +104,10 @@ function ParentDashboard() {
                 <div className={`icon-circle ${item.color}`}>{item.icon}</div>
                 <h4>{item.title}</h4>
                 <p>{item.description}</p>
-                <button className="read-more-button" onClick={() => handleReadMore(item.title)}>
+                <button
+                  className="read-more-button"
+                  onClick={() => handleReadMore(item.title)}
+                >
                   อ่านเพิ่มเติม
                 </button>
               </div>

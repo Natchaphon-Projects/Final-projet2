@@ -21,7 +21,11 @@ function LoginPage() {
 
       alert("ส่งรหัส OTP แล้ว: 123456 (เพื่อการทดสอบ)");
 
-      // ส่ง hnNumber และ role ไปหน้า enter-otp
+      // ✅ เก็บลง localStorage เพื่อใช้งานข้ามหน้าหรือรีเฟรช
+      localStorage.setItem("hnNumber", hnNumber);
+      localStorage.setItem("role", role);
+
+      // ส่งไปหน้า enter-otp พร้อม state
       navigate("/enter-otp", { state: { hnNumber, role } });
     } catch (error) {
       alert("หมายเลข HN ไม่ถูกต้อง หรือเชื่อมต่อเซิร์ฟเวอร์ไม่ได้");
