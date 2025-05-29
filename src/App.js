@@ -18,6 +18,10 @@ import PatientDetails from "./components/PatientDetails";
 import RiskAssessmentEdit from "./components/RiskAssessmentEdit";
 import RiskAssessment from "./components/RiskAssessment";
 import GroupedDataInput from "./components/GroupedDataInput";
+import GeneralForm from "./components/Form/GeneralForm";
+import CaregiverForm from "./components/Form/CaregiverForm";
+import NutritionForm from "./components/Form/NutritionForm";
+import SanitationForm from "./components/Form/SanitationForm";
 import Recommendations from "./components/Recommendations";
 import PatientHistory from "./components/PatientHistory";
 import './styles.css';
@@ -37,7 +41,10 @@ function App() {
         {/* Parent Routes */}
         <Route path="/parent-dashboard" element={<ParentDashboard />} />
         <Route path="/parent-risk-assessment" element={<GroupedDataInput />} />
-        <Route path="/form/:groupKey" element={<RiskAssessment />} />
+        <Route path="/form/general" element={<GeneralForm />} />
+        <Route path="/form/caregiver" element={<CaregiverForm />} />
+        <Route path="/form/nutrition" element={<NutritionForm />} />
+        <Route path="/form/sanitation" element={<SanitationForm />} />
         <Route path="/parent-recommendations" element={<Recommendations />} />
 
         {/* Doctor Routes */}

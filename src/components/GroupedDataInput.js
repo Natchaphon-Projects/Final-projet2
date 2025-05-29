@@ -1,8 +1,9 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import "./GroupedDataInput.css";
 import clockwiseIcon from "../assets/clockwise.png";
 import doneIcon from "../assets/done.png";
+import foodIcon from "../assets/healthy-food.png";
 import Header from "../components/layout/Header";
 import Footer from "../components/layout/Footer";
 
@@ -16,6 +17,16 @@ function Groupdatainput() {
     sanitation: 25,
   });
 
+  useEffect(() => {
+    const savedNutrition = localStorage.getItem("nutritionProgress");
+    if (savedNutrition) {
+      setGroupProgress((prev) => ({
+        ...prev,
+        nutrition: parseInt(savedNutrition),
+      }));
+    }
+  }, []);
+
   const totalProgress =
     (groupProgress.general +
       groupProgress.caregiver +
@@ -25,55 +36,61 @@ function Groupdatainput() {
 
   const groups = [
     {
-      key: "general",
-      emoji: "",
       label: "ข้อมูลทั่วไป",
       description: "ข้อมูลพื้นฐานและข้อมูลทั่วไป",
+      path: "/form/general",
       color: "#22c55e",
       buttonGradient: "gradient-general",
+      progress: groupProgress.general,
+      emoji: "",
     },
     {
-      key: "caregiver",
-      emoji: "",
       label: "ผู้เลี้ยงดูหลัก",
       description: "ข้อมูลผู้ดูแลและครอบครัว",
+      path: "/form/caregiver",
       color: "#f59e0b",
       buttonGradient: "gradient-caregiver",
+      progress: groupProgress.caregiver,
+      emoji: "",
     },
     {
-      key: "nutrition",
-      emoji: "",
       label: "อาหารที่เด็กได้รับ",
       description: "ข้อมูลโภชนาการและการรับประทาน",
+      path: "/form/nutrition",
       color: "#ef4444",
       buttonGradient: "gradient-nutrition",
+      progress: groupProgress.nutrition,
+      emoji: <img src={foodIcon} alt="อาหาร" style={{ width: "40px", height: "40px" }} />,
     },
     {
-      key: "sanitation",
-      emoji: "",
       label: "สุขาภิบาล",
       description: "ข้อมูลความสะอาดและสุขอนามัย",
+      path: "/form/sanitation",
       color: "#06b6d4",
       buttonGradient: "gradient-sanitation",
+      progress: groupProgress.sanitation,
+      emoji: "",
     },
   ];
 
   const getProgressStatus = (progress) => {
-  if (progress === 100) return { icon: <img src={doneIcon} alt="loading" style={{ width: "16px", height: "16px" }} />, text: "เสร็จสิ้น" };
-  if (progress > 0)
-    return {
-      icon: <img src={clockwiseIcon} alt="loading" style={{ width: "16px", height: "16px" }} />,
-      text: "กำลังดำเนินการ",
-    };
-  return { icon: "❌", text: "ยังไม่เริ่ม" };
-};
+    if (progress === 100)
+      return {
+        icon: <img src={doneIcon} alt="done" style={{ width: "24px", height: "24px" }} />,
+        text: "เสร็จสิ้น",
+      };
+    if (progress > 0)
+      return {
+        icon: <img src={clockwiseIcon} alt="loading" style={{ width: "24px", height: "24px" }} />,
+        text: "กำลังกรอกข้อมูล",
+      };
+    return { icon: "❌", text: "ยังไม่เริ่ม" };
+  };
 
   return (
     <div className="dashboard-container">
-      {/* Header */}
       <Header />
 
-      {/* Main */}
       <main className="dashboard-main center-content">
         <h2 className="main-title" style={{ textAlign: "center" }}>
           เลือกกลุ่มข้อมูลที่ต้องการกรอก
@@ -98,12 +115,11 @@ function Groupdatainput() {
         </div>
 
         <div className="groups-grid">
-          {groups.map((group) => {
-            const progress = groupProgress[group.key];
-            const { icon, text } = getProgressStatus(progress);
+          {groups.map((group, index) => {
+            const { icon, text } = getProgressStatus(group.progress);
 
             return (
-              <div className="group-card animate-fade-in" key={group.key}>
+              <div className="group-card animate-fade-in" key={index}>
                 <div className="card-header">
                   <div className="emoji">{group.emoji}</div>
                   <div className="status-container">
@@ -120,19 +136,19 @@ function Groupdatainput() {
                 <div className="progress-section">
                   <div className="progress-header">
                     <span className="progress-label">ความคืบหน้า</span>
-                    <span className="progress-value">{progress}%</span>
+                    <span className="progress-value">{group.progress}%</span>
                   </div>
                   <div className="progress-container">
                     <div
                       className="progress-bar"
-                      style={{ width: `${progress}%`, backgroundColor: group.color }}
+                      style={{ width: `${group.progress}%`, backgroundColor: group.color }}
                     />
                   </div>
                 </div>
 
                 <button
                   className={`action-button ${group.buttonGradient}`}
-                  onClick={() => navigate(`/form/${group.key}`)}
+                  onClick={() => navigate(group.path)}
                 >
                   <span>ไปยังแบบฟอร์ม</span>
                   <span className="arrow">→</span>
@@ -143,10 +159,7 @@ function Groupdatainput() {
         </div>
       </main>
 
-      {/* Footer */}
-      <footer className="dashboard-footer">
-        <p>© 2023 - Project Hospital</p>
-      </footer>
+      <Footer />
     </div>
   );
 }
