@@ -7,16 +7,20 @@ import ParentDashboard from "./components/ParentDashboard";
 import DoctorDashboard from "./components/DoctorDashboard";
 import AdminDashboard from "./components/AdminDashboard";
 import ManageDepartment from "./components/ManageDepartment";
-import ManageParentDepartment from "./components/ManageParentDepartment"; 
-import ManageDoctorDepartment from "./components/ManageDoctorDepartment"; 
+import ManageParentDepartment from "./components/ManageParentDepartment";
+import ManageDoctorDepartment from "./components/ManageDoctorDepartment";
 import EditPatient from "./components/EditPatient";
 import AddPatient from "./components/AddPatient";
 import ViewPatientResults from "./components/ViewPatientResults";
-import PatientAssessmentResult from "./components/PatientAssessmentResult"; 
+import PatientAssessmentResult from "./components/PatientAssessmentResult";
 import PatientDetails from "./components/PatientDetails";
 import RiskAssessmentEdit from "./components/RiskAssessmentEdit";
 import RiskAssessment from "./components/RiskAssessment";
 import GroupedDataInput from "./components/GroupedDataInput";
+import GeneralForm from "./components/Form/GeneralForm";
+import CaregiverForm from "./components/Form/CaregiverForm";
+import NutritionForm from "./components/Form/NutritionForm";
+import SanitationForm from "./components/Form/SanitationForm";
 import Recommendations from "./components/Recommendations";
 import PatientHistory from "./components/PatientHistory";
 import './styles.css';
@@ -36,7 +40,10 @@ function App() {
         {/* Parent Routes */}
         <Route path="/parent-dashboard" element={<ParentDashboard />} />
         <Route path="/parent-risk-assessment" element={<GroupedDataInput />} />
-        <Route path="/form/:groupKey" element={<RiskAssessment />} />
+        <Route path="/form/general" element={<GeneralForm />} />
+        <Route path="/form/caregiver" element={<CaregiverForm />} />
+        <Route path="/form/nutrition" element={<NutritionForm />} />
+        <Route path="/form/sanitation" element={<SanitationForm />} />
         <Route path="/parent-recommendations" element={<Recommendations />} />
 
         {/* Doctor Routes */}
@@ -49,7 +56,7 @@ function App() {
         {/* Admin Routes */}
         <Route path="/admin-dashboard" element={<AdminDashboard />} />
         <Route path="/manage-department" element={<ManageDepartment />} />
-        <Route path="/manage-parents" element={<ManageParentDepartment />} /> 
+        <Route path="/manage-parents" element={<ManageParentDepartment />} />
         <Route path="/manage-doctors" element={<ManageDoctorDepartment />} />
         <Route path="/edit-patient/:id" element={<EditPatient />} />
         <Route path="/add-patient" element={<AddPatient />} />
