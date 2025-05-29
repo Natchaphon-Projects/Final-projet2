@@ -9,7 +9,7 @@ const port = 5000;
 app.use(cors());
 app.use(bodyParser.json());
 
-// 🔌 เชื่อมต่อฐานข้อมูล MySQL
+// 🔌 เชื่อมต่อฐาน MySQL
 const db = mysql.createConnection({
   host: "localhost",
   user: "root",
@@ -25,7 +25,7 @@ db.connect((err) => {
   }
 });
 
-// ✅ GET: ดึงข้อมูลแพทย์จาก HN
+// ✅ GET: ดึงข้อมแพทย์จาก HN
 app.get("/doctors/:hn", (req, res) => {
   const hn = req.params.hn;
   const query = `
@@ -47,29 +47,76 @@ app.get("/doctors/:hn", (req, res) => {
 // ✅ GET: รายชื่อผู้ป่วยทั้งหมด
 app.get("/patients", (req, res) => {
   const query = `
-    SELECT id, hn, name, age, gender, parent, birth_date AS birthDate
-    FROM patients
+    SELECT 
+      p.patient_id AS id,
+      p.hn,
+      CONCAT(p.prefix_name_child, ' ', p.first_name_child, ' ', p.last_name_child) AS name,
+      p.gender,
+      p.birth_date AS birthDate,
+      CONCAT(pa.prefix_name_parent, ' ', pa.first_name_parent, ' ', pa.last_name_parent) AS parent
+    FROM patient p
+    LEFT JOIN relationship r ON p.patient_id = r.patient_id
+    LEFT JOIN parent pa ON r.parent_id = pa.parent_id
   `;
+
   db.query(query, (err, results) => {
     if (err) return res.status(500).send(err);
-    res.json(results);
+
+    const enhanced = results.map(row => {
+      const birth = new Date(row.birthDate);
+      const ageMonth = (new Date().getFullYear() - birth.getFullYear()) * 12 + (new Date().getMonth() - birth.getMonth());
+      return { ...row, age: `${ageMonth} เดือน` };
+    });
+
+    res.json(enhanced);
   });
 });
 
-// ✅ POST: เพิ่มผู้ป่วยใหม่
 app.post("/patients", (req, res) => {
-  const { hn, name, age, gender, parent, birthDate } = req.body;
+  const {
+    childPrefix,
+    name, // first name
+    lastName,
+    age,
+    gender,
+    birthDate,
+    weight,
+    height,
+    allergies,
+    congenital_disease,
+    parent_id,
+  } = req.body;
+
   const query = `
-    INSERT INTO patients (hn, name, age, gender, parent, birth_date)
-    VALUES (?, ?, ?, ?, ?, ?)
+    INSERT INTO patient 
+    (prefix_name_child, first_name_child, last_name_child, birth_date, gender, age, weight, height, allergies, congenital_disease, parent_id, created_at)
+    VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, NOW())
   `;
-  db.query(query, [hn, name, age, gender, parent, birthDate || null], (err, results) => {
-    if (err) return res.status(500).send(err);
-    res.json({ id: results.insertId, ...req.body });
-  });
+
+  db.query(
+    query,
+    [
+      childPrefix,
+      name,
+      lastName,
+      birthDate,
+      gender,
+      age,
+      weight,
+      height,
+      allergies,
+      congenital_disease,
+      parent_id,
+    ],
+    (err, results) => {
+      if (err) return res.status(500).send(err);
+      res.json({ id: results.insertId });
+    }
+  );
 });
 
-// ✅ PUT: แก้ไขข้อมูลผู้ป่วย
+
+// ✅ PUT: แก้ไขข้อมู้ป่วย
 app.put("/patients/:id", (req, res) => {
   const { hn, name, age, gender, parent, birthDate } = req.body;
   const query = `
@@ -187,6 +234,24 @@ app.get("/admins/:hn", (req, res) => {
     }
   });
 });
+
+app.get("/find-parent-id", (req, res) => {
+  const name = req.query.name;
+  const [prefix, first, last] = name.split(" ");
+  const query = `
+    SELECT parent_id FROM parent
+    WHERE prefix_name_parent = ? AND first_name_parent = ? AND last_name_parent = ?
+  `;
+  db.query(query, [prefix, first, last], (err, results) => {
+    if (err) return res.status(500).json({ message: "DB Error" });
+    if (results.length > 0) {
+      res.json({ parent_id: results[0].parent_id });
+    } else {
+      res.status(404).json({ message: "Not found" });
+    }
+  });
+});
+
 
 // ✅ Start server
 app.listen(port, () => {

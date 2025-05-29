@@ -13,15 +13,23 @@ const ManageDepartment = () => {
   const [viewingPatient, setViewingPatient] = useState(null);
   const [showModal, setShowModal] = useState(false);
   const [birthDate, setBirthDate] = useState("");
-  const [formData, setFormData] = useState({
-    hn: "",
-    childPrefix: "",
-    name: "",
-    age: "",
-    gender: "",
-    parentPrefix: "",
-    parent: ""
-  });
+const [formData, setFormData] = useState({
+  childPrefix: "",
+  name: "",         // first name
+  lastName: "",     // last name
+  age: "",
+  gender: "",
+  birthDate: "",
+  weight: "",
+  height: "",
+  allergies: "",
+  congenital_disease: "",
+  parentPrefix: "",
+  parent: "",
+  parentId: null
+});
+
+
 
   const itemsPerPage = 5;
 
@@ -64,13 +72,37 @@ const ManageDepartment = () => {
     return;
   }
 
-  const payload = {
-    ...formData,
-    birthDate: birthDate,
-    name: `${formData.childPrefix} ${formData.name}`,
-    parent: `${formData.parentPrefix} ${formData.parent}`,
-    age: `${formData.age} เดือน`
-  };
+
+  let parentId;
+
+  try {
+    // 🔍 ดึง parentId จาก backend
+    const res = await axios.get(`http://localhost:5000/find-parent-id?name=${formData.parentPrefix} ${formData.parent}`);
+    parentId = res.data?.parent_id;
+
+    if (!parentId) {
+      alert("ไม่พบผู้ปกครองในระบบ กรุณาตรวจสอบชื่อ");
+      return;
+    }
+  } catch (err) {
+    console.error("ไม่สามารถดึง parent_id ได้:", err);
+    return;
+  }
+
+const payload = {
+  childPrefix: formData.childPrefix,
+  name: formData.name, // first name
+  lastName: formData.lastName, // สร้างเพิ่มใน formData
+  age: formData.age,
+  gender: formData.gender,
+  birthDate,
+  weight: formData.weight,
+  height: formData.height,
+  allergies: formData.allergies,
+  congenital_disease: formData.congenital_disease,
+  parent_id: parentId
+};
+
 
   try {
     if (editingPatient) {
@@ -285,19 +317,24 @@ const handleAdd = () => {
         </div>
       )}
 
-      {viewingPatient && (
-        <div className="modal">
-          <div className="modal-content">
-            <h3 style={{ textAlign: "center" }}>👁️ ข้อมูลเด็ก</h3>
-            <p><strong>HN:</strong> {viewingPatient.hn}</p>
-            <p><strong>ชื่อ:</strong> {viewingPatient.name}</p>
-            <p><strong>อายุ:</strong> {viewingPatient.age}</p>
-            <p><strong>เพศ:</strong> {viewingPatient.gender}</p>
-            <p><strong>ผู้ปกครอง:</strong> {viewingPatient.parent}</p>
-            <button className="cancel-btn" onClick={() => setViewingPatient(null)}>ปิด</button>
-          </div>
-        </div>
-      )}
+     {viewingPatient && (
+  <div className="modal">
+    <div className="modal-content">
+      <h3 style={{ textAlign: "center" }}>👁️ ข้อมูลเด็ก</h3>
+      <p><strong>HN:</strong> {viewingPatient.hn}</p>
+      <p><strong>ชื่อ:</strong> {viewingPatient.name}</p>
+      <p><strong>อายุ:</strong> {viewingPatient.age}</p>
+      <p><strong>เพศ:</strong> {viewingPatient.gender}</p>
+      <p><strong>น้ำหนัก:</strong> {viewingPatient.weight} กก.</p>
+      <p><strong>ส่วนสูง:</strong> {viewingPatient.height} ซม.</p>
+      <p><strong>โรคประจำตัว:</strong> {viewingPatient.congenital_disease}</p>
+      <p><strong>แพ้อาหาร:</strong> {viewingPatient.allergies}</p>
+      <p><strong>ผู้ปกครอง:</strong> {viewingPatient.parent}</p>
+      <button className="cancel-btn" onClick={() => setViewingPatient(null)}>ปิด</button>
+    </div>
+  </div>
+)}
+
     </div>
   );
 };
