@@ -9,9 +9,15 @@ function OTPLogin() {
 
   const handleSendOTP = () => {
     if (hnNumber) {
+      const role = "parent"; // ✅ หรือกำหนดเป็น role ที่เหมาะสม
       alert("OTP sent: 123456 (ใช้สำหรับการทดสอบ)");
-      setOtpSent(true);
-      navigate("/enter-otp"); // นำไปยังหน้ากรอก OTP
+
+      // ✅ เก็บลง localStorage
+      localStorage.setItem("hnNumber", hnNumber);
+      localStorage.setItem("role", role);
+
+      // ✅ ส่ง hnNumber + role ไปหน้า enter-otp
+      navigate("/enter-otp", { state: { hnNumber, role } });
     } else {
       alert("Please enter your HN Number.");
     }
