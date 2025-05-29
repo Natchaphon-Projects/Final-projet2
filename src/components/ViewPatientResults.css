@@ -1,107 +1,190 @@
-/* General Reset */
-* {
-  margin: 0;
-  padding: 0;
-  box-sizing: border-box;
-}
-
-/* Container */
 .view-results-container {
-  font-family: 'Arial', sans-serif;
-  background-color: #f8f9fa;
-  padding: 20px;
+  font-family: 'Sarabun', sans-serif;
+  background-color: #f0fff7;
+  padding: 30px;
   min-height: 100vh;
-  display: flex;
-  flex-direction: column;
 }
 
-/* Title */
 h2 {
   font-size: 28px;
-  color: #34c38f;
-  margin-bottom: 40px; /* เพิ่มระยะห่างระหว่าง title และ filter */
+  color: #059669;
+  text-align: center;
+  margin-bottom: 4px;
 }
 
-/* Filter Container */
+.subtitle {
+  font-size: 14px;
+  color: #555;
+  text-align: center;
+  margin-bottom: 24px;
+}
+
+/* Filter */
 .filter-container {
   display: flex;
-  justify-content: flex-end; /* ชิดขวาสุด */
-  align-items: center;
-  gap: 15px; /* ระยะห่างระหว่าง filter */
+  flex-wrap: wrap;
+  justify-content: space-between;
+  gap: 16px;
   margin-bottom: 20px;
-  width: 100%; /* ใช้พื้นที่ทั้งหมดของ container */
+  align-items: center;
 }
 
-.filter-item {
+.search-box {
   display: flex;
-  align-items: center; /* จัด label และ input/select ให้อยู่ในแนวเดียวกัน */
-  font-size: 14px;
+  align-items: center;
+  gap: 8px;
+  flex: 1;
 }
 
+.search-box input {
+  padding: 10px 16px;
+  border-radius: 12px;
+  border: 1px solid #ccc;
+  font-size: 14px;
+  width: 100%;
+  background-color: white;
+}
+
+.search-box input:focus {
+  border-color: #34c38f;
+  outline: none;
+}
+
+.search-box svg {
+  color: #34c38f;
+}
+
+/* Filter items */
 .filter-item label {
   display: flex;
   align-items: center;
+  gap: 8px;
+  font-size: 14px;
   color: #333;
-  gap: 5px; /* ระยะห่างระหว่าง label และ input/select */
 }
 
-.filter-item input,
-.filter-item select {
-  width: 150px; /* กำหนดขนาด input และ dropdown */
-  padding: 5px;
+input[type="date"],
+select {
+  padding: 6px 10px;
   font-size: 14px;
   border: 1px solid #ccc;
-  border-radius: 4px;
-  outline: none;
-  transition: border-color 0.3s ease;
+  border-radius: 8px;
+  background-color: white;
 }
 
-.filter-item input:hover,
-.filter-item select:hover {
-  border-color: #34c38f;
-}
-
-/* Table Layout */
+/* Table */
 .patient-table table {
   width: 100%;
   border-collapse: collapse;
-  margin-top: 20px;
+  background-color: white;
+  border-radius: 12px;
+  overflow: hidden;
+  box-shadow: 0 4px 10px rgba(0, 0, 0, 0.05);
 }
 
 .patient-table th,
 .patient-table td {
-  padding: 12px;
-  border: 1px solid #ddd;
+  padding: 14px;
+  border-bottom: 1px solid #e5e7eb;
   text-align: center;
 }
 
 .patient-table th {
   background-color: #34c38f;
   color: white;
+  font-weight: 600;
 }
 
-.patient-table td {
-  background-color: white;
-  color: #333;
-}
-
-.patient-table tr:nth-child(even) {
-  background-color: #f2f2f2;
+.patient-table tr:nth-child(even) td {
+  background-color: #f9fafb;
 }
 
 .view-button {
-  padding: 10px 20px;
-  font-size: 14px;
-  font-weight: bold;
+  padding: 8px 16px;
   background-color: #34c38f;
   color: white;
   border: none;
   border-radius: 20px;
   cursor: pointer;
-  transition: background-color 0.3s ease, transform 0.2s ease;
+  font-weight: bold;
+  transition: background-color 0.3s, transform 0.2s;
 }
 
 .view-button:hover {
-  background-color: #2b8f69;
-  transform: translateY(-3px);
+  background-color: #2aaf78;
+  transform: translateY(-2px);
 }
+
+/* Pagination */
+.pagination {
+  margin-top: 20px;
+  text-align: center;
+}
+
+.pagination button {
+  margin: 0 5px;
+  padding: 6px 12px;
+  border: 1px solid #34c38f;
+  background-color: white;
+  color: #34c38f;
+  border-radius: 8px;
+  font-weight: 500;
+  cursor: pointer;
+  transition: 0.2s;
+}
+
+.pagination .active,
+.pagination button:hover {
+  background-color: #34c38f;
+  color: white;
+}
+
+/* ✅ Summary Cards */
+.summary-cards {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr); /* ✅ แถวละ 4 กล่อง */
+  gap: 20px;
+  justify-content: center; /* ✅ จัดให้อยู่ตรงกลาง */
+  margin: 24px 0 30px;
+  padding: 0 10px;
+}
+
+/* Individual Card */
+.card {
+  background-color: #ffffff;
+  padding: 16px 12px;
+  border-radius: 16px;
+  text-align: center;
+  font-weight: bold;
+  font-size: 14px;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.05);
+  transition: transform 0.3s ease;
+  height: 120px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+}
+
+.card:hover {
+  transform: translateY(-4px);
+}
+
+.card span {
+  font-size: 14px;
+  margin-bottom: 6px;
+}
+
+.card strong {
+  font-size: 22px;
+  margin-top: 0;
+}
+
+/* Pastel Color Themes */
+.card.total { background-color: #d1fae5; color: #065f46; }
+.card.normal { background-color: #dbf4ff; color: #1e3a8a; }
+.card.fat { background-color: #fee2e2; color: #991b1b; }
+.card.over { background-color: #ffedd5; color: #7c2d12; }
+.card.sam { background-color: #fde2e4; color: #7f1d1d; }
+.card.stunt { background-color: #ede9fe; color: #4c1d95; }
+.card.under { background-color: #fef9c3; color: #713f12; }
