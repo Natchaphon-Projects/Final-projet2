@@ -1,5 +1,6 @@
 import React from "react";
 import { BrowserRouter as Router, Routes, Route } from "react-router-dom";
+import RoleSelectionPage from "./RoleSelectionPage"; // ✅ เพิ่มหน้า Landing
 import LoginPage from "./LoginPage";
 import OTPLogin from "./OTPLogin";
 import EnterOTP from "./EnterOTP";
@@ -7,12 +8,12 @@ import ParentDashboard from "./components/ParentDashboard";
 import DoctorDashboard from "./components/DoctorDashboard";
 import AdminDashboard from "./components/AdminDashboard";
 import ManageDepartment from "./components/ManageDepartment";
-import ManageParentDepartment from "./components/ManageParentDepartment"; 
-import ManageDoctorDepartment from "./components/ManageDoctorDepartment"; 
+import ManageParentDepartment from "./components/ManageParentDepartment";
+import ManageDoctorDepartment from "./components/ManageDoctorDepartment";
 import EditPatient from "./components/EditPatient";
 import AddPatient from "./components/AddPatient";
 import ViewPatientResults from "./components/ViewPatientResults";
-import PatientAssessmentResult from "./components/PatientAssessmentResult"; 
+import PatientAssessmentResult from "./components/PatientAssessmentResult";
 import PatientDetails from "./components/PatientDetails";
 import RiskAssessmentEdit from "./components/RiskAssessmentEdit";
 import RiskAssessment from "./components/RiskAssessment";
@@ -21,15 +22,15 @@ import Recommendations from "./components/Recommendations";
 import PatientHistory from "./components/PatientHistory";
 import './styles.css';
 
-
-
-
 function App() {
   return (
     <Router>
       <Routes>
-        {/* Public Routes */}
-        <Route path="/" element={<LoginPage />} />
+        {/* Landing Page */}
+        <Route path="/" element={<RoleSelectionPage />} /> {/* ✅ หน้าแรก */}
+        
+        {/* Login */}
+        <Route path="/login" element={<LoginPage />} />
         <Route path="/otp-login" element={<OTPLogin />} />
         <Route path="/enter-otp" element={<EnterOTP />} />
 
@@ -46,10 +47,11 @@ function App() {
         <Route path="/edit-assessment/:id" element={<RiskAssessmentEdit />} />
         <Route path="/patient-history" element={<PatientHistory />} />
         <Route path="/patient-assessment/:id" element={<PatientAssessmentResult />} />
+
         {/* Admin Routes */}
         <Route path="/admin-dashboard" element={<AdminDashboard />} />
         <Route path="/manage-department" element={<ManageDepartment />} />
-        <Route path="/manage-parents" element={<ManageParentDepartment />} /> 
+        <Route path="/manage-parents" element={<ManageParentDepartment />} />
         <Route path="/manage-doctors" element={<ManageDoctorDepartment />} />
         <Route path="/edit-patient/:id" element={<EditPatient />} />
         <Route path="/add-patient" element={<AddPatient />} />
