@@ -14,7 +14,7 @@ const db = mysql.createConnection({
   host: "localhost",
   user: "root",
   password: "root",
-  database: "patient_db"
+  database: "child_malnutrition"
 });
 
 db.connect((err) => {
@@ -99,6 +99,40 @@ app.post("/patients/:id/records", (req, res) => {
     res.json({ id: result.insertId });
   });
 });
+
+  // 🔐 POST: ตรวจสอบ HN สำหรับเข้าสู่ระบบ
+app.post("/login", (req, res) => {
+  const { hnNumber } = req.body;
+  const query = `SELECT rold AS role FROM users WHERE hn_number = ?`;
+  db.query(query, [hnNumber], (err, results) => {
+    if (err) return res.status(500).json({ success: false, message: "Database error" });
+    if (results.length > 0) {
+      const { role } = results[0];
+      res.json({ success: true, role });
+    } else {
+      res.status(401).json({ success: false, message: "HN ไม่ถูกต้อง" });
+    }
+  });
+});
+
+
+  app.get("/parents/:hn", (req, res) => {
+  const hn = req.params.hn;
+  const query = `
+    SELECT first_name_parent, last_name_parent
+    FROM parent
+    WHERE hn_number = ?
+  `;
+  db.query(query, [hn], (err, results) => {
+    if (err) return res.status(500).json({ message: "Database error" });
+    if (results.length > 0) {
+      res.json(results[0]);
+    } else {
+      res.status(404).json({ message: "Parent not found" });
+    }
+  });
+});
+
 
 app.listen(port, () => {
   console.log(`🚀 Server is running on http://localhost:${port}`);
