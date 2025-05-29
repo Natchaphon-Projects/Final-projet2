@@ -12,13 +12,14 @@ const ManageDepartment = () => {
   const [editingPatient, setEditingPatient] = useState(null);
   const [viewingPatient, setViewingPatient] = useState(null);
   const [showModal, setShowModal] = useState(false);
+  const [birthDate, setBirthDate] = useState("");
   const [formData, setFormData] = useState({
     hn: "",
-    childPrefix: "ด.ช.",
+    childPrefix: "",
     name: "",
     age: "",
-    gender: "ชาย",
-    parentPrefix: "นาย",
+    gender: "",
+    parentPrefix: "",
     parent: ""
   });
 
@@ -31,10 +32,19 @@ const ManageDepartment = () => {
   const loadPatients = async () => {
     try {
       const res = await axios.get(API_URL);
+      console.log("📦 patient data:", res.data); // ✅ เพิ่มบรรทัดนี้
       setPatients(res.data);
     } catch (err) {
       console.error("โหลดข้อมูลผิดพลาด", err);
     }
+  };
+
+  const calculateAgeInMonths = (dob) => {
+    const birth = new Date(dob);
+    const today = new Date();
+    const years = today.getFullYear() - birth.getFullYear();
+    const months = today.getMonth() - birth.getMonth();
+    return (years * 12 + months).toString();
   };
 
   const handleDelete = async (id) => {
@@ -44,43 +54,69 @@ const ManageDepartment = () => {
     }
   };
 
-  const handleSave = async () => {
-    if (!formData.hn || !formData.name || !formData.age || !formData.parent) {
-      alert("กรุณากรอกข้อมูลให้ครบถ้วน");
-      return;
-    }
-    if (!["1", "2", "3", "4", "5"].includes(formData.age)) {
-      alert("กรุณาเลือกอายุระหว่าง 1-5 เดือน");
-      return;
-    }
-    if (!/^\d{1,5}$/.test(formData.hn)) {
-      alert("HN ต้องเป็นตัวเลขไม่เกิน 5 หลัก");
-      return;
-    }
+ const handleSave = async () => {
+  if (!formData.hn || !formData.name || !formData.age || !formData.gender || !formData.childPrefix || !formData.parentPrefix || !formData.parent) {
+    alert("กรุณากรอกข้อมูลให้ครบถ้วน");
+    return;
+  }
+  if (parseInt(formData.age) < 1 || parseInt(formData.age) > 60) {
+    alert("กรุณาเลือกอายุที่น้อยกว่า 60 เดือน");
+    return;
+  }
 
-    const payload = {
-      ...formData,
-      name: `${formData.childPrefix} ${formData.name}`,
-      parent: `${formData.parentPrefix} ${formData.parent}`,
-      age: `${formData.age} เดือน`
-    };
+  const payload = {
+    ...formData,
+    birthDate: birthDate,
+    name: `${formData.childPrefix} ${formData.name}`,
+    parent: `${formData.parentPrefix} ${formData.parent}`,
+    age: `${formData.age} เดือน`
+  };
 
+  try {
     if (editingPatient) {
+      console.log("🔄 Updating:", editingPatient.id);
       await axios.put(`${API_URL}/${editingPatient.id}`, payload);
     } else {
+      console.log("🆕 Creating New Patient");
       await axios.post(API_URL, payload);
     }
+
     setShowModal(false);
     setEditingPatient(null);
-    setFormData({ hn: "", childPrefix: "ด.ช.", name: "", age: "", gender: "ชาย", parentPrefix: "นาย", parent: "" });
+    setBirthDate("");
+    setFormData({
+      id: null,
+      hn: "",
+      childPrefix: "",
+      name: "",
+      age: "",
+      gender: "",
+      parentPrefix: "",
+      parent: ""
+    });
     loadPatients();
-  };
+  } catch (err) {
+    console.error("❌ Error saving data:", err);
+    alert("เกิดข้อผิดพลาดในการบันทึกข้อมูล");
+  }
+};
+
 
   const handleEdit = (patient) => {
     const rawAge = patient.age.replace(" เดือน", "");
     const [childPrefix, ...nameParts] = patient.name.split(" ");
     const [parentPrefix, ...parentParts] = patient.parent.split(" ");
+
+  const formattedDate = patient.birthDate
+  ? new Date(patient.birthDate).toISOString().split("T")[0]
+  : "";
+
+
+
+
+
     setEditingPatient(patient);
+    setBirthDate(formattedDate); // ✅ สำคัญ!
     setFormData({
       hn: patient.hn,
       childPrefix,
@@ -93,11 +129,25 @@ const ManageDepartment = () => {
     setShowModal(true);
   };
 
-  const handleAdd = () => {
-    setEditingPatient(null);
-    setFormData({ hn: "", childPrefix: "ด.ช.", name: "", age: "", gender: "ชาย", parentPrefix: "นาย", parent: "" });
-    setShowModal(true);
-  };
+const handleAdd = () => {
+  const maxHN = Math.max(0, ...patients.map((p) => parseInt(p.hn))) + 1;
+  const autoHN = maxHN.toString().padStart(5, "0");
+
+  setEditingPatient(null);      // ✅ รีเซ็ตการแก้ไข
+  setViewingPatient(null);      // ✅ ป้องกันการดูข้อมูลค้าง
+  setBirthDate("");             // ✅ รีเซ็ตวันเกิด
+  setFormData({                 // ✅ ฟอร์มว่าง
+    id: null,                // ✅ ต้องเพิ่มไว้
+    hn: autoHN,
+    childPrefix: "",
+    name: "",
+    age: "",
+    gender: "",
+    parentPrefix: "",
+    parent: ""
+  });
+  setShowModal(true);
+};
 
   const handleView = (patient) => {
     setViewingPatient(patient);
@@ -129,9 +179,7 @@ const ManageDepartment = () => {
       </div>
 
       <div className="table-title">
-        <h3>
-          รายชื่อเด็ก <span>{filteredPatients.length} คน</span>
-        </h3>
+        <h3>รายชื่อเด็ก <span>{filteredPatients.length} คน</span></h3>
         <button className="add-btn" onClick={handleAdd}>
           <Plus /> เพิ่มเด็กใหม่
         </button>
@@ -181,30 +229,47 @@ const ManageDepartment = () => {
               {editingPatient ? "✏️ แก้ไขข้อมูลเด็ก" : "➕ เพิ่มเด็กใหม่"}
             </h3>
 
-            <input className="form-input" placeholder="HN (ไม่เกิน 5 หลัก)" maxLength={5} value={formData.hn} onChange={(e) => setFormData({ ...formData, hn: e.target.value })} />
+            <input className="form-input" disabled value={formData.hn} />
 
             <div className="form-row">
               <select className="form-input prefix-select" value={formData.childPrefix} onChange={(e) => setFormData({ ...formData, childPrefix: e.target.value })}>
+                <option value="">คำนำหน้า</option>
                 <option value="ด.ช.">ด.ช.</option>
                 <option value="ด.ญ.">ด.ญ.</option>
               </select>
               <input className="form-input name-input" placeholder="ชื่อเด็ก" value={formData.name} onChange={(e) => setFormData({ ...formData, name: e.target.value })} />
             </div>
 
-            <select className="form-input" value={formData.age} onChange={(e) => setFormData({ ...formData, age: e.target.value })}>
-              <option value="">เลือกอายุ (เดือน)</option>
-              {[1, 2, 3, 4, 5].map((m) => (
-                <option key={m} value={m}>{m} เดือน</option>
-              ))}
-            </select>
+            <div className="form-row">
+              <input
+                type="date"
+                className="form-input"
+                value={birthDate}
+                onChange={(e) => {
+                  const dob = e.target.value;
+                  setBirthDate(dob);
+                  const ageInMonths = calculateAgeInMonths(dob);
+                  setFormData({ ...formData, age: ageInMonths });
+                }}
+              />
+              <input
+                className="form-input age-display"
+                type="text"
+                value={formData.age ? `${formData.age} เดือน` : ""}
+                disabled
+                readOnly
+              />
+            </div>
 
             <select className="form-input" value={formData.gender} onChange={(e) => setFormData({ ...formData, gender: e.target.value })}>
+              <option value="">เลือกเพศ</option>
               <option value="ชาย">ชาย</option>
               <option value="หญิง">หญิง</option>
             </select>
 
             <div className="form-row">
               <select className="form-input prefix-select" value={formData.parentPrefix} onChange={(e) => setFormData({ ...formData, parentPrefix: e.target.value })}>
+                <option value="">คำนำหน้า</option>
                 <option value="นาย">นาย</option>
                 <option value="นางสาว">นางสาว</option>
                 <option value="นาง">นาง</option>
