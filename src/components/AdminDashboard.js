@@ -1,18 +1,44 @@
-import React from "react";
-import { useNavigate } from "react-router-dom";
+import React, { useEffect, useState } from "react";
+import { useNavigate, useLocation } from "react-router-dom"; // 👈 เพิ่ม useNavigate
+import axios from "axios";
 import "./AdminDashboard.css";
-import logo from "../assets/logo.png";
 import Header from "../components/layout/Header";
 import Footer from "../components/layout/Footer";
-
-import {
-  FaChild,
-  FaUserShield,
-  FaUserMd
-} from "react-icons/fa";
+import { FaChild, FaUserShield, FaUserMd } from "react-icons/fa";
 
 function AdminDashboard() {
-  const navigate = useNavigate();
+  const location = useLocation();
+  const navigate = useNavigate(); // ✅ เพิ่มตรงนี้
+  const [adminInfo, setAdminInfo] = useState(null);
+
+  // ✅ เก็บ HN และ role ลง localStorage
+  useEffect(() => {
+    const { hnNumber, role } = location.state || {};
+    if (hnNumber && role) {
+      localStorage.setItem("hnNumber", hnNumber);
+      localStorage.setItem("role", role);
+    }
+  }, [location.state]);
+
+  const hnNumber = location.state?.hnNumber || localStorage.getItem("hnNumber");
+
+  // ✅ โหลดข้อมูล admin จาก hn
+  useEffect(() => {
+    if (hnNumber) {
+      axios
+        .get(`http://localhost:5000/admins/${hnNumber}`)
+        .then((res) => setAdminInfo(res.data))
+        .catch((err) => console.error("โหลดข้อมูลแอดมินไม่สำเร็จ", err));
+    }
+  }, [hnNumber]);
+
+  const getInitials = () => {
+    if (!adminInfo) return "";
+    return (
+      adminInfo.first_name_admin?.charAt(0) +
+      adminInfo.last_name_admin?.charAt(0)
+    );
+  };
 
   const adminMenus = [
     {
@@ -41,14 +67,17 @@ function AdminDashboard() {
   return (
     <div className="dashboard-container">
       <Header />
-
       <main className="dashboard-main">
         <div className="user-info-header">
-          <div className="profile-circle">NT</div>
+          <div className="profile-circle">{getInitials()}</div>
           <div className="user-details">
             <p className="greeting">ยินดีต้อนรับ</p>
             <h2 className="role">ผู้ดูแลระบบ</h2>
-            <p className="username">คุณ ณัชพล ทองอนันต์</p>
+            <p className="username">
+              {adminInfo
+                ? `${adminInfo.prefix_name_admin} ${adminInfo.first_name_admin} ${adminInfo.last_name_admin}`
+                : "กำลังโหลด..."}
+            </p>
             <div className="underline" />
           </div>
         </div>
@@ -63,7 +92,6 @@ function AdminDashboard() {
           ))}
         </div>
       </main>
-
       <Footer />
     </div>
   );

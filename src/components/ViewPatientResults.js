@@ -1,53 +1,29 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
+import axios from "axios";
 import "./ViewPatientResults.css";
-import dek1 from "../assets/dek1.jpg";
-import dek2 from "../assets/dek2.jpg";
-import dek3 from "../assets/dek3.jpg";
 
 function ViewPatientResults() {
   const navigate = useNavigate();
-  const currentDate = new Date().toISOString().slice(0, 10);
-  const [selectedDate, setSelectedDate] = useState(currentDate);
-  const [sortOrder, setSortOrder] = useState("desc");
+  const [patients, setPatients] = useState([]);
   const [searchTerm, setSearchTerm] = useState("");
+  const [sortOrder, setSortOrder] = useState("desc");
   const [currentPage, setCurrentPage] = useState(1);
   const itemsPerPage = 5;
 
-  const patients = [
-    {
-      id: 1,
-      name: "ศุวิชญ์ หนูวงศ์",
-      date: "2024-11-30T14:30:00",
-      profile: dek1,
-      bmi: 10.03,
-      status: "ผอม เสี่ยงมากกว่าปกติ",
-    },
-    {
-      id: 2,
-      name: "พฤฒิภณ ปริศิริประภา",
-      date: "2024-11-29T10:15:00",
-      profile: dek2,
-      bmi: 12.5,
-      status: "น้ำหนักปกติ",
-    },
-    {
-      id: 3,
-      name: "ศุวิชญ์ หนูวงศ์",
-      date: "2024-11-25T09:00:00",
-      profile: dek3,
-      bmi: 8.9,
-      status: "ผอมมาก",
-    },
-  ];
+  // ดึงข้อมูลจาก backend พร้อม order
+  useEffect(() => {
+    axios
+      .get(`http://localhost:5000/predictions?order=${sortOrder}`)
+      .then((res) => setPatients(res.data))
+      .catch((err) => console.error("โหลดข้อมูลไม่สำเร็จ", err));
+  }, [sortOrder]);
 
-  const sortedPatients = [...patients].sort((a, b) =>
-    sortOrder === "desc"
-      ? new Date(b.date) - new Date(a.date)
-      : new Date(a.date) - new Date(b.date)
-  );
+  useEffect(() => {
+    setCurrentPage(1);
+  }, [searchTerm, sortOrder]);
 
-  const filteredPatients = sortedPatients.filter((p) =>
+  const filteredPatients = patients.filter((p) =>
     p.name.toLowerCase().includes(searchTerm.toLowerCase())
   );
 
@@ -57,24 +33,24 @@ function ViewPatientResults() {
     currentPage * itemsPerPage
   );
 
-  const handleViewDetails = (patient) => {
-    navigate(`/patient-assessment/${patient.id}`, { state: { patient } });
-  };
-
   const statusCount = {
-    "น้ำหนักปกติ": 0,
-    "อ้วน": 0,
-    "น้ำหนักมากเกินไป": 0,
-    "ภาวะทุพโภชนาการเฉียบพลันรุนแรง": 0,
-    "แคระแกร็น": 0,
-    "น้ำหนักน้อยเกินไป": 0,
+    Normal: 0,
+    Obesity: 0,
+    Overweight: 0,
+    SAM: 0,
+    Stunting: 0,
+    Underweight: 0,
   };
 
   patients.forEach((p) => {
-    if (statusCount.hasOwnProperty(p.status)) {
+    if (statusCount[p.status] !== undefined) {
       statusCount[p.status]++;
     }
   });
+
+  const handleViewDetails = (patient) => {
+    navigate(`/patient-assessment/${patient.id}`, { state: { patient } });
+  };
 
   return (
     <div className="view-results-container">
@@ -83,42 +59,18 @@ function ViewPatientResults() {
 
       {/* Summary Cards */}
       <div className="summary-cards">
-        <div className="card total">
-          <span>ผู้ป่วยทั้งหมด</span>
-          <strong>{patients.length}</strong>
-        </div>
-        <div className="card normal">
-          <span>ปกติ</span>
-          <strong>{statusCount["น้ำหนักปกติ"]}</strong>
-        </div>
-        <div className="card fat">
-          <span>อ้วน</span>
-          <strong>{statusCount["อ้วน"]}</strong>
-        </div>
-        <div className="card over">
-          <span>น้ำหนักมากเกินไป</span>
-          <strong>{statusCount["น้ำหนักมากเกินไป"]}</strong>
-        </div>
-        <div className="card sam">
-          <span>ภาวะทุพโภชนาการเฉียบพลันรุนแรง</span>
-          <strong>{statusCount["ภาวะทุพโภชนาการเฉียบพลันรุนแรง"]}</strong>
-        </div>
-        <div className="card stunt">
-          <span>แคระแกร็น</span>
-          <strong>{statusCount["แคระแกร็น"]}</strong>
-        </div>
-        <div className="card under">
-          <span>น้ำหนักน้อยเกินไป</span>
-          <strong>{statusCount["น้ำหนักน้อยเกินไป"]}</strong>
-        </div>
+        <div className="card total"><span>ผู้ป่วยทั้งหมด</span><strong>{patients.length}</strong></div>
+        <div className="card normal"><span>ปกติ</span><strong>{statusCount["Normal"]}</strong></div>
+        <div className="card fat"><span>อ้วน</span><strong>{statusCount["Obesity"]}</strong></div>
+        <div className="card over"><span>น้ำหนักมากเกินไป</span><strong>{statusCount["Overweight"]}</strong></div>
+        <div className="card sam"><span>SAM</span><strong>{statusCount["SAM"]}</strong></div>
+        <div className="card stunt"><span>Stunting</span><strong>{statusCount["Stunting"]}</strong></div>
+        <div className="card under"><span>น้ำหนักน้อยเกินไป</span><strong>{statusCount["Underweight"]}</strong></div>
       </div>
 
-      <form className="filter-container">
+      {/* Filters */}
+      <div className="filter-container">
         <div className="search-box">
-          <svg xmlns="http://www.w3.org/2000/svg" fill="none" height="20" viewBox="0 0 24 24" width="20">
-            <path stroke="currentColor" strokeLinecap="round" strokeLinejoin="round" strokeWidth="2"
-              d="M21 21l-4.35-4.35M4 11a7 7 0 1114 0 7 7 0 01-14 0z" />
-          </svg>
           <input
             type="text"
             placeholder="ค้นหาและกรองข้อมูล"
@@ -126,32 +78,20 @@ function ViewPatientResults() {
             onChange={(e) => setSearchTerm(e.target.value)}
           />
         </div>
-
         <div className="filter-item">
-          <label>
-            วันที่:
-            <input
-              type="date"
-              value={selectedDate}
-              onChange={(e) => setSelectedDate(e.target.value)}
-              max={currentDate}
-            />
-          </label>
+          <label htmlFor="sort">เรียงลำดับ:</label>
+          <select
+            id="sort"
+            value={sortOrder}
+            onChange={(e) => setSortOrder(e.target.value)}
+          >
+            <option value="desc">จากล่าสุด</option>
+            <option value="asc">จากก่อนหน้า</option>
+          </select>
         </div>
-        <div className="filter-item">
-          <label>
-            เข้าผลการรักษา:
-            <select
-              value={sortOrder}
-              onChange={(e) => setSortOrder(e.target.value)}
-            >
-              <option value="desc">จากล่าสุด</option>
-              <option value="asc">จากก่อนหน้า</option>
-            </select>
-          </label>
-        </div>
-      </form>
+      </div>
 
+      {/* Table */}
       <div className="patient-table">
         <table>
           <thead>
@@ -164,24 +104,16 @@ function ViewPatientResults() {
             </tr>
           </thead>
           <tbody>
-            {paginatedPatients.map((patient) => {
-              const dateTime = new Date(patient.date);
+            {paginatedPatients.map((p) => {
+              const date = new Date(p.date);
               return (
-                <tr key={patient.id}>
-                  <td>{patient.name}</td>
-                  <td>{dateTime.toLocaleDateString("th-TH")}</td>
-                  <td>{dateTime.toLocaleTimeString("th-TH", {
-                    hour: "2-digit",
-                    minute: "2-digit",
-                  })}</td>
-                  <td>{patient.status}</td>
+                <tr key={p.id}>
+                  <td>{p.name}</td>
+                  <td>{date.toLocaleDateString("th-TH")}</td>
+                  <td>{date.toLocaleTimeString("th-TH", { hour: "2-digit", minute: "2-digit" })}</td>
+                  <td>{p.status}</td>
                   <td>
-                    <button
-                      className="view-button"
-                      onClick={() => handleViewDetails(patient)}
-                    >
-                      กดเพื่อดู
-                    </button>
+                    <button className="view-button" onClick={() => handleViewDetails(p)}>กดเพื่อดู</button>
                   </td>
                 </tr>
               );
