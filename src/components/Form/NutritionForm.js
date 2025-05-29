@@ -72,19 +72,14 @@ const nutritionGroups = [
           "ไม่ได้บริโภค"
         ]
       },
-
     ],
   },
 ];
 
 function NutritionForm() {
   const [formData, setFormData] = useState({});
-  const [expandedGroup, setExpandedGroup] = useState(null);
-  const [completion, setCompletion] = useState(0);
-
-  const toggleGroup = (index) => {
-    setExpandedGroup(expandedGroup === index ? null : index);
-  };
+  const [expandedGroup, setExpandedGroup] = useState(0);
+  const [completedGroups, setCompletedGroups] = useState([]);
 
   const handleChange = (key, value) => {
     setFormData((prev) => ({
@@ -93,11 +88,19 @@ function NutritionForm() {
     }));
   };
 
-  useEffect(() => {
-    const totalQuestions = nutritionGroups.reduce((sum, group) => sum + group.questions.length, 0);
-    const answered = Object.keys(formData).filter((k) => formData[k] !== false && formData[k] !== "").length;
-    setCompletion(Math.round((answered / totalQuestions) * 100));
-  }, [formData]);
+  const handleGroupComplete = (index) => {
+    if (!completedGroups.includes(index)) {
+      setCompletedGroups([...completedGroups, index]);
+      if (index + 1 < nutritionGroups.length) {
+        setExpandedGroup(index + 1);
+      }
+    }
+  };
+
+  const toggleGroup = (index) => {
+    setExpandedGroup(index);
+    setCompletedGroups((prev) => prev.filter((i) => i !== index));
+  };
 
   const handleSubmit = () => {
     console.log("🟢 ข้อมูลที่ส่ง:", formData);
@@ -111,16 +114,10 @@ function NutritionForm() {
           <h2 className="nutrition-title">แบบสอบถามข้อมูลโภชนาการของเด็ก</h2>
           <p className="nutrition-subtitle">กรุณาตอบคำถามเกี่ยวกับการได้รับสารอาหารของเด็ก</p>
 
-          <div className="progress-section">
-            <span className="progress-label">ความคืบหน้า: {completion}%</span>
-            <div className="progress-bar-wrapper">
-              <div className="progress-bar-fill" style={{ width: `${completion}%` }} />
-            </div>
-          </div>
-
           {nutritionGroups.map((group, index) => (
             <div className="accordion-group" key={index}>
               <button className="accordion-toggle" onClick={() => toggleGroup(index)}>
+                ✅ {completedGroups.includes(index) ? "[เสร็จแล้ว] " : ""}
                 {group.groupTitle}
                 <span>{expandedGroup === index ? "▲" : "▼"}</span>
               </button>
@@ -188,13 +185,19 @@ function NutritionForm() {
                     </div>
                   )}
 
-
+                  <button className="complete-btn" onClick={() => handleGroupComplete(index)}>
+                    ยืนยัน
+                  </button>
                 </div>
               )}
             </div>
           ))}
 
-          <button className="submit-btn" onClick={handleSubmit}>บันทึกข้อมูล</button>
+          {completedGroups.length === nutritionGroups.length && (
+            <button className="submit-btn" onClick={handleSubmit}>
+              บันทึกข้อมูล
+            </button>
+          )}
         </div>
       </div>
       <Footer />

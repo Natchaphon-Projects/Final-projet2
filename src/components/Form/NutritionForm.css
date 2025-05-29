@@ -201,3 +201,21 @@
   width: 100%;
   font-size: 1rem;
 }
+.complete-btn {
+  background: linear-gradient(to right, #4ade80, #22d3ee); /* เขียวไปฟ้า */
+  color: white;
+  padding: 0.5rem 1.25rem;
+  border: none;
+  border-radius: 1rem;
+  font-size: 1rem;
+  font-weight: 500;
+  margin-top: 1.5rem;
+  cursor: pointer;
+  transition: transform 0.2s ease, box-shadow 0.2s ease;
+}
+
+.complete-btn:hover {
+  transform: scale(1.03);
+  box-shadow: 0 4px 14px rgba(0, 0, 0, 0.1);
+}
+
