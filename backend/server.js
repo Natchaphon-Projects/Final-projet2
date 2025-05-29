@@ -118,17 +118,47 @@ app.post("/patients", (req, res) => {
 
 // ✅ PUT: แก้ไขข้อมู้ป่วย
 app.put("/patients/:id", (req, res) => {
-  const { hn, name, age, gender, parent, birthDate } = req.body;
+  const {
+    childPrefix,
+    name,
+    lastName,
+    age,
+    gender,
+    birthDate,
+    weight,
+    height,
+    allergies,
+    congenital_disease,
+    parent_id
+  } = req.body;
+
   const query = `
-    UPDATE patients
-    SET hn = ?, name = ?, age = ?, gender = ?, parent = ?, birth_date = ?
-    WHERE id = ?
+    UPDATE patient
+    SET prefix_name_child = ?, first_name_child = ?, last_name_child = ?,
+        birth_date = ?, gender = ?, age = ?, weight = ?, height = ?,
+        allergies = ?, congenital_disease = ?, parent_id = ?
+    WHERE patient_id = ?
   `;
-  db.query(query, [hn, name, age, gender, parent, birthDate || null, req.params.id], (err) => {
+
+  db.query(query, [
+    childPrefix,
+    name,
+    lastName,
+    birthDate,
+    gender,
+    age,
+    weight,
+    height,
+    allergies,
+    congenital_disease,
+    parent_id,
+    req.params.id
+  ], (err) => {
     if (err) return res.status(500).send(err);
     res.json({ message: "✅ อัปเดตสำเร็จ" });
   });
 });
+
 
 // ✅ DELETE: ลบผู้ป่วย
 app.delete("/patients/:id", (req, res) => {
