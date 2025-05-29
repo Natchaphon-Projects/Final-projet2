@@ -1,7 +1,8 @@
 import React from "react";
 import { useNavigate } from "react-router-dom";
 import "./RoleSelectionPage.css";
-
+import { FaHospitalSymbol, FaSignInAlt } from "react-icons/fa";
+import Footer from "./components/layout/Footer";
 function RoleSelectionPage() {
   const navigate = useNavigate();
 
@@ -17,17 +18,20 @@ function RoleSelectionPage() {
 
   return (
     <div className="role-wrapper">
-    <header className="role-header">
-  <div className="header-left">
-    <span className="site-logo">🛡️</span>
-    <span className="site-title">
-      HealthCare<br />System
-    </span>
-  </div>
-  <button className="login-button" onClick={handleLoginClick}>
-    เข้าสู่ระบบ
-  </button>
-</header>
+      <header className="custom-header">
+        <div className="header-left">
+          <FaHospitalSymbol className="hospital-icon" />
+          <span className="hospital-name">Project Hospital</span>
+        </div>
+        <div className="header-right">
+          <button className="logout-btn" onClick={handleLoginClick}>
+            <FaSignInAlt className="icon" />
+            เข้าสู่ระบบ
+          </button>
+
+        </div>
+      </header>
+
 
 
       <main className="role-content">
@@ -71,9 +75,7 @@ function RoleSelectionPage() {
         </button>
       </main>
 
-      <footer className="role-footer">
-        © 2024 HealthCare System. สงวนลิขสิทธิ์.
-      </footer>
+      <Footer />
     </div>
   );
 }

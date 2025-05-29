@@ -8,11 +8,11 @@ const nutritionGroups = [
     groupTitle: "พฤติกรรมด้านสุขาภิบาลและความสะอาด",
     groupNote: "☐ หากปฏิบัติพฤติกรรมนั้นให้ติ๊กถูกในช่องสี่เหลี่ยม",
     questions: [
-      { key: "Sanitary_Disposal", label: "กำจัดอุจจาระถูกสุขลักษณะหรือไม่", type: "checkbox" },
-      { key: "Child_before_or_after_eating_food", label: "เด็กล้างมือก่อน/หลังทานอาหาร", type: "checkbox" },
-      { key: "Child_wash_hand_before_or_after_eating_food", label: "เด็กล้างมือก่อน/หลังเข้าห้องน้ำ", type: "checkbox" },
-      { key: "Mom_wash_hand_before_or_after_cleaning_children", label: "แม่ล้างมือก่อน/หลังทำความสะอาดเด็ก", type: "checkbox" },
-      { key: "Mom_wash_hand_before_or_after_feeding_the_child", label: "แม่ล้างมือก่อน/หลังป้อนอาหาร", type: "checkbox" },
+      { key: "Sanitary_Disposal", label: "เด็กมีการถ่ายอุจจาระแบบถูกสุขลักษณะหรือไม่ เช่น ถ่ายในห้องน้ำและมีการชำระล้าง", type: "checkbox" },
+      { key: "Child_before_or_after_eating_food", label: "เด็กล้างมือทั้งก่อนหรือหลังทานข้าวหรือไม่ ", type: "checkbox" },
+      { key: "Child_wash_hand_before_or_after_eating_food", label: "เด็กล้างมือทั้งก่อนหรือหลังเข้าห้องน้ำหรือไม่", type: "checkbox" },
+      { key: "Mom_wash_hand_before_or_after_cleaning_children", label: "คุณแม่ล้างมือทั้งก่อนหรือหลังทำความสะอาดตัวเด็กหรือไม่", type: "checkbox" },
+      { key: "Mom_wash_hand_before_or_after_feeding_the_child", label: "คุณแม่ล้างมือทั้งก่อนและหลังทำอาหารและป้อนอาหารเด็กหรือไม่", type: "checkbox" },
     ],
   },
 ];

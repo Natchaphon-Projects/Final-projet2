@@ -2,6 +2,9 @@ import React from "react";
 import { useNavigate } from "react-router-dom";
 import "./AdminDashboard.css";
 import logo from "../assets/logo.png";
+import Header from "../components/layout/Header";
+import Footer from "../components/layout/Footer";
+
 import {
   FaChild,
   FaUserShield,
@@ -37,23 +40,7 @@ function AdminDashboard() {
 
   return (
     <div className="dashboard-container">
-      <header className="dashboard-header">
-        <img src={logo} alt="Logo" className="dashboard-logo" />
-        <nav>
-          <ul className="nav-links">
-            <li>
-              <button className="nav-button" onClick={() => navigate("/admin-dashboard")}>
-                หน้าแรก
-              </button>
-            </li>
-            <li>
-              <button className="logout-button" onClick={() => navigate("/")}>
-                ออกจากระบบ
-              </button>
-            </li>
-          </ul>
-        </nav>
-      </header>
+      <Header />
 
       <main className="dashboard-main">
         <div className="user-info-header">
@@ -77,9 +64,7 @@ function AdminDashboard() {
         </div>
       </main>
 
-      <footer className="dashboard-footer">
-        <p>© 2023 - Project Hospital</p>
-      </footer>
+      <Footer />
     </div>
   );
 }
