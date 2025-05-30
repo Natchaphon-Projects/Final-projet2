@@ -69,17 +69,34 @@ function AdminDashboard() {
       <Header />
       <main className="dashboard-main">
         <div className="user-info-header">
-          <div className="profile-circle">{getInitials()}</div>
+          <div className="profile-circle">
+  {getInitials()}
+  <div className="status-dot">
+    <div className="status-inner"></div>
+  </div>
+</div>
+
           <div className="user-details">
-            <p className="greeting">ยินดีต้อนรับ</p>
-            <h2 className="role">ผู้ดูแลระบบ</h2>
-            <p className="username">
+            <p className="greeting1">ยินดีต้อนรับ 🌟</p>
+            <h2 className="role1">ผู้ดูแลระบบ</h2>
+            <p className="username1">
               {adminInfo
                 ? `${adminInfo.prefix_name_admin} ${adminInfo.first_name_admin} ${adminInfo.last_name_admin}`
                 : "กำลังโหลด..."}
             </p>
-            <div className="underline" />
+            <div className="underline1" />
+            
           </div>
+          <div className="user-date">
+    <p className="date-label">วันนี้</p>
+    <p className="date-value">
+      {new Date().toLocaleDateString("th-TH", {
+        year: "numeric",
+        month: "long",
+        day: "numeric",
+      })}
+    </p>
+  </div>
         </div>
 
         <div className="menu-container">

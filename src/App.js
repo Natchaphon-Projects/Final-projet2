@@ -1,6 +1,6 @@
 import React from "react";
 import { BrowserRouter as Router, Routes, Route } from "react-router-dom";
-import RoleSelectionPage from "./RoleSelectionPage"; // ✅ เพิ่มหน้า Landing
+import RoleSelectionPage from "./RoleSelectionPage"; // ✅ หน้าแรก Landing
 import LoginPage from "./LoginPage";
 import OTPLogin from "./OTPLogin";
 import EnterOTP from "./EnterOTP";
@@ -24,6 +24,8 @@ import NutritionForm from "./components/Form/NutritionForm";
 import SanitationForm from "./components/Form/SanitationForm";
 import Recommendations from "./components/Recommendations";
 import PatientHistory from "./components/PatientHistory";
+import PredictionModel from "./components/Predictio_model/PredictionModel"; // ✅ เพิ่มตรงนี้
+
 import './styles.css';
 
 function App() {
@@ -31,8 +33,8 @@ function App() {
     <Router>
       <Routes>
         {/* Landing Page */}
-        <Route path="/" element={<RoleSelectionPage />} /> {/* ✅ หน้าแรก */}
-        
+        <Route path="/" element={<RoleSelectionPage />} />
+
         {/* Login */}
         <Route path="/login" element={<LoginPage />} />
         <Route path="/otp-login" element={<OTPLogin />} />
@@ -46,6 +48,7 @@ function App() {
         <Route path="/form/nutrition" element={<NutritionForm />} />
         <Route path="/form/sanitation" element={<SanitationForm />} />
         <Route path="/parent-recommendations" element={<Recommendations />} />
+        <Route path="/pre" element={<PredictionModel />} /> {/* ✅ เพิ่ม route ไปยังหน้าผลประเมิน */}
 
         {/* Doctor Routes */}
         <Route path="/doctor-dashboard" element={<DoctorDashboard />} />

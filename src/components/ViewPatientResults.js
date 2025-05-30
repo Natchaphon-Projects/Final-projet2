@@ -61,7 +61,7 @@ function ViewPatientResults() {
       <div className="summary-cards">
         <div className="card total"><span>All Patients</span><strong>{patients.length}</strong></div>
         <div className="card normal"><span>Normal</span><strong>{statusCount["Normal"]}</strong></div>
-        <div className="card fat"><span>Obisity</span><strong>{statusCount["Obesity"]}</strong></div>
+        <div className="card fat"><span>Obesity</span><strong>{statusCount["Obesity"]}</strong></div>
         <div className="card over"><span>Overweight</span><strong>{statusCount["Overweight"]}</strong></div>
         <div className="card sam"><span>SAM</span><strong>{statusCount["SAM"]}</strong></div>
         <div className="card stunt"><span>Stunting</span><strong>{statusCount["Stunting"]}</strong></div>
