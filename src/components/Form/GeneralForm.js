@@ -233,7 +233,16 @@ function NutritionForm() {
             </button>
           )}
 
-          <div style={{ display: "flex", justifyContent: "space-between", gap: "1rem", marginTop: "2rem" }}>
+          <div
+            style={{
+              display: "flex",
+              justifyContent: "space-between",
+              alignItems: "center",
+              gap: "1rem",
+              marginTop: "2rem",
+            }}
+          >
+            {/* ปุ่มย้อนหน้า */}
             <button
               className="submit-btn"
               onClick={() => navigate(prevPage)}
@@ -242,6 +251,16 @@ function NutritionForm() {
               ◀ กลับหน้าก่อนหน้า
             </button>
 
+            {/* ปุ่มกลับหน้า GroupedDataInput */}
+            <button
+              className="submit-btn"
+              onClick={() => navigate("/parent-risk-assessment")} // เส้นทาง path ของหน้า GroupedDataInput
+              style={{ background: "linear-gradient(to right, #f59e0b, #f97316)" }}
+            >
+              🏠 กลับหน้าเลือกกลุ่มข้อมูล
+            </button>
+
+            {/* ปุ่มไปหน้าใหม่ */}
             <button
               className="submit-btn"
               onClick={() => navigate(nextPage)}
@@ -250,7 +269,6 @@ function NutritionForm() {
               ตอบคำถามหน้าถัดไป ➜
             </button>
           </div>
-
 
         </div>
       </div>
