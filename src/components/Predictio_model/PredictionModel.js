@@ -55,7 +55,7 @@ function PredictionModel() {
       const formattedTime = now.toLocaleTimeString("th-TH", { hour: "2-digit", minute: "2-digit" });
 
       setLatestPrediction({
-        status: result === "Normal" ? "สุขภาพดีปกติ 😊" : `ผลลัพธ์: ${result}`,
+        status: result === "Normal" ? "สุขภาพดีปกติ 😊" : "กรุณาพบแพทย์",
         date: formattedDate,
         time: formattedTime,
         isNormal: result === "Normal",
