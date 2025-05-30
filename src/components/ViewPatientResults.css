@@ -181,10 +181,38 @@ select {
 }
 
 /* Pastel Color Themes */
-.card.total { background-color: #d1fae5; color: #065f46; }
-.card.normal { background-color: #dbf4ff; color: #1e3a8a; }
-.card.fat { background-color: #fee2e2; color: #991b1b; }
-.card.over { background-color: #ffedd5; color: #7c2d12; }
-.card.sam { background-color: #fde2e4; color: #7f1d1d; }
-.card.stunt { background-color: #ede9fe; color: #4c1d95; }
-.card.under { background-color: #fef9c3; color: #713f12; }
+.card.total {
+  background: linear-gradient(to right, #d1fae5, #a7f3d0);
+  color: #065f46;
+}
+
+.card.normal {
+  background: linear-gradient(to right, #dbf4ff, #bfdbfe);
+  color: #1e3a8a;
+}
+
+.card.fat {
+  background: linear-gradient(to right, #fee2e2, #fecaca);
+  color: #991b1b;
+}
+
+.card.over {
+  background: linear-gradient(to right, #ffedd5, #fed7aa);
+  color: #7c2d12;
+}
+
+.card.sam {
+  background: linear-gradient(to right, #fde2e4, #fbcfe8);
+  color: #7f1d1d;
+}
+
+.card.stunt {
+  background: linear-gradient(to right, #ede9fe, #ddd6fe);
+  color: #4c1d95;
+}
+
+.card.under {
+  background: linear-gradient(to right, #fef9c3, #fde68a);
+  color: #713f12;
+}
+

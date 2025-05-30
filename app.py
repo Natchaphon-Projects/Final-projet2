@@ -3,13 +3,17 @@ from fastapi.middleware.cors import CORSMiddleware
 from fastapi.staticfiles import StaticFiles
 from pydantic import BaseModel
 from joblib import load
+from sklearn.preprocessing import StandardScaler
 import numpy as np
 import pandas as pd
 import os
+import warnings
 
-app = FastAPI()
+warnings.filterwarnings("ignore", category=FutureWarning)
 
-# เปิดใช้งาน CORS
+app = FastAPI(title="Child Nutrition Prediction API", version="1.0")
+
+# ✅ CORS
 app.add_middleware(
     CORSMiddleware,
     allow_origins=["http://localhost:3000"],
@@ -18,24 +22,64 @@ app.add_middleware(
     allow_headers=["*"],
 )
 
-# static directory (เผื่อใช้)
+# ✅ Static
 if not os.path.exists("static"):
     os.makedirs("static")
 app.mount("/static", StaticFiles(directory="static"), name="static")
 
-# โหลดโมเดลและข้อมูลที่ใช้
+# ✅ Load model + metadata
 try:
     model = load('src/model/best_model.pkl')
     columns = load('src/model/columns.pkl')
     mapping = load('src/model/mapping.pkl')
     print("✅ Model and metadata loaded successfully")
+
+    if hasattr(model, "feature_names_in_"):
+        print("🧠 Model trained with features:", model.feature_names_in_)
 except Exception as e:
     print(f"❌ Load error: {e}")
     model = None
     columns = []
     mapping = {}
 
-# รูปแบบข้อมูลจาก React
+# ✅ Fit scaler
+scaler = None
+try:
+    df_raw = pd.read_csv("src/data/Real_Child_malnutrition.csv")
+    df_features = df_raw[columns]
+
+    for col in columns:
+        if col in mapping:
+            df_features[col] = df_features[col].map(mapping[col])
+
+    df_features = df_features.replace({'yes': 1, 'no': 0, 'Yes': 1, 'No': 0})
+
+    if 'Number_of_Times_Eaten_Solid_Food' in df_features:
+        df_features['Number_of_Times_Eaten_Solid_Food'] = df_features[
+            'Number_of_Times_Eaten_Solid_Food'].replace({
+                '1-2 meals': 1,
+                '3-4 meals': 2,
+                'more than 4 meals': 3,
+                'dont eat': 0
+            })
+
+    for col in df_features.columns:
+        if df_features[col].dtype == object:
+            print(f"⚠️ คอลัมน์ {col} ยังมี string:", df_features[col].unique()[:5])
+
+    scaler = StandardScaler()
+    scaler.fit(df_features)
+    print("✅ Scaler trained from raw data")
+except Exception as e:
+    print(f"❌ Scaler training error: {e}")
+    scaler = None
+
+# ✅ Ping
+@app.get("/ping")
+def ping():
+    return {"message": "pong"}
+
+# ✅ Schema
 class PredictionInput(BaseModel):
     Guardian: int
     Vitamin_A_Intake_First_8_Weeks: int
@@ -80,34 +124,31 @@ class PredictionInput(BaseModel):
     Received_Salt: int
     Number_of_Times_Eaten_Solid_Food: int
 
-
+# ✅ Predict
 @app.post("/prediction")
 async def get_prediction(input_data: PredictionInput):
     try:
         if model is None:
             return {"error": "Model not loaded"}
+        if scaler is None:
+            return {"error": "Scaler not ready"}
 
-        # เตรียมข้อมูลเข้าโมเดล
-        data = []
-        original_input = {}
+        original_input = input_data.dict()
 
-        for col in columns:
-            value = getattr(input_data, col, 0)
-            original_input[col] = value
-            if col in mapping and value in mapping[col]:
-                data.append(mapping[col][value])
+        # ✅ Build DataFrame with column names
+        df = pd.DataFrame([original_input], columns=columns)
+
+        # ✅ Check feature name match
+        if hasattr(model, "feature_names_in_"):
+            mismatch = [col for col in df.columns if col not in model.feature_names_in_]
+            if mismatch:
+                print("❌ Columns mismatch:", mismatch)
             else:
-                data.append(float(value))
+                print("✅ Features names ตรงกับ model แล้ว")
 
-        df = pd.DataFrame([data], columns=columns)
-
-        # แสดงข้อมูลเข้าโมเดล (debug)
-        print("🔎 DataFrame sent to model:")
-        print(df)
-
-        # ทำนาย
-        prediction = model.predict(df)[0]
-        print("🔮 Raw prediction result (index):", prediction)
+        # ✅ Predict
+        df_scaled = pd.DataFrame(scaler.transform(df), columns=columns)
+        prediction = model.predict(df_scaled)[0]
 
         class_names = ['Normal', 'Obesity', 'Overweight', 'SAM', 'Stunting', 'Underweight']
         predicted_class = class_names[prediction]
@@ -120,9 +161,3 @@ async def get_prediction(input_data: PredictionInput):
     except Exception as e:
         print("❌ Error:", str(e))
         return {"error": str(e)}
-
-
-# สำหรับ local run
-if __name__ == "__main__":
-    import uvicorn
-    uvicorn.run("app:app", host="127.0.0.1", port=5000, reload=True)

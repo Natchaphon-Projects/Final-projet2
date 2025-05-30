@@ -132,3 +132,67 @@
   color: white;
   margin-top: auto;
 }
+
+
+.status-dot {
+  position: absolute;
+  right: -9px;
+  bottom: -9px;
+  width: 35px;
+  height: 35px;
+  background-color: #4ade80;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 2;
+  border: 2px solid white;
+}
+
+.status-inner {
+  width: 10px;
+  height: 10px;
+  background-color: white;
+  border-radius: 50%;
+  animation: pulse 1.5s ease-in-out infinite;
+}
+
+@keyframes pulse {
+  0%, 100% { opacity: 1; }
+  50% { opacity: 0.5; }
+}
+
+
+.greeting1 {
+  font-size: 18px;
+  color: #047857;
+  margin-bottom: 4px;
+}
+
+.role1 {
+  font-size: 28px;
+  color: #1f2937;
+  font-weight: bold;
+}
+
+.username1 {
+  font-size: 20px;
+  color: #047857;
+  font-weight: 600;
+  margin-top: 4px;
+}
+
+.underline1 {
+  width: 80px;
+  height: 4px;
+  background: linear-gradient(to right, #34d399, #14b8a6);
+  margin-top: 8px;
+  border-radius: 6px;
+}
+
+.profile-circle:hover {
+  box-shadow: 0 0 30px rgba(52, 195, 143, 0.8), 0 0 60px rgba(52, 195, 143, 0.5);
+  transform: scale(1.05);
+  transition: all 0.3s ease-in-out;
+}
+

@@ -155,3 +155,129 @@
   color: white;
   margin-top: auto;
 }
+
+.profile-circle {
+  background-color: #34c38f;
+  color: white;
+  width: 96px;
+  height: 96px;
+  border-radius: 50%;
+  font-size: 32px;
+  font-weight: bold;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
+  position: relative; /* ✅ สำคัญสำหรับวาง status-dot */
+}
+
+/* จุดเขียว */
+.status-dot {
+  position: absolute;
+  right: -9px;
+  bottom: -9px;
+  width: 35px;
+  height: 35px;
+  background-color: #4ade80;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 2;
+  border: 2px solid white;
+}
+
+.status-inner {
+  width: 10px;
+  height: 10px;
+  background-color: white;
+  border-radius: 50%;
+  animation: pulse 1.5s ease-in-out infinite;
+}
+
+@keyframes pulse {
+  0%, 100% { opacity: 1; }
+  50% { opacity: 0.5; }
+}
+
+/* ข้อความ */
+.greeting1 {
+  font-size: 18px;
+  color: #047857;
+  margin-bottom: 4px;
+  font-weight: bold;
+}
+
+.role1 {
+  font-size: 28px;
+  color: #1f2937;
+  font-weight: bold;
+}
+
+.username1 {
+  font-size: 20px;
+  color: #047857;
+  font-weight: 600;
+  margin-top: 4px;
+}
+
+.underline1 {
+  width: 80px;
+  height: 4px;
+  background: linear-gradient(to right, #34d399, #14b8a6);
+  margin-top: 8px;
+  border-radius: 6px;
+}
+.icon-circle {
+  position: relative;
+  width: 60px;
+  height: 60px;
+  border-radius: 50%;
+  font-size: 28px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  box-shadow: 0 8px 10px rgba(0, 0, 0, 0.1);
+  background-color: white;
+  animation: shine 3s ease-in-out infinite;
+  overflow: hidden;
+   border: 1px solid rgba(0, 0, 0, 0.1);
+}
+
+@keyframes shine {
+  0% {
+    background-position: -60px;
+  }
+  50% {
+    background-position: 120px;
+  }
+  100% {
+    background-position: -60px;
+  }
+}
+
+.icon-circle::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: -75%;
+  width: 50%;
+  height: 100%;
+  background: linear-gradient(
+    120deg,
+    rgba(255, 255, 255, 0.05) 0%,
+    rgba(255, 255, 255, 0.4) 50%,
+    rgba(255, 255, 255, 0.05) 100%
+  );
+  transform: skewX(-20deg);
+  animation: shimmer 2.5s infinite;
+}
+
+@keyframes shimmer {
+  0% {
+    left: -75%;
+  }
+  100% {
+    left: 125%;
+  }
+}

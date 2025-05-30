@@ -1,4 +1,5 @@
 import React, { useState, useEffect } from "react";
+import { useNavigate } from "react-router-dom"; // ✅ เพิ่ม
 import "./NutritionForm.css";
 import Header from "../layout/Header";
 import Footer from "../layout/Footer";
@@ -21,6 +22,7 @@ function NutritionForm() {
   const [formData, setFormData] = useState({});
   const [expandedGroup, setExpandedGroup] = useState(null);
   const [completion, setCompletion] = useState(0);
+  const navigate = useNavigate(); // ✅ ใช้งาน navigate
 
   const toggleGroup = (index) => {
     setExpandedGroup(expandedGroup === index ? null : index);
@@ -41,6 +43,7 @@ function NutritionForm() {
 
   const handleSubmit = () => {
     console.log("🟢 ข้อมูลที่ส่ง:", formData);
+    navigate("/pre"); // ✅ นำไปยังหน้า PredictionModel
   };
 
   return (
@@ -84,26 +87,6 @@ function NutritionForm() {
                       ) : null
                     )}
                   </div>
-
-                  {group.questions.some((q) => q.type === "number") && (
-                    <div className="number-grid">
-                      {group.questions.map(({ key, label, type }) =>
-                        type === "number" ? (
-                          <div className="number-item" key={key}>
-                            <label className="question-label">
-                              {label}
-                              <input
-                                type="number"
-                                value={formData[key] || ""}
-                                onChange={(e) => handleChange(key, e.target.value)}
-                                className="number-input"
-                              />
-                            </label>
-                          </div>
-                        ) : null
-                      )}
-                    </div>
-                  )}
                 </div>
               )}
             </div>

@@ -56,14 +56,15 @@
 .logout-btn {
   background: white;
   color: #10b981;
-  padding: 16px 14px;
-  border-radius: 8px;
-  font-weight: 600;
+  padding: 8px 12px;        /* ลด padding */
+  border-radius: 6px;       /* ลดความโค้ง */
+  font-weight: 500;         /* ลดความหนา */
+  font-size: 14px;          /* เพิ่มบรรทัดนี้เพื่อลดขนาดตัวอักษร */
   border: none;
   display: flex;
   align-items: center;
   gap: 6px;
-  height: 40px;
+  height: 32px;             /* ลดความสูง */
   cursor: pointer;
   transition: transform 0.2s;
 }
