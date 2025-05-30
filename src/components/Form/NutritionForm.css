@@ -218,4 +218,60 @@
   transform: scale(1.03);
   box-shadow: 0 4px 14px rgba(0, 0, 0, 0.1);
 }
+/* สีปกติของ accordion-toggle */
+/* สีปกติของ accordion-toggle */
+.accordion-toggle {
+  background-color: #e0f2fe; /* <<-- ฟ้าอ่อน (สีเดิมของคุณ) */
+  color: #111827;
+  font-weight: bold;
+  font-size: 1.1rem;
+  padding: 1rem;
+  width: 100%;
+  text-align: left;
+  display: flex;
+  justify-content: space-between;
+  border: none;
+  outline: none;
+  cursor: pointer;
+  border-radius: 0.5rem;
+  transition: background-color 0.3s ease;
+}
+
+/* เวลา hover */
+.accordion-toggle:hover {
+  background-color: #bae6fd; /* ฟ้าเข้มนิดนึงตอน hover */
+}
+
+/* ถ้า group เสร็จแล้ว → สีเขียว */
+.accordion-toggle.completed-group {
+  background-color: #d1fae5; /* สีเขียวอ่อน */
+  color: #065f46; /* เขียวเข้ม */
+}
+.overall-progress {
+  max-width: 1000px;  /* เพิ่มตัวนี้ เพื่อให้กว้างเหมือน nutrition-card */
+  width: 100%;        /* เต็มพื้นที่ container */
+  margin: 2rem auto;  /* จัดกลาง */
+  padding: 1.5rem;
+  background: #f0fdfa;
+  border-radius: 1rem;
+  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.05);
+}
+
+.main-progress-container {
+  background: #e5e7eb;
+  border-radius: 9999px;
+  height: 16px;
+  margin-top: 0.5rem;
+  overflow: hidden;
+}
+
+.main-progress-bar {
+  height: 100%;
+  width: 0;
+  background: linear-gradient(to right, #06b6d4, #a5f3fc); /* เขียว → ฟ้า */
+  transition: width 0.5s ease;
+  border-radius: 9999px;
+}
+
+
 
