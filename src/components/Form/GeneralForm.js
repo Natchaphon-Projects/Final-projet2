@@ -3,7 +3,7 @@ import "./NutritionForm.css";
 import Header from "../layout/Header";
 import Footer from "../layout/Footer";
 import { useNavigate, useLocation } from "react-router-dom";
-import { Weight } from "lucide-react";
+import axios from "axios";
 
 const nutritionGroups = [
   {
@@ -11,8 +11,7 @@ const nutritionGroups = [
     groupNote: "✏️ โปรดกรอกจำนวนครั้งเป็นตัวเลข",
     questions: [
       { key: "Weight", label: "น้ำหนัก", type: "number" },
-      { key: "Height", label: "ส่วนสูง", type: "number" },
-      { key: "โรคที่แพ้", label: "อาหารที่แพ้", type: "number" },
+      { key: "Height", label: "ส่วนสูง", type: "number" }
     ],
   },
 ];
@@ -31,21 +30,35 @@ function NutritionForm() {
   const currentIndex = pages.indexOf(location.pathname);
   const nextIndex = (currentIndex + 1) % pages.length;
   const nextPage = pages[nextIndex];
-  const prevIndex = (currentIndex - 1 + pages.length) % pages.length;
-  const prevPage = pages[prevIndex];
+  const prevPage = pages[(currentIndex - 1 + pages.length) % pages.length];
 
   const [formData, setFormData] = useState({});
   const [expandedGroup, setExpandedGroup] = useState(0);
   const [completedGroups, setCompletedGroups] = useState([]);
   const [completion, setCompletion] = useState(0);
+  const [patientId, setPatientId] = useState(null);
+  const [childData, setChildData] = useState(null);
 
-  // 👇 เพิ่มคำนวณ totalProgress เหมือน GroupedDataInput
   const totalProgress =
     (parseInt(localStorage.getItem("generalProgress") || 0) +
       parseInt(localStorage.getItem("caregiverProgress") || 0) +
       parseInt(localStorage.getItem("nutritionProgress") || 0) +
       parseInt(localStorage.getItem("sanitationProgress") || 0)) / 4;
 
+  // โหลดข้อมูลเด็กจาก localStorage
+  useEffect(() => {
+    const childId = localStorage.getItem("childId");
+    if (childId) {
+      axios.get(`http://localhost:5000/patients/${childId}`)
+        .then((res) => {
+          setChildData(res.data);
+          setPatientId(childId);
+        })
+        .catch((err) => console.error("โหลดข้อมูลเด็กไม่สำเร็จ", err));
+    } else {
+      console.warn("ไม่พบ childId ใน localStorage");
+    }
+  }, []);
 
   const handleChange = (key, value) => {
     setFormData((prev) => ({
@@ -56,20 +69,10 @@ function NutritionForm() {
 
   const handleGroupComplete = (index) => {
     const group = nutritionGroups[index];
-
     const requiredKeys = group.questions.map(q => q.key);
-
     const isComplete = requiredKeys.every(key => {
       const value = formData[key];
-      const question = group.questions.find(q => q.key === key);
-
-      if (question.type === "number") {
-        return value !== "" && value !== undefined;
-      } else if (question.type === "dropdown") {
-        return value !== "" && value !== undefined;
-      }
-
-      return true;
+      return value !== "" && value !== undefined;
     });
 
     if (!isComplete) {
@@ -77,19 +80,9 @@ function NutritionForm() {
       return;
     }
 
-    setCompletedGroups((prevCompletedGroups) => {
-      let newCompleted = prevCompletedGroups;
-
-      if (!prevCompletedGroups.includes(index)) {
-        newCompleted = [...prevCompletedGroups, index];
-      }
-
-      if (index + 1 < nutritionGroups.length) {
-        setExpandedGroup(index + 1);
-      } else {
-        setExpandedGroup(-1);
-      }
-
+    setCompletedGroups((prev) => {
+      const newCompleted = prev.includes(index) ? prev : [...prev, index];
+      setExpandedGroup(index + 1 < nutritionGroups.length ? index + 1 : -1);
       return newCompleted;
     });
   };
@@ -99,16 +92,31 @@ function NutritionForm() {
   };
 
   const handleSubmit = () => {
-    console.log("🟢 ข้อมูลที่ส่ง:", formData);
+    if (!patientId) {
+      alert("ไม่สามารถระบุรหัสผู้ป่วยได้");
+      return;
+    }
+
+    const dataToSend = {
+      patient_id: patientId,
+      height: formData["Height"],
+      weight: formData["Weight"],
+      visit_date: new Date().toISOString().split("T")[0]
+    };
+console.log("📤 ส่งข้อมูล:", dataToSend);
+
+    axios.post("http://localhost:5000/medical-records", dataToSend)
+      .then(() => {
+        alert("✅ บันทึกข้อมูลเรียบร้อยแล้ว");
+      })
+      .catch((err) => {
+        console.error("❌ บันทึกข้อมูลล้มเหลว", err);
+      });
   };
 
   useEffect(() => {
-    const totalGroups = nutritionGroups.length;
-    const completedCount = completedGroups.length;
-    const percent = Math.round((completedCount / totalGroups) * 100);
+    const percent = Math.round((completedGroups.length / nutritionGroups.length) * 100);
     setCompletion(percent);
-
-    // อัปเดตลง localStorage ด้วย (เหมือน GroupedDataInput)
     localStorage.setItem("nutritionProgress", percent.toString());
   }, [completedGroups]);
 
@@ -116,7 +124,6 @@ function NutritionForm() {
     <div className="dashboard-container">
       <Header />
 
-      {/* ✅ แถบ progress รวม */}
       <div className="overall-progress">
         <div className="progress-info">
           <span className="progress-label-main">ความคืบหน้าโดยรวม</span>
@@ -134,10 +141,18 @@ function NutritionForm() {
 
       <div className="nutrition-form-container">
         <div className="nutrition-card">
-          <h2 className="nutrition-title">แบบสอบถามข้อมูลโภชนาการของเด็ก</h2>
-          <p className="nutrition-subtitle">กรุณาตอบคำถามเกี่ยวกับการได้รับสารอาหารของเด็ก</p>
 
-          {/* ✅ Progress */}
+          {/* ✅ แสดงชื่อเด็ก */}
+          {childData && (
+            <div style={{ textAlign: "center", marginBottom: "1rem" }}>
+              <h3>แบบฟอร์มของ: {childData.prefix_name_child} {childData.first_name_child} {childData.last_name_child}</h3>
+              <p>HN: {childData.hn}</p>
+            </div>
+          )}
+
+          <h2 className="nutrition-title">แบบสอบถามข้อมูลโภชนาการของเด็ก</h2>
+          <p className="nutrition-subtitle">กรุณาตอบคำถามเกี่ยวกับโภชนาการของเด็ก</p>
+
           <div className="progress-section">
             <span className="progress-label">ความคืบหน้า: {completion}%</span>
             <div className="progress-bar-wrapper">
@@ -145,7 +160,6 @@ function NutritionForm() {
             </div>
           </div>
 
-          {/* ✅ Groups */}
           {nutritionGroups.map((group, index) => (
             <div className="accordion-group" key={index}>
               <button
@@ -159,65 +173,21 @@ function NutritionForm() {
               {expandedGroup === index && (
                 <div className="accordion-content">
                   {group.groupNote && <div className="group-note">{group.groupNote}</div>}
-
-                  <div className="checkbox-grid">
-                    {group.questions.map(({ key, label, type }) =>
-                      type === "checkbox" ? (
-                        <div className="checkbox-row" key={key}>
+                  <div className="number-grid">
+                    {group.questions.map(({ key, label }) => (
+                      <div className="number-item" key={key}>
+                        <label className="question-label">
+                          {label}
                           <input
-                            type="checkbox"
-                            id={key}
-                            checked={formData[key] || false}
-                            onChange={(e) => handleChange(key, e.target.checked)}
+                            type="number"
+                            value={formData[key] || ""}
+                            onChange={(e) => handleChange(key, e.target.value)}
+                            className="number-input"
                           />
-                          <label htmlFor={key}>{label}</label>
-                        </div>
-                      ) : null
-                    )}
+                        </label>
+                      </div>
+                    ))}
                   </div>
-
-                  {group.questions.some((q) => q.type === "number" || q.type === "dropdown") && (
-                    <div className="number-grid">
-                      {group.questions.map(({ key, label, type, options }) => {
-                        if (type === "number") {
-                          return (
-                            <div className="number-item" key={key}>
-                              <label className="question-label">
-                                {label}
-                                <input
-                                  type="number"
-                                  value={formData[key] || ""}
-                                  onChange={(e) => handleChange(key, e.target.value)}
-                                  className="number-input"
-                                />
-                              </label>
-                            </div>
-                          );
-                        } else if (type === "dropdown") {
-                          return (
-                            <div className="number-item" key={key}>
-                              <label className="question-label">
-                                {label}
-                                <select
-                                  value={formData[key] || ""}
-                                  onChange={(e) => handleChange(key, e.target.value)}
-                                  className="number-input"
-                                >
-                                  <option value="">-- เลือกตัวเลือก --</option>
-                                  {options.map((opt, idx) => (
-                                    <option key={idx} value={opt}>{opt}</option>
-                                  ))}
-                                </select>
-                              </label>
-                            </div>
-                          );
-                        }
-
-                        return null;
-                      })}
-                    </div>
-                  )}
-
                   <button className="complete-btn" onClick={() => handleGroupComplete(index)}>
                     ถัดไป ➜
                   </button>
@@ -226,52 +196,20 @@ function NutritionForm() {
             </div>
           ))}
 
-          {/* ✅ ปุ่มบันทึกข้อมูล */}
           {completedGroups.length === nutritionGroups.length && (
             <button className="submit-btn" onClick={handleSubmit}>
               บันทึกข้อมูล
             </button>
           )}
 
-          <div
-            style={{
-              display: "flex",
-              justifyContent: "space-between",
-              alignItems: "center",
-              gap: "1rem",
-              marginTop: "2rem",
-            }}
-          >
-            {/* ปุ่มย้อนหน้า */}
-            <button
-              className="submit-btn"
-              onClick={() => navigate(prevPage)}
-              style={{ background: "linear-gradient(to right, #3b82f6, #2563eb)" }}
-            >
-              ◀ กลับหน้าก่อนหน้า
-            </button>
-
-            {/* ปุ่มกลับหน้า GroupedDataInput */}
-            <button
-              className="submit-btn"
-              onClick={() => navigate("/parent-risk-assessment")} // เส้นทาง path ของหน้า GroupedDataInput
-              style={{ background: "linear-gradient(to right, #f59e0b, #f97316)" }}
-            >
-              🏠 กลับหน้าเลือกกลุ่มข้อมูล
-            </button>
-
-            {/* ปุ่มไปหน้าใหม่ */}
-            <button
-              className="submit-btn"
-              onClick={() => navigate(nextPage)}
-              style={{ background: "linear-gradient(to right, #10b981, #06b6d4)" }}
-            >
-              ตอบคำถามหน้าถัดไป ➜
-            </button>
+          <div className="navigation-buttons">
+            <button className="submit-btn" onClick={() => navigate(prevPage)}>◀ กลับ</button>
+            <button className="submit-btn" onClick={() => navigate("/parent-risk-assessment")}>🏠 กลับหน้าหลัก</button>
+            <button className="submit-btn" onClick={() => navigate(nextPage)}>ถัดไป ➜</button>
           </div>
-
         </div>
       </div>
+
       <Footer />
     </div>
   );

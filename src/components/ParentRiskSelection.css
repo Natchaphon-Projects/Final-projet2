@@ -1,0 +1,22 @@
+.children-grid {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 1rem;
+  justify-content: center;
+}
+
+.child-card {
+  background: #f3f4f6;
+  border-radius: 12px;
+  padding: 1rem 1.5rem;
+  box-shadow: 0 2px 6px rgba(0,0,0,0.1);
+  cursor: pointer;
+  transition: transform 0.2s ease;
+  min-width: 240px;
+  text-align: center;
+}
+
+.child-card:hover {
+  transform: scale(1.03);
+  background: #e0f2fe;
+}

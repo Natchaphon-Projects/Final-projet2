@@ -6,6 +6,7 @@ import doneIcon from "../assets/done.png";
 import foodIcon from "../assets/healthy-food.png";
 import Header from "../components/layout/Header";
 import Footer from "../components/layout/Footer";
+import axios from "axios";
 
 function Groupdatainput() {
   const navigate = useNavigate();
@@ -17,6 +18,25 @@ function Groupdatainput() {
     sanitation: 25,
   });
 
+  const [childData, setChildData] = useState(null); // ดึงข้อมูลเด็ก
+
+  // โหลดข้อมูลเด็กจาก patient_id ที่ถูกเลือก
+  useEffect(() => {
+    const patientId = localStorage.getItem("childId");
+
+    if (patientId) {
+      axios
+        .get(`http://localhost:5000/patients/${patientId}`)
+        .then((res) => {
+          setChildData(res.data);
+        })
+        .catch((err) => {
+          console.error("❌ โหลดข้อมูลเด็กล้มเหลว", err);
+        });
+    }
+  }, []);
+
+  // โหลด progress จาก localStorage
   useEffect(() => {
     const savedNutrition = localStorage.getItem("nutritionProgress");
     if (savedNutrition) {
@@ -92,6 +112,18 @@ function Groupdatainput() {
       <Header />
 
       <main className="dashboard-main center-content">
+
+        {/* ✅ แสดงชื่อเด็กที่เลือก */}
+        {childData && (
+          <div style={{ textAlign: "center", marginBottom: "1rem" }}>
+            <h2>แบบประเมินสำหรับ:</h2>
+            <h3 style={{ color: "#0ea5e9" }}>
+              {childData.prefix_name_child} {childData.first_name_child} {childData.last_name_child}
+            </h3>
+            <p>HN: {childData.hn}</p>
+          </div>
+        )}
+
         <h2 className="main-title" style={{ textAlign: "center" }}>
           เลือกกลุ่มข้อมูลที่ต้องการกรอก
         </h2>

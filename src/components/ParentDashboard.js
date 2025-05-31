@@ -128,7 +128,7 @@ function ParentDashboard() {
         <div className="menu-wrapper">
   <div
     className="menu-card"
-    onClick={() => navigate("/parent-risk-assessment", { state: { hnNumber } })}
+    onClick={() => navigate("/parent-risk-selection", { state: { hnNumber } })}
   >
     <div className="menu-left">
       <div className="menu-icon-box">

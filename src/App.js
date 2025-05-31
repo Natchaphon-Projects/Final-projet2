@@ -25,6 +25,7 @@ import SanitationForm from "./components/Form/SanitationForm";
 import Recommendations from "./components/Recommendations";
 import PatientHistory from "./components/PatientHistory";
 import PredictionModel from "./components/Predictio_model/PredictionModel"; // ✅ เพิ่มตรงนี้
+import ParentRiskSelection from "./components/ParentRiskSelection"; // ✅ ต้อง import ตรงนี้
 
 import './styles.css';
 
@@ -42,6 +43,7 @@ function App() {
 
         {/* Parent Routes */}
         <Route path="/parent-dashboard" element={<ParentDashboard />} />
+        <Route path="/parent-risk-selection" element={<ParentRiskSelection />} />
         <Route path="/parent-risk-assessment" element={<GroupedDataInput />} />
         <Route path="/form/general" element={<GeneralForm />} />
         <Route path="/form/caregiver" element={<CaregiverForm />} />
