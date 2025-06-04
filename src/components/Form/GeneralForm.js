@@ -16,7 +16,7 @@ const nutritionGroups = [
   },
 ];
 
-function NutritionForm() {
+function GeneralForm() {
   const navigate = useNavigate();
   const location = useLocation();
 
@@ -28,11 +28,14 @@ function NutritionForm() {
   ];
 
   const currentIndex = pages.indexOf(location.pathname);
-  const nextIndex = (currentIndex + 1) % pages.length;
-  const nextPage = pages[nextIndex];
+  const nextPage = pages[(currentIndex + 1) % pages.length];
   const prevPage = pages[(currentIndex - 1 + pages.length) % pages.length];
 
-  const [formData, setFormData] = useState({});
+  const [formData, setFormData] = useState(() => {
+  const saved = localStorage.getItem("generalFormData");
+  return saved ? JSON.parse(saved) : {};
+});
+
   const [expandedGroup, setExpandedGroup] = useState(0);
   const [completedGroups, setCompletedGroups] = useState([]);
   const [completion, setCompletion] = useState(0);
@@ -45,7 +48,22 @@ function NutritionForm() {
       parseInt(localStorage.getItem("nutritionProgress") || 0) +
       parseInt(localStorage.getItem("sanitationProgress") || 0)) / 4;
 
-  // โหลดข้อมูลเด็กจาก localStorage
+
+
+
+  // ✅ บันทึกข้อมูลเมื่อ formData เปลี่ยน
+  useEffect(() => {
+    localStorage.setItem("generalFormData", JSON.stringify(formData)); // ✅ แก้ให้ตรงกัน
+  }, [formData]);
+  // ✅ เพิ่มตรงนี้
+useEffect(() => {
+  const savedCompleted = localStorage.getItem("generalCompletedGroups");
+  if (savedCompleted) {
+    setCompletedGroups(JSON.parse(savedCompleted));
+  }
+}, []);
+
+  // ✅ โหลดข้อมูลเด็ก
   useEffect(() => {
     const childId = localStorage.getItem("childId");
     if (childId) {
@@ -81,17 +99,22 @@ function NutritionForm() {
     }
 
     setCompletedGroups((prev) => {
-      const newCompleted = prev.includes(index) ? prev : [...prev, index];
-      setExpandedGroup(index + 1 < nutritionGroups.length ? index + 1 : -1);
-      return newCompleted;
-    });
+  const newCompleted = prev.includes(index) ? prev : [...prev, index];
+  setExpandedGroup(index + 1 < nutritionGroups.length ? index + 1 : -1);
+
+  // ✅ เพิ่มการบันทึกลง localStorage
+  localStorage.setItem("generalCompletedGroups", JSON.stringify(newCompleted));
+
+  return newCompleted;
+});
+
   };
 
   const toggleGroup = (index) => {
     setExpandedGroup((prev) => (prev === index ? -1 : index));
   };
 
-  const handleSubmit = () => {
+  const handleSubmit = (goNext = false) => {
     if (!patientId) {
       alert("ไม่สามารถระบุรหัสผู้ป่วยได้");
       return;
@@ -103,11 +126,11 @@ function NutritionForm() {
       weight: formData["Weight"],
       visit_date: new Date().toISOString().split("T")[0]
     };
-console.log("📤 ส่งข้อมูล:", dataToSend);
 
     axios.post("http://localhost:5000/medical-records", dataToSend)
       .then(() => {
         alert("✅ บันทึกข้อมูลเรียบร้อยแล้ว");
+        if (goNext) navigate(nextPage);
       })
       .catch((err) => {
         console.error("❌ บันทึกข้อมูลล้มเหลว", err);
@@ -117,7 +140,7 @@ console.log("📤 ส่งข้อมูล:", dataToSend);
   useEffect(() => {
     const percent = Math.round((completedGroups.length / nutritionGroups.length) * 100);
     setCompletion(percent);
-    localStorage.setItem("nutritionProgress", percent.toString());
+    localStorage.setItem("generalProgress", percent.toString());
   }, [completedGroups]);
 
   return (
@@ -141,8 +164,6 @@ console.log("📤 ส่งข้อมูล:", dataToSend);
 
       <div className="nutrition-form-container">
         <div className="nutrition-card">
-
-          {/* ✅ แสดงชื่อเด็ก */}
           {childData && (
             <div style={{ textAlign: "center", marginBottom: "1rem" }}>
               <h3>แบบฟอร์มของ: {childData.prefix_name_child} {childData.first_name_child} {childData.last_name_child}</h3>
@@ -150,8 +171,8 @@ console.log("📤 ส่งข้อมูล:", dataToSend);
             </div>
           )}
 
-          <h2 className="nutrition-title">แบบสอบถามข้อมูลโภชนาการของเด็ก</h2>
-          <p className="nutrition-subtitle">กรุณาตอบคำถามเกี่ยวกับโภชนาการของเด็ก</p>
+          <h2 className="nutrition-title">แบบสอบถามข้อมูลทั่วไปของเด็ก</h2>
+          <p className="nutrition-subtitle">กรุณาตอบคำถามเกี่ยวกับน้ำหนักและส่วนสูง</p>
 
           <div className="progress-section">
             <span className="progress-label">ความคืบหน้า: {completion}%</span>
@@ -196,38 +217,22 @@ console.log("📤 ส่งข้อมูล:", dataToSend);
             </div>
           ))}
 
-          {completedGroups.length === nutritionGroups.length && (
-            <button className="submit-btn" onClick={handleSubmit}>
-              บันทึกข้อมูล
-            </button>
-          )}
+          {completedGroups.length === nutritionGroups.length && totalProgress === 100 && (
+  <button
+    className="submit-btn"
+    onClick={() => navigate("/parent-risk-assessment")}
+    style={{ background: "linear-gradient(to right, #22c55e, #16a34a)" }}
+  >
+    ✅ กรอกข้อมูลครบแล้ว กลับหน้าหลักเพื่อวิเคราะห์ภาวะทุพโภชนาการ
+  </button>
+)}
 
-          {/* ปุ่มย้อนหน้า */}
-            <button
-              className="submit-btn"
-              onClick={() => navigate(prevPage)}
-              style={{ background: "linear-gradient(to right, #3b82f6, #2563eb)" }}
-            >
-              ◀ กลับหน้าก่อนหน้า
-            </button>
 
-            {/* ปุ่มกลับหน้า GroupedDataInput */}
-            <button
-              className="submit-btn"
-              onClick={() => navigate("/parent-risk-assessment")} // เส้นทาง path ของหน้า GroupedDataInput
-              style={{ background: "linear-gradient(to right, #f59e0b, #f97316)" }}
-            >
-              🏠 กลับหน้าเลือกกลุ่มข้อมูล
-            </button>
-
-            {/* ปุ่มไปหน้าใหม่ */}
-            <button
-              className="submit-btn"
-              onClick={() => navigate(nextPage)}
-              style={{ background: "linear-gradient(to right, #10b981, #06b6d4)" }}
-            >
-              ตอบคำถามหน้าถัดไป ➜
-            </button>
+          <div className="navigation-buttons">
+            <button className="submit-btn" onClick={() => navigate(prevPage)}>◀ กลับ</button>
+            <button className="submit-btn" onClick={() => navigate("/parent-risk-assessment")}>🏠 กลับหน้าหลัก</button>
+            <button className="submit-btn" onClick={() => navigate(nextPage)}>ถัดไป ➜</button>
+          </div>
         </div>
       </div>
 
@@ -236,4 +241,4 @@ console.log("📤 ส่งข้อมูล:", dataToSend);
   );
 }
 
-export default NutritionForm;
+export default GeneralForm;

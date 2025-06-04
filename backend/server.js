@@ -282,6 +282,64 @@ app.get("/find-parent-id", (req, res) => {
   });
 });
 
+app.post("/predictions/combined", (req, res) => {
+  const data = req.body;
+  const patientId = data.patient_id;
+
+  if (!patientId) {
+    return res.status(400).json({ error: "Missing patient_id" });
+  }
+
+  // ✅ แยก weight และ height ไปเก็บใน medical_records
+  const weight = data.Weight;
+  const height = data.Height;
+  const visit_date = new Date().toISOString().split("T")[0];
+
+  // ลบ field ที่ไม่ใช่ของ prediction ออก
+  delete data.Weight;
+  delete data.Height;
+
+  // ✅ สร้าง query สำหรับ medical_records
+  const insertMedical = `
+    INSERT INTO medical_records (patient_id, visit_date, weight, height, created_at)
+    VALUES (?, ?, ?, ?, NOW())
+  `;
+
+  db.query(insertMedical, [patientId, visit_date, weight, height], (err1) => {
+    if (err1) {
+      console.error("❌ Insert medical_records failed:", err1);
+      return res.status(500).json({ error: "Insert medical_records failed" });
+    }
+
+    // ✅ เตรียมข้อมูลสำหรับ prediction
+    const fields = Object.keys(data)
+      .filter((key) => key !== "patient_id")
+      .map((key) => `\`${key}\``)
+      .join(", ");
+
+    const values = Object.keys(data)
+      .filter((key) => key !== "patient_id")
+      .map((key) => mysql.escape(data[key]))
+      .join(", ");
+
+    const query = `
+      INSERT INTO prediction (patient_id, ${fields}, created_at)
+      VALUES (${mysql.escape(patientId)}, ${values}, NOW())
+    `;
+
+    db.query(query, (err2, result) => {
+      if (err2) {
+        console.error("❌ Insert prediction failed:", err2);
+        return res.status(500).json({ error: "Insert prediction failed" });
+      }
+
+      res.status(201).json({ message: "✅ บันทึกข้อมูลสำเร็จ", prediction_id: result.insertId });
+    });
+  });
+});
+
+
+
 // ✅ GET: ข้อมูล users จาก hnNumber
 app.get("/users/:hn", (req, res) => {
   const hn = req.params.hn;
@@ -365,7 +423,6 @@ app.get("/patients/:id", (req, res) => {
     }
   });
 });
-
 
 // ✅ Start server
 app.listen(port, () => {
