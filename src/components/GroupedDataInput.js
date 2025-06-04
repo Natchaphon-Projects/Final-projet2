@@ -12,47 +12,43 @@ function Groupdatainput() {
   const navigate = useNavigate();
 
   const [groupProgress, setGroupProgress] = useState({
-    general: 100,
-    caregiver: 50,
+    general: 0,
+    caregiver: 0,
     nutrition: 0,
-    sanitation: 25,
+    sanitation: 0,
   });
 
-  const [childData, setChildData] = useState(null); // ดึงข้อมูลเด็ก
+  const [childData, setChildData] = useState(null);
 
-  // โหลดข้อมูลเด็กจาก patient_id ที่ถูกเลือก
+  // ดึงข้อมูลเด็กจาก childId
   useEffect(() => {
     const patientId = localStorage.getItem("childId");
-
     if (patientId) {
-      axios
-        .get(`http://localhost:5000/patients/${patientId}`)
-        .then((res) => {
-          setChildData(res.data);
-        })
-        .catch((err) => {
-          console.error("❌ โหลดข้อมูลเด็กล้มเหลว", err);
-        });
+      axios.get(`http://localhost:5000/patients/${patientId}`)
+        .then((res) => setChildData(res.data))
+        .catch((err) => console.error("❌ โหลดข้อมูลเด็กล้มเหลว", err));
     }
   }, []);
 
-  // โหลด progress จาก localStorage
+  // ✅ โหลด progress แบบเรียลไทม์
   useEffect(() => {
-    const savedNutrition = localStorage.getItem("nutritionProgress");
-    if (savedNutrition) {
-      setGroupProgress((prev) => ({
-        ...prev,
-        nutrition: parseInt(savedNutrition),
-      }));
-    }
+    const interval = setInterval(() => {
+      const general = parseInt(localStorage.getItem("generalProgress") || "0");
+      const caregiver = parseInt(localStorage.getItem("caregiverProgress") || "0");
+      const nutrition = parseInt(localStorage.getItem("nutritionProgress") || "0");
+      const sanitation = parseInt(localStorage.getItem("sanitationProgress") || "0");
+
+      setGroupProgress({ general, caregiver, nutrition, sanitation });
+    }, 1000); // อัปเดตทุก 1 วินาที
+
+    return () => clearInterval(interval);
   }, []);
 
   const totalProgress =
     (groupProgress.general +
       groupProgress.caregiver +
       groupProgress.nutrition +
-      groupProgress.sanitation) /
-    4;
+      groupProgress.sanitation) / 4;
 
   const groups = [
     {
@@ -62,7 +58,6 @@ function Groupdatainput() {
       color: "#22c55e",
       buttonGradient: "gradient-general",
       progress: groupProgress.general,
-      emoji: "",
     },
     {
       label: "ผู้เลี้ยงดูหลัก",
@@ -71,7 +66,6 @@ function Groupdatainput() {
       color: "#f59e0b",
       buttonGradient: "gradient-caregiver",
       progress: groupProgress.caregiver,
-      emoji: "",
     },
     {
       label: "อาหารที่เด็กได้รับ",
@@ -89,7 +83,6 @@ function Groupdatainput() {
       color: "#06b6d4",
       buttonGradient: "gradient-sanitation",
       progress: groupProgress.sanitation,
-      emoji: "",
     },
   ];
 
@@ -113,7 +106,6 @@ function Groupdatainput() {
 
       <main className="dashboard-main center-content">
 
-        {/* ✅ แสดงชื่อเด็กที่เลือก */}
         {childData && (
           <div style={{ textAlign: "center", marginBottom: "1rem" }}>
             <h2>แบบประเมินสำหรับ:</h2>
@@ -149,7 +141,6 @@ function Groupdatainput() {
         <div className="groups-grid">
           {groups.map((group, index) => {
             const { icon, text } = getProgressStatus(group.progress);
-
             return (
               <div className="group-card animate-fade-in" key={index}>
                 <div className="card-header">

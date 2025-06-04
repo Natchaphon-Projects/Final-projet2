@@ -3,8 +3,10 @@ import { useNavigate, useLocation } from "react-router-dom";
 import "./NutritionForm.css";
 import Header from "../layout/Header";
 import Footer from "../layout/Footer";
+import axios from "axios";
 
-const nutritionGroups = [
+
+const sanitationGroups = [
   {
     groupTitle: "พฤติกรรมด้านสุขาภิบาลและความสะอาด",
     groupNote: "☐ หากปฏิบัติพฤติกรรมนั้นให้ติ๊กถูกในช่องสี่เหลี่ยม",
@@ -18,7 +20,7 @@ const nutritionGroups = [
   },
 ];
 
-function NutritionForm() {
+function SanitationForm() {
   const navigate = useNavigate();
   const location = useLocation();
 
@@ -36,6 +38,10 @@ function NutritionForm() {
   const prevPage = pages[prevIndex];
 
   const [formData, setFormData] = useState({});
+  useEffect(() => {
+  localStorage.setItem("sanitationFormData", JSON.stringify(formData));
+}, [formData]);
+
   const [expandedGroup, setExpandedGroup] = useState(0);
   const [completedGroups, setCompletedGroups] = useState([]);
   const [completion, setCompletion] = useState(0);
@@ -56,7 +62,7 @@ function NutritionForm() {
   };
 
   const handleGroupComplete = (index) => {
-    const group = nutritionGroups[index];
+    const group = sanitationGroups[index];
 
     const requiredKeys = group.questions.map(q => q.key);
 
@@ -85,7 +91,7 @@ function NutritionForm() {
         newCompleted = [...prevCompletedGroups, index];
       }
 
-      if (index + 1 < nutritionGroups.length) {
+      if (index + 1 < sanitationGroups.length) {
         setExpandedGroup(index + 1);
       } else {
         setExpandedGroup(-1);
@@ -99,19 +105,61 @@ function NutritionForm() {
     setExpandedGroup((prev) => (prev === index ? -1 : index));
   };
 
-  const handleSubmit = () => {
-    console.log("🟢 ข้อมูลที่ส่ง:", formData);
-  };
+  const [patientId, setPatientId] = useState(null);
+const [childData, setChildData] = useState(null);
+useEffect(() => {
+  const savedData = localStorage.getItem("sanitationFormData");
+  if (savedData) {
+    setFormData(JSON.parse(savedData));
+  }
+}, []);
+
+useEffect(() => {
+  const childId = localStorage.getItem("childId");
+  if (childId) {
+    axios.get(`http://localhost:5000/patients/${childId}`)
+      .then((res) => {
+        setChildData(res.data);
+        setPatientId(childId);
+      })
+      .catch((err) => console.error("โหลดข้อมูลเด็กไม่สำเร็จ", err));
+  } else {
+    console.warn("ไม่พบ childId ใน localStorage");
+  }
+}, []);
+
 
   useEffect(() => {
-    const totalGroups = nutritionGroups.length;
+    const totalGroups = sanitationGroups.length;
     const completedCount = completedGroups.length;
     const percent = Math.round((completedCount / totalGroups) * 100);
     setCompletion(percent);
 
     // อัปเดตลง localStorage ด้วย (เหมือน GroupedDataInput)
-    localStorage.setItem("nutritionProgress", percent.toString());
+    localStorage.setItem("sanitationProgress", percent.toString());
   }, [completedGroups]);
+  const handleSubmit = async () => {
+  if (!patientId) {
+    alert("ไม่พบข้อมูลผู้ป่วย กรุณากลับไปเลือกเด็กใหม่");
+    return;
+  }
+
+  try {
+    const response = await axios.post("http://localhost:5000/predictions/sanitation", {
+      patient_id: patientId,
+      ...formData,
+    });
+
+    if (response.status === 200 || response.status === 201) {
+      alert("✅ บันทึกข้อมูลสำเร็จ");
+    } else {
+      alert("เกิดข้อผิดพลาดในการบันทึกข้อมูล");
+    }
+  } catch (error) {
+    console.error("❌ บันทึกข้อมูลไม่สำเร็จ:", error);
+    alert("เกิดข้อผิดพลาดในการเชื่อมต่อเซิร์ฟเวอร์");
+  }
+};
 
   return (
     <div className="dashboard-container">
@@ -133,11 +181,10 @@ function NutritionForm() {
         </p>
       </div>
 
-      <div className="nutrition-form-container">
+   <div className="nutrition-form-container">
         <div className="nutrition-card">
           <h2 className="nutrition-title">แบบสอบถามข้อมูลโภชนาการของเด็ก</h2>
           <p className="nutrition-subtitle">กรุณาตอบคำถามเกี่ยวกับการได้รับสารอาหารของเด็ก</p>
-
           {/* ✅ Progress */}
           <div className="progress-section">
             <span className="progress-label">ความคืบหน้า: {completion}%</span>
@@ -147,7 +194,7 @@ function NutritionForm() {
           </div>
 
           {/* ✅ Groups */}
-          {nutritionGroups.map((group, index) => (
+          {sanitationGroups.map((group, index) => (
             <div className="accordion-group" key={index}>
               <button
                 className={`accordion-toggle ${completedGroups.includes(index) ? "completed-group" : ""}`}
@@ -228,7 +275,7 @@ function NutritionForm() {
           ))}
 
           {/* ✅ ปุ่มบันทึกข้อมูล */}
-          {completedGroups.length === nutritionGroups.length && (
+          {completedGroups.length === sanitationGroups.length && (
             <button className="submit-btn" onClick={handleSubmit}>
               บันทึกข้อมูล
             </button>
@@ -244,22 +291,28 @@ function NutritionForm() {
             }}
           >
             {/* ปุ่มย้อนหน้า */}
-            <button
-              className="submit-btn"
-              onClick={() => navigate(prevPage)}
-              style={{ background: "linear-gradient(to right, #3b82f6, #2563eb)" }}
-            >
-              ◀ กลับหน้าก่อนหน้า
-            </button>
+           <button
+  className="submit-btn"
+  onClick={async () => {
+    await handleSubmit(); // บันทึกก่อน
+    navigate(prevPage);
+  }}
+  style={{ background: "linear-gradient(to right, #3b82f6, #2563eb)" }}
+>
+  ◀ กลับหน้าก่อนหน้า
+</button>
 
             {/* ปุ่มกลับหน้า GroupedDataInput */}
             <button
-              className="submit-btn"
-              onClick={() => navigate("/parent-risk-assessment")} // เส้นทาง path ของหน้า GroupedDataInput
-              style={{ background: "linear-gradient(to right, #f59e0b, #f97316)" }}
-            >
-              🏠 กลับหน้าเลือกกลุ่มข้อมูล
-            </button>
+  className="submit-btn"
+  onClick={async () => {
+    await handleSubmit(); // บันทึกก่อน
+    navigate("/parent-risk-assessment");
+  }}
+  style={{ background: "linear-gradient(to right, #f59e0b, #f97316)" }}
+>
+  🏠 กลับหน้าเลือกกลุ่มข้อมูล
+</button>
 
             {/* ปุ่มไปหน้าใหม่ */}
             <button
@@ -279,4 +332,4 @@ function NutritionForm() {
   );
 }
 
-export default NutritionForm;
+export default SanitationForm;

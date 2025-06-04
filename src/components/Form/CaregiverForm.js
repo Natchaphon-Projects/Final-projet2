@@ -1,11 +1,13 @@
 import React, { useState, useEffect } from "react";
 import { useNavigate, useLocation } from "react-router-dom";
 import "./NutritionForm.css";
-import "./NutritionForm.css";
+
 import Header from "../layout/Header";
 import Footer from "../layout/Footer";
+import axios from "axios";
 
-const nutritionGroups = [
+
+const caregiverGroups = [
   {
     groupTitle: "ผู้ตอบแบบสอบถามมีความสัมพันธ์อย่างไรกับเด็ก",
     groupNote: "หากมีการบริโภคให้ติ๊กถูกในช่องสี่เหลี่ยม ☐",
@@ -17,7 +19,7 @@ const nutritionGroups = [
   
 ];
 
-function NutritionForm() {
+function CaregiverForm() {
   const navigate = useNavigate();
   const location = useLocation();
 
@@ -33,6 +35,9 @@ function NutritionForm() {
   const nextPage = pages[nextIndex];
   const prevIndex = (currentIndex - 1 + pages.length) % pages.length;
   const prevPage = pages[prevIndex];
+  const [patientId, setPatientId] = useState(null);
+  const [childData, setChildData] = useState(null);
+
 
   const [formData, setFormData] = useState({});
   const [expandedGroup, setExpandedGroup] = useState(0);
@@ -55,7 +60,8 @@ function NutritionForm() {
   };
 
   const handleGroupComplete = (index) => {
-    const group = nutritionGroups[index];
+    const group = caregiverGroups[index];
+
 
     const requiredKeys = group.questions.map(q => q.key);
 
@@ -84,7 +90,8 @@ function NutritionForm() {
         newCompleted = [...prevCompletedGroups, index];
       }
 
-      if (index + 1 < nutritionGroups.length) {
+      if (index + 1 < caregiverGroups.length) {
+
         setExpandedGroup(index + 1);
       } else {
         setExpandedGroup(-1);
@@ -98,24 +105,58 @@ function NutritionForm() {
     setExpandedGroup((prev) => (prev === index ? -1 : index));
   };
 
-  const handleSubmit = () => {
-    console.log("🟢 ข้อมูลที่ส่ง:", formData);
+const handleSubmit = (goNext = false) => {
+  if (!patientId) {
+    alert("ไม่สามารถระบุรหัสผู้ป่วยได้");
+    return;
+  }
+
+  const dataToSend = {
+    patient_id: patientId,
+    ...formData,
+    created_at: new Date().toISOString()
   };
 
+  axios.post("http://localhost:5000/predictions", dataToSend)
+    .then(() => {
+      alert("✅ บันทึกข้อมูลเรียบร้อยแล้ว");
+      if (goNext) navigate(nextPage);
+    })
+    .catch((err) => {
+      console.error("❌ บันทึกข้อมูลล้มเหลว", err);
+    });
+};
+
+
   useEffect(() => {
-    const totalGroups = nutritionGroups.length;
+  const totalGroups = caregiverGroups.length;
     const completedCount = completedGroups.length;
     const percent = Math.round((completedCount / totalGroups) * 100);
     setCompletion(percent);
 
     // อัปเดตลง localStorage ด้วย (เหมือน GroupedDataInput)
-    localStorage.setItem("nutritionProgress", percent.toString());
+  localStorage.setItem("caregiverProgress", percent.toString());
   }, [completedGroups]);
+useEffect(() => {
+  const childId = localStorage.getItem("childId");
+  if (childId) {
+    axios.get(`http://localhost:5000/patients/${childId}`)
+      .then((res) => {
+        setChildData(res.data);
+        setPatientId(childId);
+      })
+      .catch((err) => console.error("โหลดข้อมูลเด็กไม่สำเร็จ", err));
+  } else {
+    console.warn("ไม่พบ childId ใน localStorage");
+  }
+}, []);
 
   return (
+    
     <div className="dashboard-container">
       <Header />
 
+    
       {/* ✅ แถบ progress รวม */}
       <div className="overall-progress">
         <div className="progress-info">
@@ -134,6 +175,13 @@ function NutritionForm() {
 
       <div className="nutrition-form-container">
         <div className="nutrition-card">
+          {childData && (
+  <div style={{ textAlign: "center", marginBottom: "1rem" }}>
+    <h3>แบบฟอร์มของ: {childData.prefix_name_child} {childData.first_name_child} {childData.last_name_child}</h3>
+    <p>HN: {childData.hn}</p>
+  </div>
+)}
+
           <h2 className="nutrition-title">แบบสอบถามข้อมูลโภชนาการของเด็ก</h2>
           <p className="nutrition-subtitle">กรุณาตอบคำถามเกี่ยวกับการได้รับสารอาหารของเด็ก</p>
 
@@ -146,7 +194,7 @@ function NutritionForm() {
           </div>
 
           {/* ✅ Groups */}
-          {nutritionGroups.map((group, index) => (
+          {caregiverGroups.map((group, index) => (
             <div className="accordion-group" key={index}>
               <button
                 className={`accordion-toggle ${completedGroups.includes(index) ? "completed-group" : ""}`}
@@ -227,22 +275,13 @@ function NutritionForm() {
           ))}
 
           {/* ✅ ปุ่มบันทึกข้อมูล */}
-          {completedGroups.length === nutritionGroups.length && (
+          {completedGroups.length === caregiverGroups.length && (
             <button className="submit-btn" onClick={handleSubmit}>
               บันทึกข้อมูล
             </button>
           )}
 
-          <div
-            style={{
-              display: "flex",
-              justifyContent: "space-between",
-              alignItems: "center",
-              gap: "1rem",
-              marginTop: "2rem",
-            }}
-          >
-            {/* ปุ่มย้อนหน้า */}
+          <div style={{ display: "flex", justifyContent: "space-between", gap: "1rem", marginTop: "2rem" }}>
             <button
               className="submit-btn"
               onClick={() => navigate(prevPage)}
@@ -251,16 +290,6 @@ function NutritionForm() {
               ◀ กลับหน้าก่อนหน้า
             </button>
 
-            {/* ปุ่มกลับหน้า GroupedDataInput */}
-            <button
-              className="submit-btn"
-              onClick={() => navigate("/parent-risk-assessment")} // เส้นทาง path ของหน้า GroupedDataInput
-              style={{ background: "linear-gradient(to right, #f59e0b, #f97316)" }}
-            >
-              🏠 กลับหน้าเลือกกลุ่มข้อมูล
-            </button>
-
-            {/* ปุ่มไปหน้าใหม่ */}
             <button
               className="submit-btn"
               onClick={() => navigate(nextPage)}
@@ -278,4 +307,4 @@ function NutritionForm() {
   );
 }
 
-export default NutritionForm;
+export default CaregiverForm;
