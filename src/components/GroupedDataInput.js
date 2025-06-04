@@ -18,7 +18,9 @@ function Groupdatainput() {
     sanitation: 0,
   });
 
-  const [childData, setChildData] = useState(null);
+const [totalProgress, setTotalProgress] = useState(0);
+const [childData, setChildData] = useState(null);
+
 
   // ดึงข้อมูลเด็กจาก childId
   useEffect(() => {
@@ -29,6 +31,38 @@ function Groupdatainput() {
         .catch((err) => console.error("❌ โหลดข้อมูลเด็กล้มเหลว", err));
     }
   }, []);
+  const handleFinalSubmit = async () => {
+  const general = JSON.parse(localStorage.getItem("generalFormData") || "{}");
+  const caregiver = JSON.parse(localStorage.getItem("caregiverFormData") || "{}");
+  const nutrition = JSON.parse(localStorage.getItem("nutritionFormData") || "{}");
+  const sanitation = JSON.parse(localStorage.getItem("sanitationFormData") || "{}");
+
+  const patientId = localStorage.getItem("childId");
+  if (!patientId) {
+    alert("❌ ไม่พบรหัสผู้ป่วย กรุณาเลือกเด็กใหม่ก่อน");
+    return;
+  }
+
+  try {
+    const allData = {
+      patient_id: patientId,
+      ...general,
+      ...caregiver,
+      ...nutrition,
+      ...sanitation,
+    };
+
+    const response = await axios.post("http://localhost:5000/predictions/combined", allData);
+    if (response.status === 200 || response.status === 201) {
+      alert("✅ บันทึกข้อมูลสำเร็จ!");
+    } else {
+      alert("❌ บันทึกข้อมูลไม่สำเร็จ");
+    }
+  } catch (err) {
+    console.error("บันทึกข้อมูลล้มเหลว:", err);
+    alert("❌ ไม่สามารถเชื่อมต่อกับเซิร์ฟเวอร์");
+  }
+};
 
   // ✅ โหลด progress แบบเรียลไทม์
   useEffect(() => {
@@ -44,11 +78,14 @@ function Groupdatainput() {
     return () => clearInterval(interval);
   }, []);
 
-  const totalProgress =
+useEffect(() => {
+  const avg =
     (groupProgress.general +
       groupProgress.caregiver +
       groupProgress.nutrition +
       groupProgress.sanitation) / 4;
+  setTotalProgress(avg);
+}, [groupProgress]);
 
   const groups = [
     {
@@ -180,6 +217,26 @@ function Groupdatainput() {
             );
           })}
         </div>
+        {Math.round(totalProgress) === 100 && (
+  <div style={{ textAlign: "center", marginTop: "2rem" }}>
+    <button
+      className="submit-btn"
+      style={{
+        background: "linear-gradient(to right, #0ea5e9, #2563eb)",
+        color: "white",
+        fontSize: "18px",
+        padding: "12px 24px",
+        borderRadius: "12px",
+        fontWeight: "bold",
+        boxShadow: "0 4px 12px rgba(0,0,0,0.1)"
+      }}
+      onClick={handleFinalSubmit}
+    >
+      ✅ บันทึกข้อมูลทั้งหมดลงระบบ
+    </button>
+  </div>
+)}
+
       </main>
 
       <Footer />
