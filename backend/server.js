@@ -339,24 +339,6 @@ app.post("/predictions/combined", (req, res) => {
 });
 
 
-app.get("/children-by-parent/:hn", (req, res) => {
-  const hn = req.params.hn;
-  const query = `
-    SELECT p.patient_id, p.hn, p.prefix_name_child, p.first_name_child, p.last_name_child
-    FROM patient p
-    JOIN relationship r ON p.patient_id = r.patient_id
-    JOIN parent pa ON r.parent_id = pa.parent_id
-    WHERE pa.hn_number = ?
-  `;
-
-  db.query(query, [hn], (err, results) => {
-    if (err) {
-      console.error("❌ ดึงรายชื่อเด็กล้มเหลว:", err);
-      return res.status(500).json({ message: "เกิดข้อผิดพลาดในการโหลดข้อมูลเด็ก" });
-    }
-    res.json(results);
-  });
-});
 
 // ✅ GET: ข้อมูล users จาก hnNumber
 app.get("/users/:hn", (req, res) => {

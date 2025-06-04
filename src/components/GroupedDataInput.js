@@ -8,6 +8,7 @@ import Header from "../components/layout/Header";
 import Footer from "../components/layout/Footer";
 import axios from "axios";
 
+
 function Groupdatainput() {
   const navigate = useNavigate();
 
@@ -21,7 +22,7 @@ function Groupdatainput() {
 const [totalProgress, setTotalProgress] = useState(0);
 const [childData, setChildData] = useState(null);
 
-
+  
   // ดึงข้อมูลเด็กจาก childId
   useEffect(() => {
     const patientId = localStorage.getItem("childId");
