@@ -31,7 +31,11 @@ function GeneralForm() {
   const nextPage = pages[(currentIndex + 1) % pages.length];
   const prevPage = pages[(currentIndex - 1 + pages.length) % pages.length];
 
-  const [formData, setFormData] = useState({});
+  const [formData, setFormData] = useState(() => {
+  const saved = localStorage.getItem("generalFormData");
+  return saved ? JSON.parse(saved) : {};
+});
+
   const [expandedGroup, setExpandedGroup] = useState(0);
   const [completedGroups, setCompletedGroups] = useState([]);
   const [completion, setCompletion] = useState(0);
@@ -44,18 +48,19 @@ function GeneralForm() {
       parseInt(localStorage.getItem("nutritionProgress") || 0) +
       parseInt(localStorage.getItem("sanitationProgress") || 0)) / 4;
 
-  // ✅ โหลดข้อมูลจาก localStorage
-  useEffect(() => {
-    const saved = localStorage.getItem("formData-general");
-    if (saved) {
-      setFormData(JSON.parse(saved));
-    }
-  }, []);
+
 
   // ✅ บันทึกข้อมูลเมื่อ formData เปลี่ยน
   useEffect(() => {
-    localStorage.setItem("formData-general", JSON.stringify(formData));
+    localStorage.setItem("generalFormData", JSON.stringify(formData)); // ✅ แก้ให้ตรงกัน
   }, [formData]);
+  // ✅ เพิ่มตรงนี้
+useEffect(() => {
+  const savedCompleted = localStorage.getItem("generalCompletedGroups");
+  if (savedCompleted) {
+    setCompletedGroups(JSON.parse(savedCompleted));
+  }
+}, []);
 
   // ✅ โหลดข้อมูลเด็ก
   useEffect(() => {
@@ -93,10 +98,15 @@ function GeneralForm() {
     }
 
     setCompletedGroups((prev) => {
-      const newCompleted = prev.includes(index) ? prev : [...prev, index];
-      setExpandedGroup(index + 1 < nutritionGroups.length ? index + 1 : -1);
-      return newCompleted;
-    });
+  const newCompleted = prev.includes(index) ? prev : [...prev, index];
+  setExpandedGroup(index + 1 < nutritionGroups.length ? index + 1 : -1);
+
+  // ✅ เพิ่มการบันทึกลง localStorage
+  localStorage.setItem("generalCompletedGroups", JSON.stringify(newCompleted));
+
+  return newCompleted;
+});
+
   };
 
   const toggleGroup = (index) => {
