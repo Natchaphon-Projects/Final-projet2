@@ -37,7 +37,11 @@ function SanitationForm() {
   const prevIndex = (currentIndex - 1 + pages.length) % pages.length;
   const prevPage = pages[prevIndex];
 
-  const [formData, setFormData] = useState({});
+  const [formData, setFormData] = useState(() => {
+  const saved = localStorage.getItem("sanitationFormData");
+  return saved ? JSON.parse(saved) : {};
+});
+
   useEffect(() => {
   localStorage.setItem("sanitationFormData", JSON.stringify(formData));
 }, [formData]);
@@ -97,6 +101,8 @@ function SanitationForm() {
         setExpandedGroup(-1);
       }
 
+      localStorage.setItem("sanitationCompletedGroups", JSON.stringify(newCompleted));
+
       return newCompleted;
     });
   };
@@ -111,6 +117,12 @@ useEffect(() => {
   const savedData = localStorage.getItem("sanitationFormData");
   if (savedData) {
     setFormData(JSON.parse(savedData));
+  }
+}, []);
+useEffect(() => {
+  const savedCompleted = localStorage.getItem("sanitationCompletedGroups");
+  if (savedCompleted) {
+    setCompletedGroups(JSON.parse(savedCompleted));
   }
 }, []);
 
@@ -274,12 +286,16 @@ useEffect(() => {
             </div>
           ))}
 
-          {/* ✅ ปุ่มบันทึกข้อมูล */}
-          {completedGroups.length === sanitationGroups.length && (
-            <button className="submit-btn" onClick={handleSubmit}>
-              บันทึกข้อมูล
-            </button>
-          )}
+         {completedGroups.length === sanitationGroups.length && totalProgress === 100 && (
+  <button
+    className="submit-btn"
+    onClick={() => navigate("/parent-risk-assessment")}
+    style={{ background: "linear-gradient(to right, #22c55e, #16a34a)" }}
+  >
+    ✅ กรอกข้อมูลครบแล้ว กลับหน้าหลักเพื่อวิเคราะห์ภาวะทุพโภชนาการ
+  </button>
+)}
+
 
           <div
             style={{

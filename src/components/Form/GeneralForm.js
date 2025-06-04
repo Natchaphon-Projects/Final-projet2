@@ -50,6 +50,7 @@ function GeneralForm() {
 
 
 
+
   // ✅ บันทึกข้อมูลเมื่อ formData เปลี่ยน
   useEffect(() => {
     localStorage.setItem("generalFormData", JSON.stringify(formData)); // ✅ แก้ให้ตรงกัน
@@ -216,11 +217,16 @@ useEffect(() => {
             </div>
           ))}
 
-          {completedGroups.length === nutritionGroups.length && (
-            <button className="submit-btn" onClick={() => handleSubmit(false)}>
-              บันทึกข้อมูล
-            </button>
-          )}
+          {completedGroups.length === nutritionGroups.length && totalProgress === 100 && (
+  <button
+    className="submit-btn"
+    onClick={() => navigate("/parent-risk-assessment")}
+    style={{ background: "linear-gradient(to right, #22c55e, #16a34a)" }}
+  >
+    ✅ กรอกข้อมูลครบแล้ว กลับหน้าหลักเพื่อวิเคราะห์ภาวะทุพโภชนาการ
+  </button>
+)}
+
 
           <div className="navigation-buttons">
             <button className="submit-btn" onClick={() => navigate(prevPage)}>◀ กลับ</button>

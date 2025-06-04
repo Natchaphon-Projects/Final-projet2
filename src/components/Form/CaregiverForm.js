@@ -39,9 +39,23 @@ function CaregiverForm() {
   const [childData, setChildData] = useState(null);
 
 
-  const [formData, setFormData] = useState({});
+  const [formData, setFormData] = useState(() => {
+  const saved = localStorage.getItem("caregiverFormData");
+  return saved ? JSON.parse(saved) : {};
+});
+useEffect(() => {
+  localStorage.setItem("caregiverFormData", JSON.stringify(formData));
+}, [formData]);
+
   const [expandedGroup, setExpandedGroup] = useState(0);
   const [completedGroups, setCompletedGroups] = useState([]);
+  useEffect(() => {
+  const savedCompleted = localStorage.getItem("caregiverCompletedGroups");
+  if (savedCompleted) {
+    setCompletedGroups(JSON.parse(savedCompleted));
+  }
+}, []);
+
   const [completion, setCompletion] = useState(0);
 
   // 👇 เพิ่มคำนวณ totalProgress เหมือน GroupedDataInput
@@ -97,6 +111,8 @@ function CaregiverForm() {
         setExpandedGroup(-1);
       }
 
+      localStorage.setItem("caregiverCompletedGroups", JSON.stringify(newCompleted));
+      
       return newCompleted;
     });
   };
@@ -274,12 +290,16 @@ useEffect(() => {
             </div>
           ))}
 
-          {/* ✅ ปุ่มบันทึกข้อมูล */}
-          {completedGroups.length === caregiverGroups.length && (
-            <button className="submit-btn" onClick={handleSubmit}>
-              บันทึกข้อมูล
-            </button>
-          )}
+          {completedGroups.length === caregiverGroups.length && totalProgress === 100 && (
+  <button
+    className="submit-btn"
+    onClick={() => navigate("/parent-risk-assessment")}
+    style={{ background: "linear-gradient(to right, #22c55e, #16a34a)" }}
+  >
+    🎉 กรอกข้อมูลครบแล้ว กลับหน้าหลักเพื่อวิเคราะห์ภาวะทุพโภชนาการ
+  </button>
+)}
+
 
           <div style={{ display: "flex", justifyContent: "space-between", gap: "1rem", marginTop: "2rem" }}>
             <button

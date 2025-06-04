@@ -98,7 +98,14 @@ function NutritionForm() {
   const [childData, setChildData] = useState(null); // ✅ เพิ่ม
 
 
-  const [formData, setFormData] = useState({});
+  const [formData, setFormData] = useState(() => {
+  const saved = localStorage.getItem("nutritionFormData");
+  return saved ? JSON.parse(saved) : {};
+});
+useEffect(() => {
+  localStorage.setItem("nutritionFormData", JSON.stringify(formData));
+}, [formData]);
+
   const [expandedGroup, setExpandedGroup] = useState(0);
   const [completedGroups, setCompletedGroups] = useState([]);
   const [completion, setCompletion] = useState(0);
@@ -154,6 +161,8 @@ function NutritionForm() {
         setExpandedGroup(-1);
       }
 
+      localStorage.setItem("nutritionCompletedGroups", JSON.stringify(newCompleted));
+
       return newCompleted;
     });
   };
@@ -182,8 +191,14 @@ const handleSubmit = () => {
       console.error("❌ บันทึกข้อมูลล้มเหลว", err);
     });
 };
+  useEffect(() => {
+  const savedCompleted = localStorage.getItem("nutritionCompletedGroups");
+  if (savedCompleted) {
+    setCompletedGroups(JSON.parse(savedCompleted));
+  }
+}, []);
 
-
+  
   useEffect(() => {
     const totalGroups = nutritionGroups.length;
     const completedCount = completedGroups.length;
@@ -331,12 +346,15 @@ const handleSubmit = () => {
             </div>
           ))}
 
-          {/* ✅ ปุ่มบันทึกข้อมูล */}
-          {completedGroups.length === nutritionGroups.length && (
-            <button className="submit-btn" onClick={handleSubmit}>
-              บันทึกข้อมูล
-            </button>
-          )}
+         {completedGroups.length === nutritionGroups.length && totalProgress === 100 && (
+  <button
+    className="submit-btn"
+    onClick={() => navigate("/parent-risk-assessment")}
+    style={{ background: "linear-gradient(to right, #22c55e, #16a34a)" }}
+  >
+    ✅ กรอกข้อมูลครบแล้ว กลับหน้าหลักเพื่อวิเคราะห์ภาวะทุพโภชนาการ
+  </button>
+)}
 
           <div
             style={{
