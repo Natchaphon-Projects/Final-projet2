@@ -1,0 +1,269 @@
+/* หน้า background สีเขียวอ่อนเต็ม */
+.recommendation-page {
+    background: linear-gradient(to bottom, #e0fff5, #f0fffc);
+    padding: 40px 60px;
+    min-height: 100vh;
+    font-family: 'Prompt', sans-serif;
+}
+
+/* Title gradient */
+.recommendation-title {
+    background: linear-gradient(to right, #25c281, #1abc9c);
+    color: white;
+    font-size: 24px;
+    font-weight: bold;
+    padding: 16px;
+    border-radius: 12px;
+    text-align: center;
+    margin-bottom: 30px;
+    box-shadow: 0 4px 10px rgba(0,0,0,0.1);
+}
+
+/* Patient Info Section (แบบใหม่ 3 ส่วนแนวนอน) */
+.recommendation-patient-section {
+    display: flex;
+    align-items: flex-start;
+    background: rgba(255, 255, 255, 0.9);  /* ขาวโปร่งๆ */
+    border-radius: 16px;
+    padding: 24px 30px;
+    box-shadow: 0 4px 10px rgba(0,0,0,0.1);
+    margin-bottom: 30px;
+    gap: 24px;
+}
+
+/* Left: Icon + Name */
+.patient-profile {  
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: flex-start;
+    width: 180px;
+    padding: 16px;
+    background: #e6fff6;
+    border-radius: 12px;
+    box-shadow: 0 2px 6px rgba(0,0,0,0.05);
+}
+
+.patient-icon {
+    font-size: 40px;
+    margin-bottom: 12px;
+}
+
+.patient-name-large {
+    font-size: 20px;
+    font-weight: bold;
+    color: #0b615e;
+    text-align: center;
+}
+
+/* กล่องกลาง + ขวา */
+.patient-info-box {
+    flex: 1;
+    background: rgba(230, 255, 246, 0.8);  /* เขียวอ่อน 80% */
+    border-radius: 12px;
+    padding: 16px 20px;
+    box-shadow: 0 2px 6px rgba(0,0,0,0.05);
+}
+
+.patient-info-title {
+    font-size: 16px;
+    font-weight: bold;
+    color: #0b615e;
+    margin-bottom: 12px;
+}
+
+.patient-info-item {
+    font-size: 15px;
+    color: #2a2a2a;
+    margin-bottom: 8px;
+    display: flex;
+    justify-content: space-between;
+}
+
+.patient-info-item span {
+    font-weight: bold;
+    color: #000;
+}
+
+/* ปุ่ม สี gradient แบบตัวอย่าง */
+.recommendation-action-buttons {
+    display: flex;
+    justify-content: center;
+    gap: 16px;
+    flex-wrap: wrap;
+    margin-bottom: 30px;
+}
+
+.recommendation-action-btn {
+    background: linear-gradient(to right, #25c281, #1abc9c);
+    color: white;
+    font-size: 16px;
+    border: none;
+    padding: 12px 22px;
+    border-radius: 50px;
+    cursor: pointer;
+    transition: transform 0.2s ease, box-shadow 0.2s ease;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    box-shadow: 0 3px 8px rgba(0, 0, 0, 0.1);
+}
+
+.recommendation-action-btn:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 6px 12px rgba(0, 0, 0, 0.15);
+}
+
+/* Status */
+.recommendation-status {
+    background: white;
+    border-radius: 16px;
+    padding: 20px;
+    text-align: center;
+    box-shadow: 0 4px 10px rgba(0,0,0,0.1);
+}
+
+.status-text {
+    font-size: 20px;
+    font-weight: bold;
+    color: #2c2c2c;
+    margin-bottom: 6px;
+}
+
+.status-subtext {
+    font-size: 15px;
+    color: #888;
+}
+/* ผลการตรวจ Section */
+.recommendation-result-section {
+    margin-top: 40px;
+}
+
+/* Title */
+.result-header-row {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 16px;
+}
+
+.result-title {
+    font-size: 24px;
+    font-weight: bold;
+    text-align: left;
+}
+
+.food-allergy-badge {
+    display: inline-block;
+    background-color: #ff9999;
+    color: black;
+    padding: 8px 16px;
+    border-radius: 50px;
+    border: 1px solid black;
+    font-weight: bold;
+    font-size: 14px;
+}
+
+
+/* Table */
+.result-table {
+    width: 100%;
+    border-collapse: collapse;
+    border-radius: 12px;
+    overflow: hidden;
+    box-shadow: 0 4px 10px rgba(0,0,0,0.1);
+    font-family: 'Prompt', sans-serif;
+}
+
+/* Head */
+.result-table thead tr {
+    background: linear-gradient(to right, #25c281, #1abc9c);
+    color: white;
+}
+
+.result-table thead th {
+    padding: 16px;
+    font-size: 16px;
+    text-align: center;
+    border-right: 1px solid #ffffff33;
+}
+
+.result-table thead th:last-child {
+    border-right: none;
+}
+
+/* Body */
+.result-table tbody td {
+    padding: 16px;
+    font-size: 15px;
+    vertical-align: top;
+    text-align: center;
+    border-bottom: 1px solid #f0f0f0;
+}
+
+.result-table tbody tr:nth-child(odd) {
+    background: #ffffff;
+}
+
+.result-table tbody tr:nth-child(even) {
+    background: #f9fdfb;
+}
+
+/* Badge styles */
+.badge-red {
+    display: inline-block;
+    background-color: #ffe5e5;
+    color: #d9534f;
+    padding: 6px 12px;
+    border-radius: 12px;
+    font-weight: bold;
+}
+
+.badge-green {
+    display: inline-block;
+    background-color: #e5ffe5;
+    color: #28a745;
+    padding: 6px 12px;
+    border-radius: 12px;
+    font-weight: bold;
+}
+
+/* Highlight word */
+.highlight-blue {
+    color: #004de6;
+    font-weight: bold;
+}
+.patient-icon-image {
+    width: 100px;
+    height: 100px;
+    object-fit: cover;
+    border-radius: 50%; 
+    border: 3px solid #d0f0e6;
+    margin-bottom: 12px;
+}
+/* Wrapper 2 ตาราง */
+.result-table-wrapper {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 2rem;
+  justify-content: space-between;
+  margin-top: 1.5rem;
+  align-items: stretch;  /* 👈 สำคัญ → ให้ความสูงเท่ากัน */
+}
+
+.result-table-block.left {
+  flex: 1 1 72%;  /* หรือ 48% ถ้าเท่ากัน */
+  min-width: 400px;
+  display: flex;
+  flex-direction: column;
+}
+
+.result-table-block.right {
+  flex: 1 1 25%;  /* หรือ 48% ถ้าเท่ากัน */
+  min-width: 260px;
+  display: flex;
+  flex-direction: column;
+}
+
+
+

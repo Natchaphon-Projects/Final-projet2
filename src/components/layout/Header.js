@@ -14,7 +14,7 @@ function Header() {
       </div>
       <div className="header-right">
         <button className="logout-btn" onClick={() => navigate("/")}>
-          <FaSignOutAlt className="icon" />
+          <FaSignOutAlt size={24}/>
           ออกจากระบบ
         </button>
       </div>

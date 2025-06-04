@@ -2,7 +2,8 @@ import React from "react";
 import { useNavigate } from "react-router-dom";
 import "./RoleSelectionPage.css";
 import { FaHospitalSymbol, FaSignInAlt } from "react-icons/fa";
-import Footer from "./components/layout/Footer";
+import Header from "../src/components/layout/Header";
+import Footer from "../src/components/layout/Footer";
 function RoleSelectionPage() {
   const navigate = useNavigate();
 
@@ -18,19 +19,7 @@ function RoleSelectionPage() {
 
   return (
     <div className="role-wrapper">
-      <header className="custom-header">
-        <div className="header-left">
-          <FaHospitalSymbol className="hospital-icon" />
-          <span className="hospital-name">Project Hospital</span>
-        </div>
-        <div className="header-right">
-          <button className="logout-btn" onClick={handleLoginClick}>
-            <FaSignInAlt className="icon" />
-            เข้าสู่ระบบ
-          </button>
-
-        </div>
-      </header>
+      <Header />
 
 
 

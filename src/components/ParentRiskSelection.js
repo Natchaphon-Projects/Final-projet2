@@ -4,6 +4,7 @@ import axios from "axios";
 import Header from "../components/layout/Header";
 import Footer from "../components/layout/Footer";
 import "./ParentRiskSelection.css";
+import hamster from '../assets/hamster.jpg'
 
 function ParentRiskSelection() {
   const navigate = useNavigate();
@@ -12,41 +13,58 @@ function ParentRiskSelection() {
 
   const [children, setChildren] = useState([]);
 
-useEffect(() => {
-  if (hnNumber) {
-    axios
-      .get(`http://localhost:5000/children-by-parent/${hnNumber}`)
-      .then((res) => {
-        console.log("🎯 เด็กที่โหลดได้:", res.data); // เช็กใน console
-        setChildren(res.data);
-      })
-      .catch((err) => console.error("โหลดรายชื่อเด็กไม่สำเร็จ", err));
-  } else {
-    console.warn("⚠️ hnNumber ไม่พบใน state หรือ localStorage");
-  }
-}, [hnNumber]);
+  useEffect(() => {
+    if (hnNumber) {
+      axios
+        .get(`http://localhost:5000/children-by-parent/${hnNumber}`)
+        .then((res) => {
+          console.log("🎯 เด็กที่โหลดได้:", res.data);
+          setChildren(res.data);
+        })
+        .catch((err) => console.error("โหลดรายชื่อเด็กไม่สำเร็จ", err));
+    } else {
+      console.warn("⚠️ hnNumber ไม่พบใน state หรือ localStorage");
+    }
+  }, [hnNumber]);
 
   const handleChildSelect = (child) => {
-    // บันทึก hn ของเด็กใน localStorage เพื่อใช้ใน Groupdatainput
     localStorage.setItem("childHn", child.hn);
     localStorage.setItem("childId", child.patient_id);
-    navigate("/parent-risk-assessment"); // ไปหน้า GroupedDataInput
+    navigate("/parent-risk-assessment");
   };
 
   return (
     <div className="dashboard-container">
       <Header />
-      <main className="dashboard-main center-content">
-        <h2>เลือกเด็กที่ต้องการประเมิน</h2>
-        <div className="children-grid">
-          {children.map((child) => (
-            <div className="child-card" key={child.patient_id} onClick={() => handleChildSelect(child)}>
-              <h3>{`${child.prefix_name_child} ${child.first_name_child} ${child.last_name_child}`}</h3>
-              <p>HN: {child.hn}</p>
+
+      {/* Title */}
+      <div className="children-section-title">
+       เลือกเด็กที่ต้องการประเมิน
+      </div>
+
+      {/* Card Grid */}
+      <div className="children-grid">
+        {children.map((child) => (
+          <div
+            className="child-card"
+            key={child.patient_id}
+            onClick={() => handleChildSelect(child)}
+          >
+            <img
+              src={child.image_url || hamster}
+              alt="Child Avatar"
+              className="child-avatar"
+            />
+            <div className="child-name">
+              {`${child.prefix_name_child} ${child.first_name_child} ${child.last_name_child}`}
             </div>
-          ))}
-        </div>
-      </main>
+            <div className="child-hn-badge">
+              HN {child.hn}
+            </div>
+          </div>
+        ))}
+      </div>
+
       <Footer />
     </div>
   );

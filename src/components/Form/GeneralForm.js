@@ -202,11 +202,32 @@ console.log("📤 ส่งข้อมูล:", dataToSend);
             </button>
           )}
 
-          <div className="navigation-buttons">
-            <button className="submit-btn" onClick={() => navigate(prevPage)}>◀ กลับ</button>
-            <button className="submit-btn" onClick={() => navigate("/parent-risk-assessment")}>🏠 กลับหน้าหลัก</button>
-            <button className="submit-btn" onClick={() => navigate(nextPage)}>ถัดไป ➜</button>
-          </div>
+          {/* ปุ่มย้อนหน้า */}
+            <button
+              className="submit-btn"
+              onClick={() => navigate(prevPage)}
+              style={{ background: "linear-gradient(to right, #3b82f6, #2563eb)" }}
+            >
+              ◀ กลับหน้าก่อนหน้า
+            </button>
+
+            {/* ปุ่มกลับหน้า GroupedDataInput */}
+            <button
+              className="submit-btn"
+              onClick={() => navigate("/parent-risk-assessment")} // เส้นทาง path ของหน้า GroupedDataInput
+              style={{ background: "linear-gradient(to right, #f59e0b, #f97316)" }}
+            >
+              🏠 กลับหน้าเลือกกลุ่มข้อมูล
+            </button>
+
+            {/* ปุ่มไปหน้าใหม่ */}
+            <button
+              className="submit-btn"
+              onClick={() => navigate(nextPage)}
+              style={{ background: "linear-gradient(to right, #10b981, #06b6d4)" }}
+            >
+              ตอบคำถามหน้าถัดไป ➜
+            </button>
         </div>
       </div>
 

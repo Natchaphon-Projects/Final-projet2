@@ -1,22 +1,74 @@
 .children-grid {
   display: flex;
   flex-wrap: wrap;
-  gap: 1rem;
+  gap: 2rem;
   justify-content: center;
+  margin-top: 2rem;
 }
 
 .child-card {
-  background: #f3f4f6;
-  border-radius: 12px;
-  padding: 1rem 1.5rem;
-  box-shadow: 0 2px 6px rgba(0,0,0,0.1);
+  background: #ffffff;
+  border-radius: 16px;
+  padding: 2rem 2rem;
+  box-shadow: 0 8px 24px rgba(0,0,0,0.06);
   cursor: pointer;
-  transition: transform 0.2s ease;
-  min-width: 240px;
+  transition: transform 0.2s ease, box-shadow 0.2s ease;
+  width: 250px;
   text-align: center;
 }
 
 .child-card:hover {
-  transform: scale(1.03);
-  background: #e0f2fe;
+  transform: translateY(-6px);
+  box-shadow: 0 12px 32px rgba(0,0,0,0.12);
+  background: #f9fdfd;
+}
+
+/* เพิ่ม style สำหรับรูปภาพ */
+.child-avatar {
+  width: 120px;
+  height: 120px;
+  border-radius: 50%;
+  object-fit: cover;
+  margin-bottom: 1rem;
+  box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+  border: 3px solid #e0f7f4;
+}
+
+/* ชื่อ */
+.child-name {
+  font-size: 18px;
+  font-weight: 700;
+  color: #1f2937;
+  margin-bottom: 1rem;
+}
+
+/* HN Badge */
+.child-hn-badge {
+  display: inline-block;
+  background: #e0fef4;
+  color: #0f766e;
+  padding: 0.5rem 1rem;
+  border-radius: 50px;
+  font-weight: 600;
+  font-size: 14px;
+  border: 1px solid #a7f3d0;
+}
+.children-section-title {
+  font-size: 32px;
+  font-weight: 800;
+  color: #0f766e;  /* เขียว modern */
+  text-align: center;
+  margin-top: 3rem;
+  margin-bottom: 2rem;
+  position: relative;
+}
+
+.children-section-title::after {
+  content: "";
+  display: block;
+  width: 80px;
+  height: 4px;
+  margin: 12px auto 0 auto;
+  background: linear-gradient(to right, #2ee59d, #2ec9ff);
+  border-radius: 2px;
 }
