@@ -144,14 +144,16 @@ useEffect(() => {
       <main className="dashboard-main center-content">
 
         {childData && (
-          <div style={{ textAlign: "center", marginBottom: "1rem" }}>
-            <h2>แบบประเมินสำหรับ:</h2>
-            <h3 style={{ color: "#0ea5e9" }}>
-              {childData.prefix_name_child} {childData.first_name_child} {childData.last_name_child}
-            </h3>
-            <p>HN: {childData.hn}</p>
-          </div>
-        )}
+  <div style={{ textAlign: "center", marginBottom: "1rem" }}>
+    <h2>แบบประเมินสำหรับ:</h2>
+    <h3 style={{ color: "#0ea5e9" }}>
+      {childData.prefix_name_child} {childData.first_name_child} {childData.last_name_child}
+    </h3>
+    <p>HN: {childData.hn}</p>
+  </div>
+)}
+
+
 
         <h2 className="main-title" style={{ textAlign: "center" }}>
           เลือกกลุ่มข้อมูลที่ต้องการกรอก

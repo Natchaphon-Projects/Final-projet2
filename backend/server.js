@@ -282,6 +282,165 @@ app.get("/find-parent-id", (req, res) => {
   });
 });
 
+app.post("/predictions/combined", (req, res) => {
+  const data = req.body;
+  const patientId = data.patient_id;
+
+  if (!patientId) {
+    return res.status(400).json({ error: "Missing patient_id" });
+  }
+
+  // ✅ แยก weight และ height ไปเก็บใน medical_records
+  const weight = data.Weight;
+  const height = data.Height;
+  const visit_date = new Date().toISOString().split("T")[0];
+
+  // ลบ field ที่ไม่ใช่ของ prediction ออก
+  delete data.Weight;
+  delete data.Height;
+
+  // ✅ สร้าง query สำหรับ medical_records
+  const insertMedical = `
+    INSERT INTO medical_records (patient_id, visit_date, weight, height, created_at)
+    VALUES (?, ?, ?, ?, NOW())
+  `;
+
+  db.query(insertMedical, [patientId, visit_date, weight, height], (err1) => {
+    if (err1) {
+      console.error("❌ Insert medical_records failed:", err1);
+      return res.status(500).json({ error: "Insert medical_records failed" });
+    }
+
+    // ✅ เตรียมข้อมูลสำหรับ prediction
+    const fields = Object.keys(data)
+      .filter((key) => key !== "patient_id")
+      .map((key) => `\`${key}\``)
+      .join(", ");
+
+    const values = Object.keys(data)
+      .filter((key) => key !== "patient_id")
+      .map((key) => mysql.escape(data[key]))
+      .join(", ");
+
+    const query = `
+      INSERT INTO prediction (patient_id, ${fields}, created_at)
+      VALUES (${mysql.escape(patientId)}, ${values}, NOW())
+    `;
+
+    db.query(query, (err2, result) => {
+      if (err2) {
+        console.error("❌ Insert prediction failed:", err2);
+        return res.status(500).json({ error: "Insert prediction failed" });
+      }
+
+      res.status(201).json({ message: "✅ บันทึกข้อมูลสำเร็จ", prediction_id: result.insertId });
+    });
+  });
+});
+
+
+app.get("/children-by-parent/:hn", (req, res) => {
+  const hn = req.params.hn;
+  const query = `
+    SELECT p.patient_id, p.hn, p.prefix_name_child, p.first_name_child, p.last_name_child
+    FROM patient p
+    JOIN relationship r ON p.patient_id = r.patient_id
+    JOIN parent pa ON r.parent_id = pa.parent_id
+    WHERE pa.hn_number = ?
+  `;
+
+  db.query(query, [hn], (err, results) => {
+    if (err) {
+      console.error("❌ ดึงรายชื่อเด็กล้มเหลว:", err);
+      return res.status(500).json({ message: "เกิดข้อผิดพลาดในการโหลดข้อมูลเด็ก" });
+    }
+    res.json(results);
+  });
+});
+
+// ✅ GET: ข้อมูล users จาก hnNumber
+app.get("/users/:hn", (req, res) => {
+  const hn = req.params.hn;
+  const query = `
+    SELECT * FROM users
+    WHERE hn_number = ?
+  `;
+  db.query(query, [hn], (err, results) => {
+    if (err) return res.status(500).send("Database error");
+    if (results.length > 0) {
+      res.status(200).json(results[0]);
+    } else {
+      res.status(404).send("User not found");
+    }
+  });
+});
+
+app.get("/find-patient-id", (req, res) => {
+  const hn = req.query.hn;
+  const query = `SELECT patient_id FROM patient WHERE hn = ?`;
+  db.query(query, [hn], (err, results) => {
+    if (err) return res.status(500).json({ message: "DB Error" });
+    if (results.length > 0) {
+      res.json({ patient_id: results[0].patient_id });
+    } else {
+      res.status(404).json({ message: "Not found" });
+    }
+  });
+});
+
+app.post("/medical-records", (req, res) => {
+  const { patient_id, height, weight, visit_date } = req.body;
+
+  const query = `
+    INSERT INTO medical_records (patient_id, visit_date, height, weight, created_at)
+    VALUES (?, ?, ?, ?, NOW())
+  `;
+
+  db.query(query, [patient_id, visit_date, height, weight], (err, result) => {
+    if (err) {
+      console.error("SQL Error:", err);
+      return res.status(500).json({ message: "Database error" });
+    }
+    res.status(200).json({ message: "✅ บันทึกสำเร็จ", id: result.insertId });
+  });
+});
+
+app.get("/children-by-parent/:hn", (req, res) => {
+  const hn = req.params.hn;
+  const query = `
+    SELECT 
+      p.patient_id,
+      p.hn,
+      p.prefix_name_child,
+      p.first_name_child,
+      p.last_name_child
+    FROM parent pa
+    JOIN relationship r ON pa.parent_id = r.parent_id
+    JOIN patient p ON r.patient_id = p.patient_id
+    WHERE pa.hn_number = ?
+  `;
+  db.query(query, [hn], (err, results) => {
+    if (err) {
+      console.error("❌ SQL Error:", err);
+      return res.status(500).json({ message: "DB error" });
+    }
+    res.json(results);
+  });
+});
+
+// ดึงข้อมูลเด็กจาก patient_id
+app.get("/patients/:id", (req, res) => {
+  const id = req.params.id;
+  const query = `SELECT * FROM patient WHERE patient_id = ?`;
+  db.query(query, [id], (err, results) => {
+    if (err) return res.status(500).json({ message: "DB error" });
+    if (results.length > 0) {
+      res.json(results[0]);
+    } else {
+      res.status(404).json({ message: "Not found" });
+    }
+  });
+});
 
 // ✅ Start server
 app.listen(port, () => {
