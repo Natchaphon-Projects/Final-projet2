@@ -10,8 +10,8 @@ const nutritionGroups = [
     groupTitle: "จำนวนครั้ง",
     groupNote: "✏️ โปรดกรอกจำนวนครั้งเป็นตัวเลข",
     questions: [
-      { key: "Weight", label: "น้ำหนัก", type: "number" },
-      { key: "Height", label: "ส่วนสูง", type: "number" }
+      { key: "Weight", label: "น้ำหนัก (กิโลกรัม)", type: "number" },
+      { key: "Height", label: "ส่วนสูง (เซนติเมตร)", type: "number" }
     ],
   },
 ];
