@@ -10,8 +10,8 @@ const nutritionGroups = [
     groupTitle: "น้ำหนักและส่วนสูง",
     groupNote: "✏️ โปรดกรอกจำนวนครั้งเป็นตัวเลข",
     questions: [
-      { key: "Weight", label: "น้ำหนัก", type: "number" },
-      { key: "Height", label: "ส่วนสูง", type: "number" },      
+      { key: "Weight", label: "น้ำหนัก(กิโลกรัม)", type: "number" },
+      { key: "Height", label: "ส่วนสูง(เซนติเมตร)", type: "number" },      
     ],
   },
   {
@@ -95,11 +95,18 @@ useEffect(() => {
 
   const handleGroupComplete = (index) => {
     const group = nutritionGroups[index];
-    const requiredKeys = group.questions.map(q => q.key);
-    const isComplete = requiredKeys.every(key => {
-      const value = formData[key];
-      return value !== "" && value !== undefined;
-    });
+   let requiredKeys = [];
+
+if (index === 0) {
+  // กลุ่มน้ำหนัก/ส่วนสูงเท่านั้นที่ต้องกรอก
+  requiredKeys = ["Weight", "Height"];
+}
+
+const isComplete = requiredKeys.every((key) => {
+  const value = formData[key];
+  return value !== "" && value !== undefined;
+});
+
 
     if (!isComplete) {
       alert("กรุณากรอกข้อมูลให้ครบก่อนกดยืนยัน ✅");
