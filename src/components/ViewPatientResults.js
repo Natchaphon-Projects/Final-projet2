@@ -49,7 +49,7 @@ function ViewPatientResults() {
   });
 
   const handleViewDetails = (patient) => {
-    navigate(`/patient-assessment/${patient.id}`, { state: { patient } });
+    navigate(`/Recomendation/${patient.id}`, { state: { patient } });
   };
 
   return (
