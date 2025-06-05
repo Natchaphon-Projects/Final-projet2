@@ -198,8 +198,8 @@ useEffect(() => {
   </div>
 )}
 
-          <h2 className="nutrition-title">แบบสอบถามข้อมูลโภชนาการของเด็ก</h2>
-          <p className="nutrition-subtitle">กรุณาตอบคำถามเกี่ยวกับการได้รับสารอาหารของเด็ก</p>
+          <h2 className="nutrition-title">แบบสอบถามข้อมูลผู้ดุแลเด็ก</h2>
+          <p className="nutrition-subtitle">กรุณาตอบคำถามเกี่ยวกับผู้ดุแลของเด็ก</p>
 
           {/* ✅ Progress */}
           <div className="progress-section">
