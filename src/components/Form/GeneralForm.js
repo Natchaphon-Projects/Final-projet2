@@ -195,20 +195,37 @@ useEffect(() => {
                 <div className="accordion-content">
                   {group.groupNote && <div className="group-note">{group.groupNote}</div>}
                   <div className="number-grid">
-                    {group.questions.map(({ key, label }) => (
-                      <div className="number-item" key={key}>
-                        <label className="question-label">
-                          {label}
-                          <input
-                            type="number"
-                            value={formData[key] || ""}
-                            onChange={(e) => handleChange(key, e.target.value)}
-                            className="number-input"
-                          />
-                        </label>
-                      </div>
-                    ))}
-                  </div>
+  {group.questions.map(({ key, label, type }) => (
+    <div className="number-item" key={key}>
+      <label className="question-label">
+        {label}
+        {type === "number" ? (
+          <input
+            type="number"
+            min="0"
+            value={formData[key] || ""}
+            onChange={(e) => {
+  const value = e.target.value;
+  if (Number(value) >= 0 || value === "") {
+    handleChange(key, value);
+  }
+}}
+
+            className="number-input"
+          />
+        ) : (
+          <input
+            type="checkbox"
+            checked={!!formData[key]}
+            onChange={(e) => handleChange(key, e.target.checked ? 1 : 0)}
+            className="checkbox-input"
+          />
+        )}
+      </label>
+    </div>
+  ))}
+</div>
+
                   <button className="complete-btn" onClick={() => handleGroupComplete(index)}>
                     บันทึก
                   </button>

@@ -305,11 +305,18 @@ const handleSubmit = () => {
                               <label className="question-label">
                                 {label}
                                 <input
-                                  type="number"
-                                  value={formData[key] || ""}
-                                  onChange={(e) => handleChange(key, e.target.value)}
-                                  className="number-input"
-                                />
+  type="number"
+  min="0"
+  value={formData[key] || ""}
+  onChange={(e) => {
+    const value = e.target.value;
+    if (value === "" || Number(value) >= 0) {
+      handleChange(key, value);
+    }
+  }}
+  className="number-input"
+/>
+
                               </label>
                             </div>
                           );
