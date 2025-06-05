@@ -279,7 +279,7 @@ useEffect(() => {
                   )}
 
                   <button className="complete-btn" onClick={() => handleGroupComplete(index)}>
-                    ถัดไป ➜
+                    บันทึก
                   </button>
                 </div>
               )}

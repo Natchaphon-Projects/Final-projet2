@@ -338,9 +338,16 @@ const handleSubmit = () => {
                     </div>
                   )}
 
-                  <button className="complete-btn" onClick={() => handleGroupComplete(index)}>
-                    ถัดไป ➜
-                  </button>
+                  {index === nutritionGroups.length - 1 ? (
+  <button className="complete-btn" onClick={() => { handleGroupComplete(index); handleSubmit(); }}>
+    บันทึก
+  </button>
+) : (
+  <button className="complete-btn" onClick={() => handleGroupComplete(index)}>
+    ถัดไป ➜
+  </button>
+)}
+
                 </div>
               )}
             </div>

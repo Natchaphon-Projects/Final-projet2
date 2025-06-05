@@ -32,6 +32,30 @@ const [childData, setChildData] = useState(null);
         .catch((err) => console.error("❌ โหลดข้อมูลเด็กล้มเหลว", err));
     }
   }, []);
+
+const requiredKeys = [
+  "Guardian", "Vitamin_A_Intake_First_8_Weeks", "Sanitary_Disposal",
+  "Mom_wash_hand_before_or_after_cleaning_children", "Mom_wash_hand_before_or_after_feeding_the_child",
+  "Child_before_or_after_eating_food", "Child_wash_hand_before_or_after_eating_food",
+  "Last_Month_Weight_Check", "Weighed_Twice_Check_in_Last_3_Months",
+  "Given_Anything_to_Drink_in_First_6_Months", "Still_Breastfeeding",
+  "Is_Respondent_Biological_Mother", "Breastfeeding_Count_DayandNight",
+  "Received_Vitamin_or_Mineral_Supplements", "Received_Plain_Water",
+  "Infant_Formula_Intake_Count_Yesterday", "Received_Animal_Milk",
+  "Received_Animal_Milk_Count", "Received_Juice_or_Juice_Drinks",
+  "Received_Yogurt", "Received_Yogurt_Count", "Received_Thin_Porridge",
+  "Received_Tea", "Received_Other_Liquids", "Received_Grain_Based_Foods",
+  "Received_Orange_Yellow_Foods", "Received_White_Root_Foods",
+  "Received_Dark_Green_Leafy_Veggies", "Received_Ripe_Mangoes_Papayas",
+  "Received_Other_Fruits_Vegetables", "Received_Meat", "Received_Eggs",
+  "Received_Fish_Shellfish_Seafood", "Received_Legumes_Nuts_Foods",
+  "Received_Dairy_Products", "Received_Oil_Fats_Butter",
+  "Received_Sugary_Foods", "Received_Chilies_Spices_Herbs",
+  "Received_Grubs_Snails_Insects", "Received_Other_Solid_Semi_Solid_Food",
+  "Received_Salt", "Number_of_Times_Eaten_Solid_Food"
+];
+
+
   const handleFinalSubmit = async () => {
   const general = JSON.parse(localStorage.getItem("generalFormData") || "{}");
   const caregiver = JSON.parse(localStorage.getItem("caregiverFormData") || "{}");
@@ -53,9 +77,22 @@ const [childData, setChildData] = useState(null);
       ...sanitation,
     };
 
+      // เติมค่าที่ขาด = 0
+requiredKeys.forEach((key) => {
+  if (!(key in allData)) {
+    allData[key] = 0;
+  }
+});
+
+
     const response = await axios.post("http://localhost:5000/predictions/combined", allData);
     if (response.status === 200 || response.status === 201) {
       alert("✅ บันทึกข้อมูลสำเร็จ!");
+
+      localStorage.setItem("latestPredictionData", JSON.stringify(allData));
+
+      // ⬅️ และเปลี่ยนหน้าไป PredictionModel
+      navigate("/prediction-result");
     } else {
       alert("❌ บันทึกข้อมูลไม่สำเร็จ");
     }

@@ -128,12 +128,17 @@ class PredictionInput(BaseModel):
 @app.post("/prediction")
 async def get_prediction(input_data: PredictionInput):
     try:
+
+        print("📥 ได้รับข้อมูลจาก frontend:", input_data.dict())
+
         if model is None:
             return {"error": "Model not loaded"}
         if scaler is None:
             return {"error": "Scaler not ready"}
 
         original_input = input_data.dict()
+        
+        
 
         # ✅ Build DataFrame with column names
         df = pd.DataFrame([original_input], columns=columns)

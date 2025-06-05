@@ -210,7 +210,7 @@ useEffect(() => {
                     ))}
                   </div>
                   <button className="complete-btn" onClick={() => handleGroupComplete(index)}>
-                    ถัดไป ➜
+                    บันทึก
                   </button>
                 </div>
               )}
@@ -229,9 +229,9 @@ useEffect(() => {
 
 
           <div className="navigation-buttons">
-            <button className="submit-btn" onClick={() => navigate(prevPage)}>◀ กลับ</button>
+            <button className="submit-btn" onClick={() => navigate(prevPage)}>◀ กลับหน้าก่อนหน้า</button>
             <button className="submit-btn" onClick={() => navigate("/parent-risk-assessment")}>🏠 กลับหน้าหลัก</button>
-            <button className="submit-btn" onClick={() => navigate(nextPage)}>ถัดไป ➜</button>
+            <button className="submit-btn" onClick={() => navigate(nextPage)}>ตอบคำถามหน้าถัดไป ➜</button>
           </div>
         </div>
       </div>

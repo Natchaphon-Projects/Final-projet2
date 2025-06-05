@@ -50,6 +50,8 @@ function App() {
         <Route path="/form/nutrition" element={<NutritionForm />} />
         <Route path="/form/sanitation" element={<SanitationForm />} />
         <Route path="/pre" element={<PredictionModel />} /> {/* ✅ เพิ่ม route ไปยังหน้าผลประเมิน */}
+        <Route path="/prediction-result" element={<PredictionModel />} />
+
 
         {/* Doctor Routes */}
         <Route path="/doctor-dashboard" element={<DoctorDashboard />} />
