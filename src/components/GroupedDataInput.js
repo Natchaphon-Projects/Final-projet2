@@ -36,7 +36,7 @@ const [childData, setChildData] = useState(null);
 const requiredKeys = [
   "Guardian", "Vitamin_A_Intake_First_8_Weeks", "Sanitary_Disposal",
   "Mom_wash_hand_before_or_after_cleaning_children", "Mom_wash_hand_before_or_after_feeding_the_child",
-  "Child_before_or_after_eating_food", "Child_wash_hand_before_or_after_eating_food",
+  "Child_wash_hand_before_or_after_eating_food", "Child_wash_hand_before_or_after_visiting_the_toilet",
   "Last_Month_Weight_Check", "Weighed_Twice_Check_in_Last_3_Months",
   "Given_Anything_to_Drink_in_First_6_Months", "Still_Breastfeeding",
   "Is_Respondent_Biological_Mother", "Breastfeeding_Count_DayandNight",

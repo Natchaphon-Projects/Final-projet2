@@ -9,7 +9,7 @@ import axios from "axios";
 const sanitationGroups = [
   {
     groupTitle: "พฤติกรรมด้านสุขาภิบาลและความสะอาด",
-    groupNote: "☐ หากปฏิบัติพฤติกรรมนั้นให้ติ๊กถูกในช่องสี่เหลี่ยม",
+    groupNote: "หากปฏิบัติพฤติกรรมนั้นให้ติ๊กถูกในช่องสี่เหลี่ยม ☐",
     questions: [
       { key: "Sanitary_Disposal", label: "เด็กมีการถ่ายอุจจาระแบบถูกสุขลักษณะหรือไม่ เช่น ถ่ายในห้องน้ำและมีการชำระล้าง", type: "checkbox" },
       { key: "Child_before_or_after_eating_food", label: "เด็กล้างมือทั้งก่อนหรือหลังทานข้าวหรือไม่ ", type: "checkbox" },

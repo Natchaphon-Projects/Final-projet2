@@ -10,10 +10,10 @@ import axios from "axios";
 const caregiverGroups = [
   {
     groupTitle: "ผู้ตอบแบบสอบถามมีความสัมพันธ์อย่างไรกับเด็ก",
-    groupNote: "หากมีการบริโภคให้ติ๊กถูกในช่องสี่เหลี่ยม ☐",
+    groupNote: "หากผู้ตอบแบบสอบถามมีความสัมพันธ์ที่เกี่ยวข้องกับเด็กให้ติ๊กถูกในช่องสี่เหลี่ยม ☐",
     questions: [
-      { key: "Guardian", label: "เป็นผู้ดูแลเด็กด้วยตัวเองใช่หรือไม่", type: "checkbox" },
-      { key: "Is_Respondent_Biological_Mother", label: "เป็นมารดาผู้ให้กำเนิดหรือไม่", type: "checkbox" },
+      { key: "Guardian", label: "บุคคลที่รับผิดชอบในการดูแลเด็กเป็นมารดาผู้ให้กำเนิดของเด็กหรือไม่", type: "checkbox" },
+      { key: "Is_Respondent_Biological_Mother", label: "ผู้ตอบแบบสอบถามเป็นมารดาผู้ให้กำเนิดของเด็กหรือไม่", type: "checkbox" },
     ],
   },
   
@@ -301,7 +301,16 @@ useEffect(() => {
 )}
 
 
-          <div style={{ display: "flex", justifyContent: "space-between", gap: "1rem", marginTop: "2rem" }}>
+         <div
+            style={{
+              display: "flex",
+              justifyContent: "space-between",
+              alignItems: "center",
+              gap: "1rem",
+              marginTop: "2rem",
+            }}
+          >
+            {/* ปุ่มย้อนหน้า */}
             <button
               className="submit-btn"
               onClick={() => navigate(prevPage)}
@@ -310,6 +319,16 @@ useEffect(() => {
               ◀ กลับหน้าก่อนหน้า
             </button>
 
+            {/* ปุ่มกลับหน้า GroupedDataInput */}
+            <button
+              className="submit-btn"
+              onClick={() => navigate("/parent-risk-assessment")} // เส้นทาง path ของหน้า GroupedDataInput
+              style={{ background: "linear-gradient(to right, #f59e0b, #f97316)" }}
+            >
+              🏠 กลับหน้าเลือกกลุ่มข้อมูล
+            </button>
+
+            {/* ปุ่มไปหน้าใหม่ */}
             <button
               className="submit-btn"
               onClick={() => navigate(nextPage)}

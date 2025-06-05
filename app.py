@@ -86,8 +86,8 @@ class PredictionInput(BaseModel):
     Sanitary_Disposal: int
     Mom_wash_hand_before_or_after_cleaning_children: int
     Mom_wash_hand_before_or_after_feeding_the_child: int
-    Child_before_or_after_eating_food: int
     Child_wash_hand_before_or_after_eating_food: int
+    Child_wash_hand_before_or_after_visiting_the_toilet: int
     Last_Month_Weight_Check: int
     Weighed_Twice_Check_in_Last_3_Months: int
     Given_Anything_to_Drink_in_First_6_Months: int
