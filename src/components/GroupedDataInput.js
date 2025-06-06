@@ -10,7 +10,9 @@ import axios from "axios";
 
 
 function Groupdatainput() {
+  
   const navigate = useNavigate();
+  const [isSubmitting, setIsSubmitting] = useState(false); // 🔒 ป้องกันคลิกซ้ำ
 
   const [groupProgress, setGroupProgress] = useState({
     general: 0,
@@ -57,6 +59,9 @@ const requiredKeys = [
 
 
   const handleFinalSubmit = async () => {
+  if (isSubmitting) return; // ❌ ป้องกันคลิกซ้ำ
+  setIsSubmitting(true);    // ✅ ล็อกการคลิกซ้ำ
+
   const general = JSON.parse(localStorage.getItem("generalFormData") || "{}");
   const caregiver = JSON.parse(localStorage.getItem("caregiverFormData") || "{}");
   const nutrition = JSON.parse(localStorage.getItem("nutritionFormData") || "{}");
@@ -64,7 +69,8 @@ const requiredKeys = [
 
   const patientId = localStorage.getItem("childId");
   if (!patientId) {
-    alert("❌ ไม่พบรหัสผู้ป่วย กรุณาเลือกเด็กใหม่ก่อน");
+    console.warn("❌ ไม่พบรหัสผู้ป่วย กรุณาเลือกเด็กใหม่ก่อน");
+    setIsSubmitting(false);
     return;
   }
 
@@ -77,30 +83,26 @@ const requiredKeys = [
       ...sanitation,
     };
 
-      // เติมค่าที่ขาด = 0
-requiredKeys.forEach((key) => {
-  if (!(key in allData)) {
-    allData[key] = 0;
-  }
-});
+    // ✅ เติมค่าที่ขาด = 0
+    requiredKeys.forEach((key) => {
+      if (!(key in allData)) {
+        allData[key] = 0;
+      }
+    });
 
+    // ✅ เก็บไว้ให้ PredictionModel ใช้
+    localStorage.setItem("latestPredictionData", JSON.stringify(allData));
 
-    const response = await axios.post("http://localhost:5000/predictions/combined", allData);
-    if (response.status === 200 || response.status === 201) {
-      alert("✅ บันทึกข้อมูลสำเร็จ!");
-
-      localStorage.setItem("latestPredictionData", JSON.stringify(allData));
-
-      // ⬅️ และเปลี่ยนหน้าไป PredictionModel
-      navigate("/prediction-result");
-    } else {
-      alert("❌ บันทึกข้อมูลไม่สำเร็จ");
-    }
+    // ✅ เปลี่ยนหน้า
+    navigate("/prediction-result");
   } catch (err) {
-    console.error("บันทึกข้อมูลล้มเหลว:", err);
-    alert("❌ ไม่สามารถเชื่อมต่อกับเซิร์ฟเวอร์");
+    console.error("❌ เกิดข้อผิดพลาด", err);
+  } finally {
+    setIsSubmitting(false); // ✅ ปลดล็อก
   }
 };
+
+
 
   // ✅ โหลด progress แบบเรียลไทม์
   useEffect(() => {
@@ -260,20 +262,23 @@ useEffect(() => {
         {Math.round(totalProgress) === 100 && (
   <div style={{ textAlign: "center", marginTop: "2rem" }}>
     <button
-      className="submit-btn"
-      style={{
-        background: "linear-gradient(to right, #0ea5e9, #2563eb)",
-        color: "white",
-        fontSize: "18px",
-        padding: "12px 24px",
-        borderRadius: "12px",
-        fontWeight: "bold",
-        boxShadow: "0 4px 12px rgba(0,0,0,0.1)"
-      }}
-      onClick={handleFinalSubmit}
-    >
-      ✅ บันทึกข้อมูลทั้งหมดลงระบบ
-    </button>
+  className="submit-btn"
+  disabled={isSubmitting}
+  style={{
+    background: isSubmitting ? "#94a3b8" : "linear-gradient(to right, #0ea5e9, #2563eb)",
+    color: "white",
+    fontSize: "18px",
+    padding: "12px 24px",
+    borderRadius: "12px",
+    fontWeight: "bold",
+    boxShadow: "0 4px 12px rgba(0,0,0,0.1)",
+    cursor: isSubmitting ? "not-allowed" : "pointer"
+  }}
+  onClick={handleFinalSubmit}
+>
+  {isSubmitting ? "⏳ กำลังบันทึก..." : "✅ บันทึกข้อมูลทั้งหมดลงระบบ"}
+</button>
+
   </div>
 )}
 
