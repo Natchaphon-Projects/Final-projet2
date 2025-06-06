@@ -28,10 +28,30 @@ function ParentRiskSelection() {
   }, [hnNumber]);
 
   const handleChildSelect = (child) => {
-    localStorage.setItem("childHn", child.hn);
-    localStorage.setItem("childId", child.patient_id);
-    navigate("/parent-risk-assessment");
-  };
+
+  localStorage.removeItem("generalFormData");
+  localStorage.removeItem("caregiverFormData");
+  localStorage.removeItem("nutritionFormData");
+  localStorage.removeItem("sanitationFormData");
+
+  localStorage.removeItem("generalProgress");
+  localStorage.removeItem("caregiverProgress");
+  localStorage.removeItem("nutritionProgress");
+  localStorage.removeItem("sanitationProgress");
+
+  localStorage.removeItem("generalCompletedGroups");
+  localStorage.removeItem("caregiverCompletedGroups");
+  localStorage.removeItem("nutritionCompletedGroups");
+  localStorage.removeItem("sanitationCompletedGroups");
+
+
+  localStorage.setItem("childHn", child.hn);
+  localStorage.setItem("childId", child.patient_id);
+
+  // ⏩ ไปหน้าถัดไป
+  navigate("/parent-risk-assessment");
+};
+
 
   return (
     <div className="dashboard-container">

@@ -8,17 +8,53 @@ import axios from "axios";
 import { FaUserAlt } from "react-icons/fa"; // ใช้ไอคอน
 import { FaPhoneAlt, FaEnvelope } from "react-icons/fa";
 import { FaHeartbeat } from "react-icons/fa";
+import { useEffect } from "react"; // อย่าลืมเพิ่มถ้ายังไม่มี
+import { useNavigate } from "react-router-dom";
 
+
+
+const preprocessData = (data) => {
+  const mapping = {
+    "1-2 มื้อ": 1,
+    "3-4 มื้อ": 2,
+    "4 มื้อขึ้นไป": 3,
+    "ไม่ได้บริโภค": 0
+  };
+
+  const transformed = {};
+
+  Object.entries(data).forEach(([key, value]) => {
+    if (typeof value === "boolean") {
+      transformed[key] = value ? 1 : 0;
+    } else if (key === "Number_of_Times_Eaten_Solid_Food") {
+      transformed[key] = mapping[value] ?? 0;
+    } else if (!isNaN(value) && value !== "") {
+  transformed[key] = Number(value);
+} else {
+      transformed[key] = value;
+    }
+  });
+
+  return transformed;
+};
 
 
 function PredictionModel() {
   const [latestPrediction, setLatestPrediction] = useState(null);
+  const navigate = useNavigate();
   const [loading, setLoading] = useState(false);
+  useEffect(() => {
+  const data = localStorage.getItem("latestPredictionData");
+  if (data) {
+    handlePredict(JSON.parse(data));
+  }
+}, []);
+
 
   const featureKeys = [
     "Guardian", "Vitamin_A_Intake_First_8_Weeks", "Sanitary_Disposal",
     "Mom_wash_hand_before_or_after_cleaning_children", "Mom_wash_hand_before_or_after_feeding_the_child",
-    "Child_before_or_after_eating_food", "Child_wash_hand_before_or_after_eating_food",
+    "Child_wash_hand_before_or_after_eating_food", "Child_wash_hand_before_or_after_visiting_the_toilet",
     "Last_Month_Weight_Check", "Weighed_Twice_Check_in_Last_3_Months",
     "Given_Anything_to_Drink_in_First_6_Months", "Still_Breastfeeding",
     "Is_Respondent_Biological_Mother", "Breastfeeding_Count_DayandNight",
@@ -45,32 +81,60 @@ function PredictionModel() {
     return data;
   };
 
-  const handlePredict = async () => {
-    setLoading(true);
-    const inputData = getRandomData();
+ const handlePredict = async (customData = null) => {
+  setLoading(true);
+  const inputData = customData || getRandomData();
+  const transformedData = preprocessData(inputData);
 
-    try {
-      const response = await axios.post("http://localhost:8000/prediction", inputData);
-      const result = response.data.prediction;
-      const now = new Date();
-      const formattedDate = now.toLocaleDateString("th-TH");
-      const formattedTime = now.toLocaleTimeString("th-TH", {
-        hour: "2-digit", minute: "2-digit"
-      });
-
-      setLatestPrediction({
-        status: result === "Normal" ? "ปกติ" : "กรุณาพบแพทย์",
-        date: formattedDate,
-        time: formattedTime,
-        isNormal: result === "Normal",
-      });
-    } catch (error) {
-      console.error("❌ ข้อผิดพลาด:", error);
-      alert("เกิดข้อผิดพลาดในการทำนายผล");
+  const filteredData = {};
+  featureKeys.forEach((key) => {
+    if (key in transformedData) {
+      filteredData[key] = transformedData[key];
     }
+  });
 
-    setLoading(false);
-  };
+  try {
+    const response = await axios.post(
+      "http://localhost:8000/prediction",
+      JSON.stringify(filteredData),
+      {
+        headers: {
+          "Content-Type": "application/json"
+        }
+      }
+    );
+
+    const result = response.data.prediction; // เช่น "Obesity", "SAM", ฯลฯ
+    const now = new Date();
+    const formattedDate = now.toLocaleDateString("th-TH");
+    const formattedTime = now.toLocaleTimeString("th-TH", {
+      hour: "2-digit", minute: "2-digit"
+    });
+
+    // ✅ เก็บผลลัพธ์เข้า SQL ด้วย
+    const patientId = localStorage.getItem("childId");
+    await axios.post("http://localhost:5000/predictions/combined", {
+      patient_id: patientId,
+      ...filteredData,
+      Status_personal: result // <== ตรงนี้จะเก็บลง SQL
+    });
+
+    // ✅ แสดงผลบนหน้าเว็บ
+    setLatestPrediction({
+      status: result === "Normal" ? "ปกติ" : "กรุณาพบแพทย์",
+      date: formattedDate,
+      time: formattedTime,
+      isNormal: result === "Normal",
+    });
+  } catch (error) {
+    console.error("❌ ข้อผิดพลาด:", error);
+    alert("เกิดข้อผิดพลาดในการทำนายผล");
+  }
+
+  setLoading(false);
+};
+
+
 
   return (
     <div className="dashboard-container">
@@ -97,13 +161,13 @@ function PredictionModel() {
 
 <div className="info-row">
   <span className="label">ความแม่นยำ:</span>
-  <span className="value green-text-bold">95.2%</span>
+  <span className="value green-text-bold">90.65%</span>
 </div>
 
 
   <div className="info-row">
     <span className="label">เวอร์ชัน:</span>
-    <span className="value highlight">2.1.4</span>
+    <span className="value highlight">1.0.1</span>
   </div>
 </div>
 
@@ -155,12 +219,12 @@ function PredictionModel() {
             )}
 
             <button
-              className="predict-btn"
-              onClick={handlePredict}
-              disabled={loading}
-            >
-              {loading ? "กำลังทำนาย..." : "สุ่มข้อมูลและทำนาย"}
-            </button>
+  className="predict-btn"
+  onClick={() => navigate("/parent-dashboard")}
+>
+  🔙 กลับไปหน้าหลัก
+</button>
+
           </div>
 
           {/* ขวา */}

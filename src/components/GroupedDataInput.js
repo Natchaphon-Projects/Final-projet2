@@ -10,7 +10,9 @@ import axios from "axios";
 
 
 function Groupdatainput() {
+  
   const navigate = useNavigate();
+  const [isSubmitting, setIsSubmitting] = useState(false); // 🔒 ป้องกันคลิกซ้ำ
 
   const [groupProgress, setGroupProgress] = useState({
     general: 0,
@@ -32,7 +34,34 @@ const [childData, setChildData] = useState(null);
         .catch((err) => console.error("❌ โหลดข้อมูลเด็กล้มเหลว", err));
     }
   }, []);
+
+const requiredKeys = [
+  "Guardian", "Vitamin_A_Intake_First_8_Weeks", "Sanitary_Disposal",
+  "Mom_wash_hand_before_or_after_cleaning_children", "Mom_wash_hand_before_or_after_feeding_the_child",
+  "Child_wash_hand_before_or_after_eating_food", "Child_wash_hand_before_or_after_visiting_the_toilet",
+  "Last_Month_Weight_Check", "Weighed_Twice_Check_in_Last_3_Months",
+  "Given_Anything_to_Drink_in_First_6_Months", "Still_Breastfeeding",
+  "Is_Respondent_Biological_Mother", "Breastfeeding_Count_DayandNight",
+  "Received_Vitamin_or_Mineral_Supplements", "Received_Plain_Water",
+  "Infant_Formula_Intake_Count_Yesterday", "Received_Animal_Milk",
+  "Received_Animal_Milk_Count", "Received_Juice_or_Juice_Drinks",
+  "Received_Yogurt", "Received_Yogurt_Count", "Received_Thin_Porridge",
+  "Received_Tea", "Received_Other_Liquids", "Received_Grain_Based_Foods",
+  "Received_Orange_Yellow_Foods", "Received_White_Root_Foods",
+  "Received_Dark_Green_Leafy_Veggies", "Received_Ripe_Mangoes_Papayas",
+  "Received_Other_Fruits_Vegetables", "Received_Meat", "Received_Eggs",
+  "Received_Fish_Shellfish_Seafood", "Received_Legumes_Nuts_Foods",
+  "Received_Dairy_Products", "Received_Oil_Fats_Butter",
+  "Received_Sugary_Foods", "Received_Chilies_Spices_Herbs",
+  "Received_Grubs_Snails_Insects", "Received_Other_Solid_Semi_Solid_Food",
+  "Received_Salt", "Number_of_Times_Eaten_Solid_Food"
+];
+
+
   const handleFinalSubmit = async () => {
+  if (isSubmitting) return; // ❌ ป้องกันคลิกซ้ำ
+  setIsSubmitting(true);    // ✅ ล็อกการคลิกซ้ำ
+
   const general = JSON.parse(localStorage.getItem("generalFormData") || "{}");
   const caregiver = JSON.parse(localStorage.getItem("caregiverFormData") || "{}");
   const nutrition = JSON.parse(localStorage.getItem("nutritionFormData") || "{}");
@@ -40,7 +69,8 @@ const [childData, setChildData] = useState(null);
 
   const patientId = localStorage.getItem("childId");
   if (!patientId) {
-    alert("❌ ไม่พบรหัสผู้ป่วย กรุณาเลือกเด็กใหม่ก่อน");
+    console.warn("❌ ไม่พบรหัสผู้ป่วย กรุณาเลือกเด็กใหม่ก่อน");
+    setIsSubmitting(false);
     return;
   }
 
@@ -53,17 +83,26 @@ const [childData, setChildData] = useState(null);
       ...sanitation,
     };
 
-    const response = await axios.post("http://localhost:5000/predictions/combined", allData);
-    if (response.status === 200 || response.status === 201) {
-      alert("✅ บันทึกข้อมูลสำเร็จ!");
-    } else {
-      alert("❌ บันทึกข้อมูลไม่สำเร็จ");
-    }
+    // ✅ เติมค่าที่ขาด = 0
+    requiredKeys.forEach((key) => {
+      if (!(key in allData)) {
+        allData[key] = 0;
+      }
+    });
+
+    // ✅ เก็บไว้ให้ PredictionModel ใช้
+    localStorage.setItem("latestPredictionData", JSON.stringify(allData));
+
+    // ✅ เปลี่ยนหน้า
+    navigate("/prediction-result");
   } catch (err) {
-    console.error("บันทึกข้อมูลล้มเหลว:", err);
-    alert("❌ ไม่สามารถเชื่อมต่อกับเซิร์ฟเวอร์");
+    console.error("❌ เกิดข้อผิดพลาด", err);
+  } finally {
+    setIsSubmitting(false); // ✅ ปลดล็อก
   }
 };
+
+
 
   // ✅ โหลด progress แบบเรียลไทม์
   useEffect(() => {
@@ -223,20 +262,23 @@ useEffect(() => {
         {Math.round(totalProgress) === 100 && (
   <div style={{ textAlign: "center", marginTop: "2rem" }}>
     <button
-      className="submit-btn"
-      style={{
-        background: "linear-gradient(to right, #0ea5e9, #2563eb)",
-        color: "white",
-        fontSize: "18px",
-        padding: "12px 24px",
-        borderRadius: "12px",
-        fontWeight: "bold",
-        boxShadow: "0 4px 12px rgba(0,0,0,0.1)"
-      }}
-      onClick={handleFinalSubmit}
-    >
-      ✅ บันทึกข้อมูลทั้งหมดลงระบบ
-    </button>
+  className="submit-btn"
+  disabled={isSubmitting}
+  style={{
+    background: isSubmitting ? "#94a3b8" : "linear-gradient(to right, #0ea5e9, #2563eb)",
+    color: "white",
+    fontSize: "18px",
+    padding: "12px 24px",
+    borderRadius: "12px",
+    fontWeight: "bold",
+    boxShadow: "0 4px 12px rgba(0,0,0,0.1)",
+    cursor: isSubmitting ? "not-allowed" : "pointer"
+  }}
+  onClick={handleFinalSubmit}
+>
+  {isSubmitting ? "⏳ กำลังบันทึก..." : "✅ บันทึกข้อมูลทั้งหมดลงระบบ"}
+</button>
+
   </div>
 )}
 

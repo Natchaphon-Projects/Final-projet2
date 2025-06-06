@@ -86,8 +86,8 @@ class PredictionInput(BaseModel):
     Sanitary_Disposal: int
     Mom_wash_hand_before_or_after_cleaning_children: int
     Mom_wash_hand_before_or_after_feeding_the_child: int
-    Child_before_or_after_eating_food: int
     Child_wash_hand_before_or_after_eating_food: int
+    Child_wash_hand_before_or_after_visiting_the_toilet: int
     Last_Month_Weight_Check: int
     Weighed_Twice_Check_in_Last_3_Months: int
     Given_Anything_to_Drink_in_First_6_Months: int
@@ -128,12 +128,17 @@ class PredictionInput(BaseModel):
 @app.post("/prediction")
 async def get_prediction(input_data: PredictionInput):
     try:
+
+        print("📥 ได้รับข้อมูลจาก frontend:", input_data.dict())
+
         if model is None:
             return {"error": "Model not loaded"}
         if scaler is None:
             return {"error": "Scaler not ready"}
 
         original_input = input_data.dict()
+        
+        
 
         # ✅ Build DataFrame with column names
         df = pd.DataFrame([original_input], columns=columns)

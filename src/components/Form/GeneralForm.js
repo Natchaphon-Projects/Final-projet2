@@ -7,11 +7,19 @@ import axios from "axios";
 
 const nutritionGroups = [
   {
-    groupTitle: "จำนวนครั้ง",
+    groupTitle: "น้ำหนักและส่วนสูง",
     groupNote: "✏️ โปรดกรอกจำนวนครั้งเป็นตัวเลข",
     questions: [
-      { key: "Weight", label: "น้ำหนัก", type: "number" },
-      { key: "Height", label: "ส่วนสูง", type: "number" }
+      { key: "Weight", label: "น้ำหนัก(กิโลกรัม)", type: "number" },
+      { key: "Height", label: "ส่วนสูง(เซนติเมตร)", type: "number" },      
+    ],
+  },
+  {
+    groupTitle: "การตรวจน้ำหนักครั้งล่าสุด",
+    groupNote: "หากมีการปฎิบัติให้ติ๊กถูกในช่องสี่เหลี่ยม ☐",
+    questions: [
+      { key: "Last_Month_Weight_Check", label: "น้ำหนักของเด็กได้รับการตรวจในช่วงเดือนที่ผ่านมาหรือไม่", type: "checkbox" },
+      { key: "Weighed_Twice_Check_in_Last_3_Months", label: "ได้รับการตรวจน้ำหนักอย่างน้อย 2 ครั้งในช่วง 3 เดือนที่ผ่านมาหรือไม่", type: "checkbox" }
     ],
   },
 ];
@@ -87,11 +95,18 @@ useEffect(() => {
 
   const handleGroupComplete = (index) => {
     const group = nutritionGroups[index];
-    const requiredKeys = group.questions.map(q => q.key);
-    const isComplete = requiredKeys.every(key => {
-      const value = formData[key];
-      return value !== "" && value !== undefined;
-    });
+   let requiredKeys = [];
+
+if (index === 0) {
+  // กลุ่มน้ำหนัก/ส่วนสูงเท่านั้นที่ต้องกรอก
+  requiredKeys = ["Weight", "Height"];
+}
+
+const isComplete = requiredKeys.every((key) => {
+  const value = formData[key];
+  return value !== "" && value !== undefined;
+});
+
 
     if (!isComplete) {
       alert("กรุณากรอกข้อมูลให้ครบก่อนกดยืนยัน ✅");
@@ -126,15 +141,6 @@ useEffect(() => {
       weight: formData["Weight"],
       visit_date: new Date().toISOString().split("T")[0]
     };
-
-    axios.post("http://localhost:5000/medical-records", dataToSend)
-      .then(() => {
-        alert("✅ บันทึกข้อมูลเรียบร้อยแล้ว");
-        if (goNext) navigate(nextPage);
-      })
-      .catch((err) => {
-        console.error("❌ บันทึกข้อมูลล้มเหลว", err);
-      });
   };
 
   useEffect(() => {
@@ -147,6 +153,7 @@ useEffect(() => {
     <div className="dashboard-container">
       <Header />
 
+      {/* ✅ แถบ progress รวม */}
       <div className="overall-progress">
         <div className="progress-info">
           <span className="progress-label-main">ความคืบหน้าโดยรวม</span>
@@ -165,15 +172,16 @@ useEffect(() => {
       <div className="nutrition-form-container">
         <div className="nutrition-card">
           {childData && (
-            <div style={{ textAlign: "center", marginBottom: "1rem" }}>
-              <h3>แบบฟอร์มของ: {childData.prefix_name_child} {childData.first_name_child} {childData.last_name_child}</h3>
-              <p>HN: {childData.hn}</p>
-            </div>
-          )}
+  <div style={{ textAlign: "center", marginBottom: "1rem" }}>
+    <h3>แบบฟอร์มของ: {childData.prefix_name_child} {childData.first_name_child} {childData.last_name_child}</h3>
+    <p>HN: {childData.hn}</p>
+  </div>
+)}
 
           <h2 className="nutrition-title">แบบสอบถามข้อมูลทั่วไปของเด็ก</h2>
-          <p className="nutrition-subtitle">กรุณาตอบคำถามเกี่ยวกับน้ำหนักและส่วนสูง</p>
+          <p className="nutrition-subtitle">กรุณาตอบคำถามเกี่ยวกับข้อมูลทั่วไปของเด็ก</p>
 
+          {/* ✅ Progress */}
           <div className="progress-section">
             <span className="progress-label">ความคืบหน้า: {completion}%</span>
             <div className="progress-bar-wrapper">
@@ -181,6 +189,7 @@ useEffect(() => {
             </div>
           </div>
 
+          {/* ✅ Groups */}
           {nutritionGroups.map((group, index) => (
             <div className="accordion-group" key={index}>
               <button
@@ -194,30 +203,84 @@ useEffect(() => {
               {expandedGroup === index && (
                 <div className="accordion-content">
                   {group.groupNote && <div className="group-note">{group.groupNote}</div>}
-                  <div className="number-grid">
-                    {group.questions.map(({ key, label }) => (
-                      <div className="number-item" key={key}>
-                        <label className="question-label">
-                          {label}
+
+                  <div className="checkbox-grid">
+                    {group.questions.map(({ key, label, type }) =>
+                      type === "checkbox" ? (
+                        <div className="checkbox-row" key={key}>
                           <input
-                            type="number"
-                            value={formData[key] || ""}
-                            onChange={(e) => handleChange(key, e.target.value)}
-                            className="number-input"
+                            type="checkbox"
+                            id={key}
+                            checked={formData[key] || false}
+                            onChange={(e) => handleChange(key, e.target.checked)}
                           />
-                        </label>
-                      </div>
-                    ))}
+                          <label htmlFor={key}>{label}</label>
+                        </div>
+                      ) : null
+                    )}
                   </div>
-                  <button className="complete-btn" onClick={() => handleGroupComplete(index)}>
-                    ถัดไป ➜
-                  </button>
+                    
+                    
+                  {group.questions.some((q) => q.type === "number" || q.type === "dropdown") && (
+                    <div className="number-grid">
+                      
+                      {group.questions.map(({ key, label, type, options }) => {
+                        if (type === "number") {
+                          
+                          return (
+                            <div className="number-item" key={key}>
+                              <label className="question-label">
+                                {label}
+                                <input
+                                  type="number"
+                                  value={formData[key] || ""}
+                                  onChange={(e) => handleChange(key, e.target.value)}
+                                  className="number-input"
+                                />
+                              </label>
+                            </div>
+                          );
+                        } else if (type === "dropdown") {
+                          return (
+                            <div className="number-item" key={key}>
+                              <label className="question-label">
+                                {label}
+                                <select
+                                  value={formData[key] || ""}
+                                  onChange={(e) => handleChange(key, e.target.value)}
+                                  className="number-input"
+                                >
+                                  <option value="">-- เลือกตัวเลือก --</option>
+                                  {options.map((opt, idx) => (
+                                    <option key={idx} value={opt}>{opt}</option>
+                                  ))}
+                                </select>
+                              </label>
+                            </div>
+                          );
+                        }
+
+                        return null;
+                      })}
+                    </div>
+                  )}
+
+                  {index === nutritionGroups.length - 1 ? (
+  <button className="complete-btn" onClick={() => { handleGroupComplete(index); handleSubmit(); }}>
+    บันทึก
+  </button>
+) : (
+  <button className="complete-btn" onClick={() => handleGroupComplete(index)}>
+    ถัดไป ➜
+  </button>
+)}
+
                 </div>
               )}
             </div>
           ))}
 
-          {completedGroups.length === nutritionGroups.length && totalProgress === 100 && (
+         {completedGroups.length === nutritionGroups.length && totalProgress === 100 && (
   <button
     className="submit-btn"
     onClick={() => navigate("/parent-risk-assessment")}
@@ -227,15 +290,47 @@ useEffect(() => {
   </button>
 )}
 
+          <div
+            style={{
+              display: "flex",
+              justifyContent: "space-between",
+              alignItems: "center",
+              gap: "1rem",
+              marginTop: "2rem",
+            }}
+          >
+            {/* ปุ่มย้อนหน้า */}
+            <button
+              className="submit-btn"
+              onClick={() => navigate(prevPage)}
+              style={{ background: "linear-gradient(to right, #3b82f6, #2563eb)" }}
+            >
+              ◀ กลับหน้าก่อนหน้า
+            </button>
 
-          <div className="navigation-buttons">
-            <button className="submit-btn" onClick={() => navigate(prevPage)}>◀ กลับ</button>
-            <button className="submit-btn" onClick={() => navigate("/parent-risk-assessment")}>🏠 กลับหน้าหลัก</button>
-            <button className="submit-btn" onClick={() => navigate(nextPage)}>ถัดไป ➜</button>
+            {/* ปุ่มกลับหน้า GroupedDataInput */}
+            <button
+              className="submit-btn"
+              onClick={() => navigate("/parent-risk-assessment")} // เส้นทาง path ของหน้า GroupedDataInput
+              style={{ background: "linear-gradient(to right, #f59e0b, #f97316)" }}
+            >
+              🏠 กลับหน้าเลือกกลุ่มข้อมูล
+            </button>
+
+            {/* ปุ่มไปหน้าใหม่ */}
+            <button
+              className="submit-btn"
+              onClick={() => navigate(nextPage)}
+              style={{ background: "linear-gradient(to right, #10b981, #06b6d4)" }}
+            >
+              ตอบคำถามหน้าถัดไป ➜
+            </button>
           </div>
+
+
+
         </div>
       </div>
-
       <Footer />
     </div>
   );
