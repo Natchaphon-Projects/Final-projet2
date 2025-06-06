@@ -12,8 +12,8 @@ const sanitationGroups = [
     groupNote: "หากปฏิบัติพฤติกรรมนั้นให้ติ๊กถูกในช่องสี่เหลี่ยม ☐",
     questions: [
       { key: "Sanitary_Disposal", label: "เด็กมีการถ่ายอุจจาระแบบถูกสุขลักษณะหรือไม่ เช่น ถ่ายในห้องน้ำและมีการชำระล้าง", type: "checkbox" },
-      { key: "Child_before_or_after_eating_food", label: "เด็กล้างมือทั้งก่อนหรือหลังทานข้าวหรือไม่ ", type: "checkbox" },
-      { key: "Child_wash_hand_before_or_after_eating_food", label: "เด็กล้างมือทั้งก่อนหรือหลังเข้าห้องน้ำหรือไม่", type: "checkbox" },
+      { key: "Child_wash_hand_before_or_after_eating_food", label: "เด็กล้างมือทั้งก่อนหรือหลังทานข้าวหรือไม่ ", type: "checkbox" },
+      { key: "Child_wash_hand_before_or_after_visiting_the_toilet", label: "เด็กล้างมือทั้งก่อนหรือหลังเข้าห้องน้ำหรือไม่", type: "checkbox" },
       { key: "Mom_wash_hand_before_or_after_cleaning_children", label: "คุณแม่ล้างมือทั้งก่อนหรือหลังทำความสะอาดตัวเด็กหรือไม่", type: "checkbox" },
       { key: "Mom_wash_hand_before_or_after_feeding_the_child", label: "คุณแม่ล้างมือทั้งก่อนและหลังทำอาหารและป้อนอาหารเด็กหรือไม่", type: "checkbox" },
     ],
@@ -195,8 +195,8 @@ useEffect(() => {
 
    <div className="nutrition-form-container">
         <div className="nutrition-card">
-          <h2 className="nutrition-title">แบบสอบถามข้อมูลโภชนาการของเด็ก</h2>
-          <p className="nutrition-subtitle">กรุณาตอบคำถามเกี่ยวกับการได้รับสารอาหารของเด็ก</p>
+          <h2 className="nutrition-title">แบบสอบถามข้อมูลสุขาภิบาลของเด็ก</h2>
+          <p className="nutrition-subtitle">กรุณาตอบคำถามเกี่ยวกับข้อมูลสุขาภิบาลของเด็ก</p>
           {/* ✅ Progress */}
           <div className="progress-section">
             <span className="progress-label">ความคืบหน้า: {completion}%</span>
