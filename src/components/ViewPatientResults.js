@@ -23,9 +23,24 @@ function ViewPatientResults() {
     setCurrentPage(1);
   }, [searchTerm, sortOrder]);
 
-  const filteredPatients = patients.filter((p) =>
-    p.name.toLowerCase().includes(searchTerm.toLowerCase())
-  );
+ 
+// 🔁 กรองให้เหลือเพียงรายการเดียวต่อ patient_id + created_at ที่ซ้ำกันเป๊ะ
+const uniquePatients = [];
+const seen = new Set();
+
+patients.forEach((p) => {
+  const key = `${p.patientId}-${p.date}`;// ✅ ใช้ patient_id จริง + datetime เต็ม (มีวินาที)
+  if (!seen.has(key)) {
+    seen.add(key);
+    uniquePatients.push(p);
+  }
+});
+
+
+// 🔍 จากนั้นค่อย filter ตามชื่อ
+const filteredPatients = uniquePatients.filter((p) =>
+  p.name.toLowerCase().includes(searchTerm.toLowerCase())
+);
 
   const totalPages = Math.ceil(filteredPatients.length / itemsPerPage);
   const paginatedPatients = filteredPatients.slice(
