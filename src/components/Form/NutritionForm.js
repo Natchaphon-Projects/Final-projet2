@@ -264,7 +264,7 @@ const dataToSend = {
 
   return (
     <div className="dashboard-container">
-      <Header />
+      <Header currentPage="form-nutrition" />
 
       {/* ✅ แถบ progress รวม */}
       <div className="overall-progress">

@@ -179,7 +179,7 @@ useEffect(() => {
 
   return (
     <div className="dashboard-container">
-      <Header />
+      <Header currentPage="form-nutrition" />
 
       <main className="dashboard-main center-content">
 

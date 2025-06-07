@@ -1,3 +1,4 @@
+/* Header ทั้งแถบ */
 .custom-header {
   background: linear-gradient(to right, #10b981, #14b8a6);
   color: white;
@@ -5,13 +6,15 @@
   display: flex;
   justify-content: space-between;
   align-items: center;
-  min-height: 64px; /* ✅ ให้มีความสูงพอดี ไม่ลอยเกินไป */
+  min-height: 64px;
 }
 
+/* ด้านซ้าย (โลโก้ + ชื่อ) */
 .header-left {
   display: flex;
   align-items: center;
   gap: 10px;
+  cursor: pointer;
 }
 
 .hospital-icon {
@@ -27,13 +30,60 @@
   font-weight: 600;
 }
 
+/* ด้านขวา (ปุ่มต่าง ๆ) */
 .header-right {
   display: flex;
-  gap: 20px;
+  gap: 16px;
   align-items: center;
-  padding-bottom: 16px;
+  padding-bottom: 8px;
 }
 
+/* ปุ่มเมนู (กลับหน้า...) และ ปุ่ม Logout ใช้ style เดียวกัน */
+.menu-btn,
+.logout-btn {
+  background-color: white;
+  color: #10b981;
+  border: 1px solid #10b981;
+  border-radius: 6px;
+  padding: 6px 12px;
+  cursor: pointer;
+  font-weight: 500;
+  font-size: 14px;
+  display: flex;
+  align-items: center;
+  gap: 6px; /* ช่องว่าง icon กับข้อความ */
+  height: 36px; /* ปรับจาก 40px → เล็กลง */
+  transition: background-color 0.3s, color 0.3s, transform 0.2s;
+}
+
+.menu-btn:hover,
+.logout-btn:hover {
+  background-color: #10b981;
+  color: white;
+  transform: scale(1.03);
+}
+
+/* ปุ่ม Home (icon เฉย ๆ) */
+.icon-btn {
+  background-color: transparent;
+  border: none;
+  cursor: pointer;
+  color: white;
+  font-size: 18px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 8px;
+  border-radius: 50%;
+  transition: background-color 0.3s, color 0.3s;
+}
+
+.icon-btn:hover {
+  background-color: rgba(255, 255, 255, 0.2);
+  color: #facc15;
+}
+
+/* ปุ่ม header ทั่วไป */
 .header-btn {
   background: none;
   border: none;
@@ -53,26 +103,7 @@
   opacity: 0.85;
 }
 
-.logout-btn {
-  background: white;
-  color: #10b981;
-  padding: 8px 12px;        /* ลด padding */
-  border-radius: 6px;       /* ลดความโค้ง */
-  font-weight: 500;         /* ลดความหนา */
-  font-size: 14px;          /* เพิ่มบรรทัดนี้เพื่อลดขนาดตัวอักษร */
-  border: none;
-  display: flex;
-  align-items: center;
-  gap: 6px;
-  height: 32px;             /* ลดความสูง */
-  cursor: pointer;
-  transition: transform 0.2s;
-}
-
-.logout-btn:hover {
-  transform: scale(1.03);
-}
-
+/* อันนี้ไม่ต้องใช้ */
 .icon {
- font-size: 100px;
+  font-size: 100px;
 }
