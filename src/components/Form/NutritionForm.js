@@ -99,7 +99,11 @@ function NutritionForm() {
   const prevPage = pages[prevIndex];
   const [patientId, setPatientId] = useState(null); // ✅ เพิ่ม
   const [childData, setChildData] = useState(null); // ✅ เพิ่ม
+  const [showConfirmPopup, setShowConfirmPopup] = useState(false);
+const [pendingSubmitGroup, setPendingSubmitGroup] = useState(null);
 
+
+const [finalGroupCompleted, setFinalGroupCompleted] = useState(false);
 
   const [formData, setFormData] = useState(() => {
     const saved = localStorage.getItem("nutritionFormData");
@@ -108,6 +112,8 @@ function NutritionForm() {
   useEffect(() => {
     localStorage.setItem("nutritionFormData", JSON.stringify(formData));
   }, [formData]);
+
+  
 
   const [expandedGroup, setExpandedGroup] = useState(0);
   const [completedGroups, setCompletedGroups] = useState([]);
@@ -128,23 +134,42 @@ function NutritionForm() {
     }));
   };
 
+  const isAllCountFieldsEmpty = () => {
+  return (
+    (formData.Infant_Formula_Intake_Count_Yesterday === "" || formData.Infant_Formula_Intake_Count_Yesterday === undefined) &&
+    (formData.Breastfeeding_Count_DayandNight === "" || formData.Breastfeeding_Count_DayandNight === undefined) &&
+    (formData.Received_Animal_Milk_Count === "" || formData.Received_Animal_Milk_Count === undefined) &&
+    (formData.Received_Yogurt_Count === "" || formData.Received_Yogurt_Count === undefined)
+  );
+};
+
   const handleGroupComplete = (index) => {
     const group = nutritionGroups[index];
 
     const requiredKeys = group.questions.map(q => q.key);
 
+    const optionalKeys = [
+  "Infant_Formula_Intake_Count_Yesterday",
+  "Breastfeeding_Count_DayandNight",
+  "Received_Animal_Milk_Count",
+  "Received_Yogurt_Count",
+];
+
     const isComplete = requiredKeys.every(key => {
-      const value = formData[key];
-      const question = group.questions.find(q => q.key === key);
+  if (optionalKeys.includes(key)) return true;
 
-      if (question.type === "number") {
-        return value !== "" && value !== undefined;
-      } else if (question.type === "dropdown") {
-        return value !== "" && value !== undefined;
-      }
+  const value = formData[key];
+  const question = group.questions.find(q => q.key === key);
 
-      return true;
-    });
+  if (question.type === "number") {
+    return value !== "" && value !== undefined && parseFloat(value) >= 0;
+  } else if (question.type === "dropdown") {
+    return value && value !== "";
+  }
+
+  return true;
+});
+
 
     if (!isComplete) {
       alert("กรุณากรอกข้อมูลให้ครบก่อนกดยืนยัน ✅");
@@ -167,6 +192,7 @@ function NutritionForm() {
       localStorage.setItem("nutritionCompletedGroups", JSON.stringify(newCompleted));
 
       return newCompleted;
+      
     });
   };
 
@@ -180,12 +206,19 @@ function NutritionForm() {
       return;
     }
 
-    const dataToSend = {
-      patient_id: patientId,
-      ...formData,
-      created_at: new Date().toISOString(),
-    };
+  // กำหนด default เป็น 0 ถ้าเว้นว่าง
+const dataToSend = {
+  patient_id: patientId,
+  ...formData,
+  Infant_Formula_Intake_Count_Yesterday: formData.Infant_Formula_Intake_Count_Yesterday || 0,
+  Breastfeeding_Count_DayandNight: formData.Breastfeeding_Count_DayandNight || 0,
+  Received_Animal_Milk_Count: formData.Received_Animal_Milk_Count || 0,
+  Received_Yogurt_Count: formData.Received_Yogurt_Count || 0,
+  created_at: new Date().toISOString(),
+};
 
+
+    
     axios.post("http://localhost:5000/predictions", dataToSend)
       .then(() => {
         alert("✅ บันทึกข้อมูลเรียบร้อยแล้ว");
@@ -194,12 +227,16 @@ function NutritionForm() {
         console.error("❌ บันทึกข้อมูลล้มเหลว", err);
       });
   };
-  useEffect(() => {
-    const savedCompleted = localStorage.getItem("nutritionCompletedGroups");
-    if (savedCompleted) {
-      setCompletedGroups(JSON.parse(savedCompleted));
-    }
-  }, []);
+ useEffect(() => {
+  const savedCompleted = localStorage.getItem("nutritionCompletedGroups");
+  const parsedCompleted = savedCompleted ? JSON.parse(savedCompleted) : [];
+  setCompletedGroups(parsedCompleted);
+
+  // ✅ หากมีกลุ่มที่ยังไม่กรอก ให้เปิดกลุ่มแรกที่ยังไม่ได้กรอก
+  const firstIncompleteIndex = nutritionGroups.findIndex((_, index) => !parsedCompleted.includes(index));
+  setExpandedGroup(firstIncompleteIndex !== -1 ? firstIncompleteIndex : -1); // ถ้าทุกกลุ่มกรอกหมดแล้ว ไม่ต้องเปิดอะไร
+}, []);
+
 
 
   useEffect(() => {
@@ -244,6 +281,44 @@ function NutritionForm() {
             : `เหลืออีก ${100 - Math.round(totalProgress)}% ที่ต้องกรอก`}
         </p>
       </div>
+
+{showConfirmPopup && (
+  <div className="popup-overlay">
+    <div className="popup-box">
+      <h3>📋 ตรวจสอบข้อมูลก่อนบันทึก</h3>
+      <ul className="popup-list">
+        {nutritionGroups.flatMap(group => group.questions).map(({ key, label, type }) => {
+          const value = formData[key];
+          const getDisplayText = (key, value) => value
+            ? "✅ บริโภค"
+            : "❌ ไม่ได้บริโภค";
+          return (
+            <li key={key} className="popup-row">
+              <span className="popup-label">{label}</span>
+              <span className={`popup-value ${type === "checkbox" ? (value ? "success" : "error") : ""}`}>
+                {type === "checkbox" ? getDisplayText(key, value) : value || "-"}
+              </span>
+            </li>
+          );
+        })}
+      </ul>
+
+      <div className="popup-actions">
+        <button className="cancel" onClick={() => setShowConfirmPopup(false)}>❌ ยกเลิก</button>
+        <button className="confirm" onClick={() => {
+  setShowConfirmPopup(false);
+  handleGroupComplete(pendingSubmitGroup);
+  handleSubmit();
+  navigate(nextPage); // ✅ เพิ่มเพื่อไปหน้าถัดไปอัตโนมัติ
+}}>
+
+          ✅ ยืนยันบันทึก ➜
+        </button>
+      </div>
+    </div>
+  </div>
+)}
+
 
       <div className="nutrition-form-container">
         <div className="nutrition-card">
@@ -328,16 +403,18 @@ function NutritionForm() {
                             <div className="number-item" key={key}>
                               <label className="question-label">
                                 {label}
-                                <select
-                                  value={formData[key] || ""}
-                                  onChange={(e) => handleChange(key, e.target.value)}
-                                  className="number-input"
-                                >
-                                  <option value="">-- เลือกตัวเลือก --</option>
-                                  {options.map((opt, idx) => (
-                                    <option key={idx} value={opt}>{opt}</option>
-                                  ))}
-                                </select>
+                               <select
+  required
+  value={formData[key] || ""}
+  onChange={(e) => handleChange(key, e.target.value)}
+  className="number-input"
+>
+  <option value="" disabled>-- เลือกตัวเลือก --</option>
+  {options.map((opt, idx) => (
+    <option key={idx} value={opt}>{opt}</option>
+  ))}
+</select>
+
                               </label>
                             </div>
                           );
@@ -348,15 +425,46 @@ function NutritionForm() {
                     </div>
                   )}
 
-                  {index === nutritionGroups.length - 1 ? (
-                    <button className="complete-btn" onClick={() => { handleGroupComplete(index); handleSubmit(); }}>
-                      บันทึก
-                    </button>
-                  ) : (
-                    <button className="complete-btn" onClick={() => handleGroupComplete(index)}>
-                      ถัดไป ➜
-                    </button>
-                  )}
+             {index === nutritionGroups.length - 1 ? (
+  <>
+  <button
+ className={`complete-btn ${
+  completedGroups.length < nutritionGroups.length - 1 || !formData.Number_of_Times_Eaten_Solid_Food
+    ? "disabled-btn"
+    : ""
+}`}
+
+  onClick={() => {
+    if (!formData.Number_of_Times_Eaten_Solid_Food) return;
+
+    handleGroupComplete(index);
+    setFinalGroupCompleted(true);
+    setPendingSubmitGroup(index);
+    setShowConfirmPopup(true);
+  }}
+>
+  บันทึก
+</button>
+
+{(completedGroups.length < nutritionGroups.length - 1 || !formData.Number_of_Times_Eaten_Solid_Food) && (
+  <span className="warning-inline">
+
+    ⚠️ กรุณาทำแบบสอบถามให้ครบทุกกลุ่ม และกรอก “จำนวนมื้ออาหารแข็ง” ก่อนกดบันทึก
+  </span>
+)}
+
+
+
+  </>
+) : (
+  <button className="complete-btn" onClick={() => handleGroupComplete(index)}>
+    ถัดไป ➜
+  </button>
+)}
+
+
+
+
 
                 </div>
               )}

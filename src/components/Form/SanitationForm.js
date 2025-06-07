@@ -309,26 +309,21 @@ useEffect(() => {
             {/* ปุ่มย้อนหน้า */}
            <button
   className="submit-btn"
-  onClick={async () => {
-    await handleSubmit(); // บันทึกก่อน
-    navigate(prevPage);
-  }}
+  onClick={() => navigate(prevPage)} // ✅ ตัด handleSubmit ออก
   style={{ background: "linear-gradient(to right, #3b82f6, #2563eb)" }}
 >
   ◀ กลับหน้าก่อนหน้า
 </button>
 
             {/* ปุ่มกลับหน้า GroupedDataInput */}
-            <button
+           <button
   className="submit-btn"
-  onClick={async () => {
-    await handleSubmit(); // บันทึกก่อน
-    navigate("/parent-risk-assessment");
-  }}
+  onClick={() => navigate("/parent-risk-assessment")} // ✅ ตัด handleSubmit ออก
   style={{ background: "linear-gradient(to right, #f59e0b, #f97316)" }}
 >
   🏠 กลับหน้าเลือกกลุ่มข้อมูล
 </button>
+
 
             {/* ปุ่มไปหน้าใหม่ */}
             <button

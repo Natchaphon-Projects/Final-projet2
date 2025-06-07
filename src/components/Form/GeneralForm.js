@@ -44,11 +44,14 @@ function GeneralForm() {
   return saved ? JSON.parse(saved) : {};
 });
 
-  const [expandedGroup, setExpandedGroup] = useState(0);
+  const [expandedGroup, setExpandedGroup] = useState(null); // ยังไม่กำหนดตอนเริ่ม
   const [completedGroups, setCompletedGroups] = useState([]);
   const [completion, setCompletion] = useState(0);
   const [patientId, setPatientId] = useState(null);
   const [childData, setChildData] = useState(null);
+  const [showConfirmPopup, setShowConfirmPopup] = useState(false);
+const [pendingSubmitGroup, setPendingSubmitGroup] = useState(null);
+
 
   const totalProgress =
     (parseInt(localStorage.getItem("generalProgress") || 0) +
@@ -67,9 +70,22 @@ function GeneralForm() {
 useEffect(() => {
   const savedCompleted = localStorage.getItem("generalCompletedGroups");
   if (savedCompleted) {
-    setCompletedGroups(JSON.parse(savedCompleted));
+    const parsed = JSON.parse(savedCompleted);
+    setCompletedGroups(parsed);
+
+    // ✅ หากยังมีกลุ่มที่ยังไม่ได้ทำ ให้เปิดกลุ่มแรกที่ยังไม่ทำ
+    const firstIncompleteIndex = nutritionGroups.findIndex((_, index) => !parsed.includes(index));
+    if (firstIncompleteIndex !== -1) {
+      setExpandedGroup(firstIncompleteIndex);
+    } else {
+      setExpandedGroup(null); // ✅ ถ้าทำครบแล้ว ปิดทั้งหมด
+    }
+  } else {
+    // ✅ ยังไม่เคยทำเลย → เปิดกลุ่มแรก
+    setExpandedGroup(0);
   }
 }, []);
+
 
   // ✅ โหลดข้อมูลเด็ก
   useEffect(() => {
@@ -104,14 +120,16 @@ if (index === 0) {
 
 const isComplete = requiredKeys.every((key) => {
   const value = formData[key];
-  return value !== "" && value !== undefined;
+  return value !== "" && value !== undefined && !isNaN(value) && parseFloat(value) > 0;
 });
 
 
-    if (!isComplete) {
-      alert("กรุณากรอกข้อมูลให้ครบก่อนกดยืนยัน ✅");
-      return;
-    }
+
+   if (!isComplete) {
+  alert("❌ กรุณากรอก 'น้ำหนัก' และ 'ส่วนสูง' ให้ครบก่อนกดยืนยัน");
+  return;
+}
+
 
     setCompletedGroups((prev) => {
   const newCompleted = prev.includes(index) ? prev : [...prev, index];
@@ -128,6 +146,12 @@ const isComplete = requiredKeys.every((key) => {
   const toggleGroup = (index) => {
     setExpandedGroup((prev) => (prev === index ? -1 : index));
   };
+
+  const confirmSubmit = (index) => {
+  setPendingSubmitGroup(index);
+  setShowConfirmPopup(true);
+};
+
 
   const handleSubmit = (goNext = false) => {
     if (!patientId) {
@@ -170,6 +194,63 @@ const isComplete = requiredKeys.every((key) => {
       </div>
 
       <div className="nutrition-form-container">
+        {showConfirmPopup && (
+  <div className="popup-overlay">
+    <div className="popup-box">
+      <h3>📋 ตรวจสอบข้อมูลก่อนบันทึก</h3>
+      <ul className="popup-list">
+  {nutritionGroups.flatMap((group) => group.questions).map(({ key, label, type }) => {
+    const value = formData[key];
+
+    let displayValue;
+    if (type === "checkbox") {
+      displayValue = (
+        <span className={value ? "success" : "error"}>
+          {value ? "✅ ได้ปฏิบัติ" : "❌ ไม่ได้ปฏิบัติ"}
+        </span>
+      );
+    } else {
+      displayValue = <span>{value || "-"}</span>;
+    }
+
+    return (
+      <li key={key} className="popup-row">
+  <span className="popup-label">{label}</span>
+  <span className={`popup-value ${type === "checkbox" ? (value ? "success" : "error") : ""}`}>
+    {type === "checkbox"
+      ? value
+        ? "✅ ได้ปฏิบัติ"
+        : "❌ ไม่ได้ปฏิบัติ"
+      : value || "-"}
+  </span>
+</li>
+
+    );
+  })}
+</ul>
+
+     <div className="popup-actions">
+  <button className="cancel" onClick={() => setShowConfirmPopup(false)}>
+    ❌ ยกเลิก
+  </button>
+  <button
+  className="confirm"
+  onClick={() => {
+    setShowConfirmPopup(false);
+    handleGroupComplete(pendingSubmitGroup);
+    handleSubmit(true);
+    navigate(nextPage); // ✅ เพิ่มตรงนี้
+  }}
+>
+  ✅ ยืนยันบันทึก ➜
+</button>
+
+</div>
+
+    </div>
+  </div>
+)}
+
         <div className="nutrition-card">
           {childData && (
   <div style={{ textAlign: "center", marginBottom: "1rem" }}>
@@ -225,22 +306,31 @@ const isComplete = requiredKeys.every((key) => {
                     <div className="number-grid">
                       
                       {group.questions.map(({ key, label, type, options }) => {
-                        if (type === "number") {
-                          
-                          return (
-                            <div className="number-item" key={key}>
-                              <label className="question-label">
-                                {label}
-                                <input
-                                  type="number"
-                                  value={formData[key] || ""}
-                                  onChange={(e) => handleChange(key, e.target.value)}
-                                  className="number-input"
-                                />
-                              </label>
-                            </div>
-                          );
-                        } else if (type === "dropdown") {
+  if (type === "number") {
+    return (
+      <div className="number-item" key={key}>
+        <label className="question-label">
+          {label}
+          <input
+            type="number"
+            value={formData[key] || ""}
+            onChange={(e) => handleChange(key, e.target.value)}
+            className="number-input"
+          />
+          {/* ✅ เงื่อนไข error message */}
+          {key === "Weight" &&
+            (!formData.Weight || parseFloat(formData.Weight) <= 0) && (
+              <span className="error-msg">กรุณากรอกน้ำหนักมากกว่า 0</span>
+            )}
+          {key === "Height" &&
+            (!formData.Height || parseFloat(formData.Height) <= 0) && (
+              <span className="error-msg">กรุณากรอกส่วนสูงมากกว่า 0</span>
+            )}
+        </label>
+      </div>
+    );
+  }
+ else if (type === "dropdown") {
                           return (
                             <div className="number-item" key={key}>
                               <label className="question-label">
@@ -265,15 +355,30 @@ const isComplete = requiredKeys.every((key) => {
                     </div>
                   )}
 
-                  {index === nutritionGroups.length - 1 ? (
-  <button className="complete-btn" onClick={() => { handleGroupComplete(index); handleSubmit(); }}>
-    บันทึก
-  </button>
+                {index === nutritionGroups.length - 1 ? (
+  <>
+    <button
+  className={`complete-btn ${!completedGroups.includes(0) ? 'disabled-btn' : ''}`}
+  disabled={!completedGroups.includes(0)} // ❗ ยังคงควบคุม logic ได้ตรงจุดนี้
+  onClick={() => confirmSubmit(index)}
+>
+  บันทึก
+</button>
+
+
+   {!completedGroups.includes(0) && (
+  <p style={{ color: "#ef4444", fontWeight: 500, marginTop: "0.5rem" }}>
+    ⚠️ กรุณาทำแบบสอบถามให้ครบกลุ่ม “น้ำหนักและส่วนสูง” ก่อนกดบันทึก
+  </p>
+)}
+
+  </>
 ) : (
   <button className="complete-btn" onClick={() => handleGroupComplete(index)}>
-    ถัดไป ➜
+    ถัดไป ➔
   </button>
 )}
+
 
                 </div>
               )}

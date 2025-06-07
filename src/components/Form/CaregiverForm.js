@@ -37,8 +37,8 @@ function CaregiverForm() {
   const prevPage = pages[prevIndex];
   const [patientId, setPatientId] = useState(null);
   const [childData, setChildData] = useState(null);
-
-
+const [showConfirmPopup, setShowConfirmPopup] = useState(false);
+const [pendingSubmitGroup, setPendingSubmitGroup] = useState(null);
   const [formData, setFormData] = useState(() => {
   const saved = localStorage.getItem("caregiverFormData");
   return saved ? JSON.parse(saved) : {};
@@ -52,9 +52,15 @@ useEffect(() => {
   useEffect(() => {
   const savedCompleted = localStorage.getItem("caregiverCompletedGroups");
   if (savedCompleted) {
-    setCompletedGroups(JSON.parse(savedCompleted));
+    const parsed = JSON.parse(savedCompleted);
+    setCompletedGroups(parsed);
+    // ปิด accordion ถ้ากลุ่มแรกใน saved เป็นสีเขียวแล้ว
+    if (parsed.length > 0) {
+      setExpandedGroup(-1);
+    }
   }
 }, []);
+
 
   const [completion, setCompletion] = useState(0);
 
@@ -282,9 +288,15 @@ useEffect(() => {
                     </div>
                   )}
 
-                  <button className="complete-btn" onClick={() => handleGroupComplete(index)}>
-                    บันทึก
-                  </button>
+                 <button
+  className="complete-btn"
+  onClick={() => {
+    setPendingSubmitGroup(index);
+    setShowConfirmPopup(true);
+  }}
+>
+  บันทึก
+</button>
                 </div>
               )}
             </div>
@@ -341,6 +353,51 @@ useEffect(() => {
 
         </div>
       </div>
+      {showConfirmPopup && (
+  <div className="popup-overlay">
+    <div className="popup-box">
+      <h3>ยืนยันการบันทึกข้อมูล</h3>
+
+      <ul className="popup-list">
+        {pendingSubmitGroup !== null &&
+          caregiverGroups[pendingSubmitGroup].questions.map((q) => (
+            <li className="popup-row" key={q.key}>
+              <span className="popup-label">{q.label}</span>
+              <span
+                className={`popup-value ${formData[q.key] ? "success" : "error"}`}
+              >
+                {formData[q.key] ? "เป็น" : "ไม่เป็น"}
+              </span>
+            </li>
+          ))}
+      </ul>
+
+      <div className="popup-actions">
+        <button
+          className="cancel"
+          onClick={() => {
+            setShowConfirmPopup(false);
+            setPendingSubmitGroup(null);
+          }}
+        >
+          ❌ ยกเลิก
+        </button>
+       <button
+  className="confirm"
+  onClick={() => {
+    setShowConfirmPopup(false);
+    handleGroupComplete(pendingSubmitGroup); // ✅ บันทึกกลุ่ม
+    setPendingSubmitGroup(null);
+    navigate(nextPage); // ✅ ไปหน้าถัดไป
+  }}
+>
+  ✅ ยืนยันบันทึก ➜
+</button>
+
+      </div>
+    </div>
+  </div>
+)}
       <Footer />
     </div>
   );
