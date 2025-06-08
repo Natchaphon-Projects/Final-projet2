@@ -26,6 +26,7 @@ import Recomendation from "./components/Recomendation";
 import PatientHistory from "./components/PatientHistory";
 import PredictionModel from "./components/Predictio_model/PredictionModel"; // ✅ เพิ่มตรงนี้
 import ParentRiskSelection from "./components/ParentRiskSelection"; // ✅ ต้อง import ตรงนี้
+import MedicalHistory from "./components/Predictio_model/MedicalHistory";
 
 import './styles.css';
 
@@ -51,6 +52,7 @@ function App() {
         <Route path="/form/sanitation" element={<SanitationForm />} />
         <Route path="/pre" element={<PredictionModel />} /> {/* ✅ เพิ่ม route ไปยังหน้าผลประเมิน */}
         <Route path="/prediction-result" element={<PredictionModel />} />
+        <Route path="/medical-history" element={<MedicalHistory />} />
 
 
         {/* Doctor Routes */}

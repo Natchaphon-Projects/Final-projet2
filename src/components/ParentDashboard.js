@@ -13,6 +13,7 @@ import {
   FaTint,
   FaShieldAlt,
   FaBalanceScale,
+   FaClipboardList,     // ✅ เพิ่มS
 } from "react-icons/fa";
 
 function ParentDashboard() {
@@ -142,6 +143,23 @@ function ParentDashboard() {
     </div>
     <FaChevronRight className="menu-arrow" />
   </div>
+</div>
+
+<div
+  className="menu-card"
+  onClick={() => navigate("/medical-history", { state: { hnNumber } })}
+>
+  <div className="menu-left">
+    <div className="menu-icon-box">
+      <FaClipboardList className="menu-icon" />
+    </div>
+    <div className="menu-texts">
+      <p className="menu-title1">ประวัติการตรวจ</p>
+      <p className="menu-subtitle">Examination History</p>
+      <p className="menu-desc">คลิกเพื่อดูประวัติการตรวจ</p>
+    </div>
+  </div>
+  <FaChevronRight className="menu-arrow" />
 </div>
 
 
