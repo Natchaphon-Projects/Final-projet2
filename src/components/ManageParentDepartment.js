@@ -2,7 +2,7 @@ import React, { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import { FaEdit, FaTrashAlt, FaSearch, FaPlus } from "react-icons/fa";
 import "./ManageDepartment.css";
-import Header from "../components/layout/Header";
+import Header from "../components/layout/Header"; // ใช้ header เดียวกัน
 import Footer from "../components/layout/Footer";
 
 function ManageParentDepartment() {
@@ -39,18 +39,17 @@ function ManageParentDepartment() {
             <h2>ค้นหาข้อมูลผู้ปกครอง</h2>
             <div className="search-box">
               <FaSearch className="search-icon" />
-              <input
-                type="text"
-                placeholder="ค้นหา รหัส, ชื่อ, หรือชื่อเด็ก..."
-                value={searchTerm}
-                onChange={(e) => setSearchTerm(e.target.value)}
-              />
-            </div>
-          </div>
-        </div>
+        <input
+          type="text"
+          placeholder="ค้นหารายชื่อ"
+          value={searchTerm}
+          onChange={(e) => setSearchTerm(e.target.value)}
+        />
+        <button className="search-button">ค้นหา</button>
+      </div>
 
         <div className="table-title">
-          <h3>รายชื่อผู้ปกครอง <span>ทั้งหมด {filteredParents.length} คน</span></h3>
+          <h3>รายชื่อผู้ปกครอง <span>{filteredParents.length} คน</span></h3>
           <button className="add-btn" onClick={() => navigate("/add-parent")}>
             <FaPlus /> เพิ่มผู้ปกครอง
           </button>
@@ -113,11 +112,13 @@ function ManageParentDepartment() {
           <button disabled>ถัดไป</button>
         </div>
 
-      </div>
-
-      <Footer />
+       </div>
+   
     </div>
+    </div>
+     <Footer />
+     </div>
   );
-}
+};
 
 export default ManageParentDepartment;
