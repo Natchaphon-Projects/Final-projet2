@@ -197,7 +197,7 @@ app.post("/patients/:id/records", (req, res) => {
 // ✅ POST: Login ตรวจสอบ HN
 app.post("/login", (req, res) => {
   const { hnNumber } = req.body;
-  const query = `SELECT rold AS role FROM users WHERE hn_number = ?`;
+  const query = `SELECT role FROM users WHERE hn_number = ?`;
   db.query(query, [hnNumber], (err, results) => {
     if (err) return res.status(500).json({ success: false, message: "Database error" });
     if (results.length > 0) {

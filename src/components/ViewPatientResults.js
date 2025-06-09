@@ -64,7 +64,7 @@ const filteredPatients = uniquePatients.filter((p) =>
   });
 
   const handleViewDetails = (patient) => {
-    navigate(`/Recomendation/${patient.id}`, { state: { patient } });
+    navigate(`/Recomendation`, { state: { patient } });
   };
 
   return (
