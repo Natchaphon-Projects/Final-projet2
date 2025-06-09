@@ -495,7 +495,7 @@ const isComplete = requiredKeys.every((key) => {
               onClick={() => navigate("/parent-risk-assessment")} // เส้นทาง path ของหน้า GroupedDataInput
               style={{ background: "linear-gradient(to right, #f59e0b, #f97316)" }}
             >
-              🏠 กลับหน้าหลัก
+              🏠 กลับหน้าเลือกกลุ่มข้อมูล
             </button>
 
             {/* ปุ่มไปหน้าใหม่ */}
