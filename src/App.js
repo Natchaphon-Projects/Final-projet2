@@ -24,9 +24,9 @@ import NutritionForm from "./components/Form/NutritionForm";
 import SanitationForm from "./components/Form/SanitationForm";
 import Recomendation from "./components/Recomendation";
 import PatientHistory from "./components/PatientHistory";
-import PredictionModel from "./components/Predictio_model/PredictionModel"; // ✅ เพิ่มตรงนี้
+import PredictionModel from "./components/Prediction_model/PredictionModel"; // ✅ เพิ่มตรงนี้
 import ParentRiskSelection from "./components/ParentRiskSelection"; // ✅ ต้อง import ตรงนี้
-import MedicalHistory from "./components/Predictio_model/MedicalHistory";
+import MedicalHistory from "./components/Prediction_model/MedicalHistory";
 
 import './styles.css';
 

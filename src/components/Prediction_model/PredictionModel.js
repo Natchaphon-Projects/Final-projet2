@@ -138,7 +138,7 @@ function PredictionModel() {
 
   return (
     <div className="dashboard-container">
-      <Header />
+      <Header currentPage="form-nutrition" />
 
       <div className="page-content">
         <div className="dashboard-grid">

@@ -86,7 +86,30 @@
   color: #047857;
 }
 
-/* ชื่อเด็ก */
+/* กล่องรวม 3 กล่อง → ใช้ Grid 3 คอลัมน์ */
+.mh-top-section {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr); /* 3 คอลัมน์เท่ากัน */
+  gap: 2rem;
+   max-width: 1000px;
+  margin-bottom: 2rem;
+  align-items: stretch; /* กล่องสูงเท่ากัน */
+   margin-left: auto; /* ✅ ทำให้ตรงกลาง */
+  margin-right: auto; /* ✅ ทำให้ตรงกลาง */
+}
+
+/* Latest Box */
+.mh-latest-box {
+  background: linear-gradient(to right, #ffffffcc, #e0fff4cc);
+  border: 2px solid #bbf7d0;
+  border-radius: 20px;
+  padding: 1.5rem 2rem;
+  box-shadow: 0 6px 14px rgba(0, 0, 0, 0.06);
+  height: 100%;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+}
 .child-badge {
   display: inline-flex;
   align-items: center;
@@ -105,19 +128,6 @@
   font-size: 1.4rem;
   color: #a21caf;
 }
-
-/* กล่องล่าสุด */
-.mh-latest-box {
-  background: linear-gradient(to right, #ffffffcc, #e0fff4cc);
-  border: 2px solid #bbf7d0;
-  border-radius: 20px;
-  padding: 1.5rem 2rem;
-  margin: 0 auto 2rem;
-  box-shadow: 0 6px 14px rgba(0, 0, 0, 0.06);
-  max-width: 440px;
-  position: relative;
-  z-index: 1;
-}
 .last-check {
   font-size: 1rem;
   color: #15803d;
@@ -129,6 +139,50 @@
   gap: 2rem;
   margin-top: 0.5rem;
   flex-wrap: wrap;
+}
+
+/* กล่อง Summary (box green / orange) */
+.box {
+  background: linear-gradient(to right, #ffffffcc, #e0fff4cc);
+  border: 2px solid #bbf7d0;
+  border-radius: 20px;
+  padding: 1.5rem 2rem;
+  box-shadow: 0 6px 14px rgba(0, 0, 0, 0.06);
+  height: 100%;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+  transition: transform 0.3s ease;
+}
+.box:hover {
+  transform: scale(1.03);
+}
+.box.green {
+  background: linear-gradient(to bottom right, #d1fae5, #ecfdf5);
+  color: #065f46;
+}
+.box.orange {
+  background: linear-gradient(to bottom right, #fef3c7, #fff7ed);
+  color: #c2410c;
+}
+.box-icon {
+  font-size: 2.5rem;
+  margin-bottom: 0.5rem;
+}
+.box-label {
+  font-size: 1rem;
+  font-weight: 600;
+  margin-bottom: 0.4rem;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.4rem;
+}
+.count {
+  font-size: 1.5rem;
+  font-weight: 800;
+  line-height: 1.2;
 }
 
 /* การ์ดประวัติ */
@@ -179,66 +233,4 @@
   background: linear-gradient(to right, #fde68a, #fef3c7);
   color: #c2410c;
   border: 1px solid #fcd34d;
-}
-.mh-summary {
-  display: flex;
-  justify-content: center;
-  align-items: flex-start;
-  gap: 3rem;
-  flex-wrap: wrap;
-  margin-top: 3rem;
-}
-
-.box {
-  width: 320px;
-  height: 230px;
-  padding: 2rem;
-  border-radius: 24px;
-  text-align: center;
-  transition: transform 0.3s ease;
-  box-shadow: 0 6px 14px rgba(0, 0, 0, 0.06);
-  display: flex;
-  flex-direction: column;
-  justify-content: center;
-  position: relative;
-}
-
-.box:hover {
-  transform: scale(1.03);
-}
-
-.box.green {
-  background: linear-gradient(to bottom right, #d1fae5, #ecfdf5);
-  color: #065f46;
-}
-
-.box.orange {
-  background: linear-gradient(to bottom right, #fef3c7, #fff7ed);
-  color: #c2410c;
-}
-
-.box-icon {
-  font-size: 2.5rem;
-  margin-bottom: 0.5rem;
-}
-
-.box-label {
-  font-size: 1rem;
-  font-weight: 600;
-  margin-bottom: 0.4rem;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  gap: 0.4rem;
-}
-
-.count {
-  font-size: 1.5rem;
-  font-weight: 800;
-  line-height: 1.2;
-}
-
-.star-icon {
-  color: #facc15;
-  font-size: 1.2rem;
 }

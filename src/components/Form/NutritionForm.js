@@ -103,10 +103,10 @@ function NutritionForm() {
   const [patientId, setPatientId] = useState(null); // ✅ เพิ่ม
   const [childData, setChildData] = useState(null); // ✅ เพิ่ม
   const [showConfirmPopup, setShowConfirmPopup] = useState(false);
-const [pendingSubmitGroup, setPendingSubmitGroup] = useState(null);
+  const [pendingSubmitGroup, setPendingSubmitGroup] = useState(null);
 
 
-const [finalGroupCompleted, setFinalGroupCompleted] = useState(false);
+  const [finalGroupCompleted, setFinalGroupCompleted] = useState(false);
 
   const [formData, setFormData] = useState(() => {
     const saved = localStorage.getItem("nutritionFormData");
@@ -116,7 +116,7 @@ const [finalGroupCompleted, setFinalGroupCompleted] = useState(false);
     localStorage.setItem("nutritionFormData", JSON.stringify(formData));
   }, [formData]);
 
-  
+
 
   const [expandedGroup, setExpandedGroup] = useState(0);
   const [completedGroups, setCompletedGroups] = useState([]);
@@ -138,13 +138,13 @@ const [finalGroupCompleted, setFinalGroupCompleted] = useState(false);
   };
 
   const isAllCountFieldsEmpty = () => {
-  return (
-    (formData.Infant_Formula_Intake_Count_Yesterday === "" || formData.Infant_Formula_Intake_Count_Yesterday === undefined) &&
-    (formData.Breastfeeding_Count_DayandNight === "" || formData.Breastfeeding_Count_DayandNight === undefined) &&
-    (formData.Received_Animal_Milk_Count === "" || formData.Received_Animal_Milk_Count === undefined) &&
-    (formData.Received_Yogurt_Count === "" || formData.Received_Yogurt_Count === undefined)
-  );
-};
+    return (
+      (formData.Infant_Formula_Intake_Count_Yesterday === "" || formData.Infant_Formula_Intake_Count_Yesterday === undefined) &&
+      (formData.Breastfeeding_Count_DayandNight === "" || formData.Breastfeeding_Count_DayandNight === undefined) &&
+      (formData.Received_Animal_Milk_Count === "" || formData.Received_Animal_Milk_Count === undefined) &&
+      (formData.Received_Yogurt_Count === "" || formData.Received_Yogurt_Count === undefined)
+    );
+  };
 
   const handleGroupComplete = (index) => {
     const group = nutritionGroups[index];
@@ -152,26 +152,26 @@ const [finalGroupCompleted, setFinalGroupCompleted] = useState(false);
     const requiredKeys = group.questions.map(q => q.key);
 
     const optionalKeys = [
-  "Infant_Formula_Intake_Count_Yesterday",
-  "Breastfeeding_Count_DayandNight",
-  "Received_Animal_Milk_Count",
-  "Received_Yogurt_Count",
-];
+      "Infant_Formula_Intake_Count_Yesterday",
+      "Breastfeeding_Count_DayandNight",
+      "Received_Animal_Milk_Count",
+      "Received_Yogurt_Count",
+    ];
 
     const isComplete = requiredKeys.every(key => {
-  if (optionalKeys.includes(key)) return true;
+      if (optionalKeys.includes(key)) return true;
 
-  const value = formData[key];
-  const question = group.questions.find(q => q.key === key);
+      const value = formData[key];
+      const question = group.questions.find(q => q.key === key);
 
-  if (question.type === "number") {
-    return value !== "" && value !== undefined && parseFloat(value) >= 0;
-  } else if (question.type === "dropdown") {
-    return value && value !== "";
-  }
+      if (question.type === "number") {
+        return value !== "" && value !== undefined && parseFloat(value) >= 0;
+      } else if (question.type === "dropdown") {
+        return value && value !== "";
+      }
 
-  return true;
-});
+      return true;
+    });
 
 
     if (!isComplete) {
@@ -187,24 +187,24 @@ const [finalGroupCompleted, setFinalGroupCompleted] = useState(false);
       }
 
       if (index + 1 < nutritionGroups.length) {
-  setExpandedGroup(index + 1);
+        setExpandedGroup(index + 1);
 
-  // ✅ Scroll ไปยังกลุ่มถัดไป
-  setTimeout(() => {
-    groupRefs.current[index + 1]?.scrollIntoView({
-      behavior: "smooth",
-      block: "start",
-    });
-  }, 300);
-} else {
-  setExpandedGroup(-1);
-}
+        // ✅ Scroll ไปยังกลุ่มถัดไป
+        setTimeout(() => {
+          groupRefs.current[index + 1]?.scrollIntoView({
+            behavior: "smooth",
+            block: "start",
+          });
+        }, 300);
+      } else {
+        setExpandedGroup(-1);
+      }
 
 
       localStorage.setItem("nutritionCompletedGroups", JSON.stringify(newCompleted));
 
       return newCompleted;
-      
+
     });
   };
 
@@ -218,19 +218,19 @@ const [finalGroupCompleted, setFinalGroupCompleted] = useState(false);
       return;
     }
 
-  // กำหนด default เป็น 0 ถ้าเว้นว่าง
-const dataToSend = {
-  patient_id: patientId,
-  ...formData,
-  Infant_Formula_Intake_Count_Yesterday: formData.Infant_Formula_Intake_Count_Yesterday || 0,
-  Breastfeeding_Count_DayandNight: formData.Breastfeeding_Count_DayandNight || 0,
-  Received_Animal_Milk_Count: formData.Received_Animal_Milk_Count || 0,
-  Received_Yogurt_Count: formData.Received_Yogurt_Count || 0,
-  created_at: new Date().toISOString(),
-};
+    // กำหนด default เป็น 0 ถ้าเว้นว่าง
+    const dataToSend = {
+      patient_id: patientId,
+      ...formData,
+      Infant_Formula_Intake_Count_Yesterday: formData.Infant_Formula_Intake_Count_Yesterday || 0,
+      Breastfeeding_Count_DayandNight: formData.Breastfeeding_Count_DayandNight || 0,
+      Received_Animal_Milk_Count: formData.Received_Animal_Milk_Count || 0,
+      Received_Yogurt_Count: formData.Received_Yogurt_Count || 0,
+      created_at: new Date().toISOString(),
+    };
 
 
-    
+
     axios.post("http://localhost:5000/predictions", dataToSend)
       .then(() => {
         alert("✅ บันทึกข้อมูลเรียบร้อยแล้ว");
@@ -239,15 +239,15 @@ const dataToSend = {
         console.error("❌ บันทึกข้อมูลล้มเหลว", err);
       });
   };
- useEffect(() => {
-  const savedCompleted = localStorage.getItem("nutritionCompletedGroups");
-  const parsedCompleted = savedCompleted ? JSON.parse(savedCompleted) : [];
-  setCompletedGroups(parsedCompleted);
+  useEffect(() => {
+    const savedCompleted = localStorage.getItem("nutritionCompletedGroups");
+    const parsedCompleted = savedCompleted ? JSON.parse(savedCompleted) : [];
+    setCompletedGroups(parsedCompleted);
 
-  // ✅ หากมีกลุ่มที่ยังไม่กรอก ให้เปิดกลุ่มแรกที่ยังไม่ได้กรอก
-  const firstIncompleteIndex = nutritionGroups.findIndex((_, index) => !parsedCompleted.includes(index));
-  setExpandedGroup(firstIncompleteIndex !== -1 ? firstIncompleteIndex : -1); // ถ้าทุกกลุ่มกรอกหมดแล้ว ไม่ต้องเปิดอะไร
-}, []);
+    // ✅ หากมีกลุ่มที่ยังไม่กรอก ให้เปิดกลุ่มแรกที่ยังไม่ได้กรอก
+    const firstIncompleteIndex = nutritionGroups.findIndex((_, index) => !parsedCompleted.includes(index));
+    setExpandedGroup(firstIncompleteIndex !== -1 ? firstIncompleteIndex : -1); // ถ้าทุกกลุ่มกรอกหมดแล้ว ไม่ต้องเปิดอะไร
+  }, []);
 
 
 
@@ -294,42 +294,42 @@ const dataToSend = {
         </p>
       </div>
 
-{showConfirmPopup && (
-  <div className="popup-overlay">
-    <div className="popup-box">
-      <h3>📋 ตรวจสอบข้อมูลก่อนบันทึก</h3>
-      <ul className="popup-list">
-        {nutritionGroups.flatMap(group => group.questions).map(({ key, label, type }) => {
-          const value = formData[key];
-          const getDisplayText = (key, value) => value
-            ? "✅ บริโภค"
-            : "❌ ไม่ได้บริโภค";
-          return (
-            <li key={key} className="popup-row">
-              <span className="popup-label">{label}</span>
-              <span className={`popup-value ${type === "checkbox" ? (value ? "success" : "error") : ""}`}>
-                {type === "checkbox" ? getDisplayText(key, value) : value || "-"}
-              </span>
-            </li>
-          );
-        })}
-      </ul>
+      {showConfirmPopup && (
+        <div className="popup-overlay">
+          <div className="popup-box">
+            <h3>📋 ตรวจสอบข้อมูลก่อนบันทึก</h3>
+            <ul className="popup-list">
+              {nutritionGroups.flatMap(group => group.questions).map(({ key, label, type }) => {
+                const value = formData[key];
+                const getDisplayText = (key, value) => value
+                  ? "✅ บริโภค"
+                  : "❌ ไม่ได้บริโภค";
+                return (
+                  <li key={key} className="popup-row">
+                    <span className="popup-label">{label}</span>
+                    <span className={`popup-value ${type === "checkbox" ? (value ? "success" : "error") : ""}`}>
+                      {type === "checkbox" ? getDisplayText(key, value) : value || "-"}
+                    </span>
+                  </li>
+                );
+              })}
+            </ul>
 
-      <div className="popup-actions">
-        <button className="cancel" onClick={() => setShowConfirmPopup(false)}>❌ ยกเลิก</button>
-        <button className="confirm" onClick={() => {
-  setShowConfirmPopup(false);
-  handleGroupComplete(pendingSubmitGroup);
-  handleSubmit();
-  navigate(nextPage); // ✅ เพิ่มเพื่อไปหน้าถัดไปอัตโนมัติ
-}}>
+            <div className="popup-actions">
+              <button className="cancel" onClick={() => setShowConfirmPopup(false)}>❌ ยกเลิก</button>
+              <button className="confirm" onClick={() => {
+                setShowConfirmPopup(false);
+                handleGroupComplete(pendingSubmitGroup);
+                handleSubmit();
+                navigate(nextPage); // ✅ เพิ่มเพื่อไปหน้าถัดไปอัตโนมัติ
+              }}>
 
-          ✅ ยืนยันบันทึก ➜
-        </button>
-      </div>
-    </div>
-  </div>
-)}
+                ✅ ยืนยันบันทึก ➜
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
 
 
       <div className="nutrition-form-container">
@@ -355,7 +355,7 @@ const dataToSend = {
           {/* ✅ Groups */}
           {nutritionGroups.map((group, index) => (
             <div className="accordion-group" key={index} ref={(el) => (groupRefs.current[index] = el)} >
-              
+
               <button
                 className={`accordion-toggle ${completedGroups.includes(index) ? "completed-group" : ""}`}
                 onClick={() => toggleGroup(index)}
@@ -416,17 +416,17 @@ const dataToSend = {
                             <div className="number-item" key={key}>
                               <label className="question-label">
                                 {label}
-                               <select
-  required
-  value={formData[key] || ""}
-  onChange={(e) => handleChange(key, e.target.value)}
-  className="number-input"
->
-  <option value="" disabled>-- เลือกตัวเลือก --</option>
-  {options.map((opt, idx) => (
-    <option key={idx} value={opt}>{opt}</option>
-  ))}
-</select>
+                                <select
+                                  required
+                                  value={formData[key] || ""}
+                                  onChange={(e) => handleChange(key, e.target.value)}
+                                  className="number-input"
+                                >
+                                  <option value="" disabled>-- เลือกตัวเลือก --</option>
+                                  {options.map((opt, idx) => (
+                                    <option key={idx} value={opt}>{opt}</option>
+                                  ))}
+                                </select>
 
                               </label>
                             </div>
@@ -438,120 +438,115 @@ const dataToSend = {
                     </div>
                   )}
 
-             {index === nutritionGroups.length - 1 ? (
-  <>
-  <button
- className={`complete-btn ${
-  completedGroups.length < nutritionGroups.length - 1 || !formData.Number_of_Times_Eaten_Solid_Food
-    ? "disabled-btn"
-    : ""
-}`}
+                  {index === nutritionGroups.length - 1 ? (
+                    <>
+                      <button
+                        className={`complete-btn ${completedGroups.length < nutritionGroups.length - 1 || !formData.Number_of_Times_Eaten_Solid_Food
+                            ? "disabled-btn"
+                            : ""
+                          }`}
 
-  onClick={() => {
-    if (!formData.Number_of_Times_Eaten_Solid_Food) return;
+                        onClick={() => {
+                          if (!formData.Number_of_Times_Eaten_Solid_Food) return;
 
-    handleGroupComplete(index);
-    setFinalGroupCompleted(true);
-    setPendingSubmitGroup(index);
-    setShowConfirmPopup(true);
-  }}
->
-  บันทึก
-</button>
+                          handleGroupComplete(index);
+                          setFinalGroupCompleted(true);
+                          setPendingSubmitGroup(index);
+                          setShowConfirmPopup(true);
+                        }}
+                      >
+                        บันทึก
+                      </button>
 
-{(completedGroups.length < nutritionGroups.length - 1 || !formData.Number_of_Times_Eaten_Solid_Food) && (
-  <span className="warning-inline">
+                      {(completedGroups.length < nutritionGroups.length - 1 || !formData.Number_of_Times_Eaten_Solid_Food) && (
+                        <span className="warning-inline">
 
-    ⚠️ กรุณาทำแบบสอบถามให้ครบทุกกลุ่ม และกรอก “จำนวนมื้ออาหารแข็ง” ก่อนกดบันทึก
-  </span>
-)}
-
-
-
-  </>
-) : (
-  <button className="complete-btn" onClick={() => handleGroupComplete(index)}>
-    ถัดไป ➜
-  </button>
-)}
+                          ⚠️ กรุณาทำแบบสอบถามให้ครบทุกกลุ่ม และกรอก “จำนวนมื้ออาหารแข็ง” ก่อนกดบันทึก
+                        </span>
+                      )}
 
 
 
-
+                    </>
+                  ) : (
+                    <button className="complete-btn" onClick={() => handleGroupComplete(index)}>
+                      ถัดไป ➜
+                    </button>
+                  )}
 
                 </div>
               )}
             </div>
           ))}
 
-           {completedGroups.length === nutritionGroups.length && totalProgress === 100 && (
+          {completedGroups.length === nutritionGroups.length && totalProgress === 100 && (
 
-  <button
-    className="submit-btn"
-    style={{ background: "linear-gradient(to right, #22c55e, #16a34a)" }}
-    onClick={async () => {
-      const isSubmitting = localStorage.getItem("isSubmitting");
-      if (isSubmitting === "true") return;
+            <button
+              className="submit-btn"
+              style={{ background: "linear-gradient(to right, #22c55e, #16a34a)" }}
+              onClick={async () => {
+                const isSubmitting = localStorage.getItem("isSubmitting");
+                if (isSubmitting === "true") return;
 
-      localStorage.setItem("isSubmitting", "true");
+                localStorage.setItem("isSubmitting", "true");
 
-      const general = JSON.parse(localStorage.getItem("generalFormData") || "{}");
-      const caregiver = JSON.parse(localStorage.getItem("caregiverFormData") || "{}");
-      const nutrition = JSON.parse(localStorage.getItem("nutritionFormData") || "{}");
-      const sanitation = JSON.parse(localStorage.getItem("sanitationFormData") || "{}");
-      const patientId = localStorage.getItem("childId");
+                const general = JSON.parse(localStorage.getItem("generalFormData") || "{}");
+                const caregiver = JSON.parse(localStorage.getItem("caregiverFormData") || "{}");
+                const nutrition = JSON.parse(localStorage.getItem("nutritionFormData") || "{}");
+                const sanitation = JSON.parse(localStorage.getItem("sanitationFormData") || "{}");
+                const patientId = localStorage.getItem("childId");
 
-      if (!patientId) {
-        alert("❌ ไม่พบรหัสผู้ป่วย กรุณาเลือกเด็กใหม่");
-        localStorage.setItem("isSubmitting", "false");
-        return;
-      }
+                if (!patientId) {
+                  alert("❌ ไม่พบรหัสผู้ป่วย กรุณาเลือกเด็กใหม่");
+                  localStorage.setItem("isSubmitting", "false");
+                  return;
+                }
 
-      const allData = {
-        patient_id: patientId,
-        ...general,
-        ...caregiver,
-        ...nutrition,
-        ...sanitation,
-      };
+                const allData = {
+                  patient_id: patientId,
+                  ...general,
+                  ...caregiver,
+                  ...nutrition,
+                  ...sanitation,
+                };
 
-      const requiredKeys = [
-        "Guardian", "Vitamin_A_Intake_First_8_Weeks", "Sanitary_Disposal",
-        "Mom_wash_hand_before_or_after_cleaning_children", "Mom_wash_hand_before_or_after_feeding_the_child",
-        "Child_wash_hand_before_or_after_eating_food", "Child_wash_hand_before_or_after_visiting_the_toilet",
-        "Last_Month_Weight_Check", "Weighed_Twice_Check_in_Last_3_Months",
-        "Given_Anything_to_Drink_in_First_6_Months", "Still_Breastfeeding",
-        "Is_Respondent_Biological_Mother", "Breastfeeding_Count_DayandNight",
-        "Received_Vitamin_or_Mineral_Supplements", "Received_Plain_Water",
-        "Infant_Formula_Intake_Count_Yesterday", "Received_Animal_Milk",
-        "Received_Animal_Milk_Count", "Received_Juice_or_Juice_Drinks",
-        "Received_Yogurt", "Received_Yogurt_Count", "Received_Thin_Porridge",
-        "Received_Tea", "Received_Other_Liquids", "Received_Grain_Based_Foods",
-        "Received_Orange_Yellow_Foods", "Received_White_Root_Foods",
-        "Received_Dark_Green_Leafy_Veggies", "Received_Ripe_Mangoes_Papayas",
-        "Received_Other_Fruits_Vegetables", "Received_Meat", "Received_Eggs",
-        "Received_Fish_Shellfish_Seafood", "Received_Legumes_Nuts_Foods",
-        "Received_Dairy_Products", "Received_Oil_Fats_Butter",
-        "Received_Sugary_Foods", "Received_Chilies_Spices_Herbs",
-        "Received_Grubs_Snails_Insects", "Received_Other_Solid_Semi_Solid_Food",
-        "Received_Salt", "Number_of_Times_Eaten_Solid_Food"
-      ];
+                const requiredKeys = [
+                  "Guardian", "Vitamin_A_Intake_First_8_Weeks", "Sanitary_Disposal",
+                  "Mom_wash_hand_before_or_after_cleaning_children", "Mom_wash_hand_before_or_after_feeding_the_child",
+                  "Child_wash_hand_before_or_after_eating_food", "Child_wash_hand_before_or_after_visiting_the_toilet",
+                  "Last_Month_Weight_Check", "Weighed_Twice_Check_in_Last_3_Months",
+                  "Given_Anything_to_Drink_in_First_6_Months", "Still_Breastfeeding",
+                  "Is_Respondent_Biological_Mother", "Breastfeeding_Count_DayandNight",
+                  "Received_Vitamin_or_Mineral_Supplements", "Received_Plain_Water",
+                  "Infant_Formula_Intake_Count_Yesterday", "Received_Animal_Milk",
+                  "Received_Animal_Milk_Count", "Received_Juice_or_Juice_Drinks",
+                  "Received_Yogurt", "Received_Yogurt_Count", "Received_Thin_Porridge",
+                  "Received_Tea", "Received_Other_Liquids", "Received_Grain_Based_Foods",
+                  "Received_Orange_Yellow_Foods", "Received_White_Root_Foods",
+                  "Received_Dark_Green_Leafy_Veggies", "Received_Ripe_Mangoes_Papayas",
+                  "Received_Other_Fruits_Vegetables", "Received_Meat", "Received_Eggs",
+                  "Received_Fish_Shellfish_Seafood", "Received_Legumes_Nuts_Foods",
+                  "Received_Dairy_Products", "Received_Oil_Fats_Butter",
+                  "Received_Sugary_Foods", "Received_Chilies_Spices_Herbs",
+                  "Received_Grubs_Snails_Insects", "Received_Other_Solid_Semi_Solid_Food",
+                  "Received_Salt", "Number_of_Times_Eaten_Solid_Food"
+                ];
 
-      // เติมค่าที่ขาด = 0
-      requiredKeys.forEach((key) => {
-        if (!(key in allData)) {
-          allData[key] = 0;
-        }
-      });
+                // เติมค่าที่ขาด = 0
+                requiredKeys.forEach((key) => {
+                  if (!(key in allData)) {
+                    allData[key] = 0;
+                  }
+                });
 
-      localStorage.setItem("latestPredictionData", JSON.stringify(allData));
-      localStorage.setItem("isSubmitting", "false");
-      navigate("/prediction-result");
-    }}
-  >
-    ✅ บันทึกข้อมูลทั้งหมดลงระบบเพื่อวิเคราะห์ภาวะทุพโภชนาการ
-  </button>
-)}
+                localStorage.setItem("latestPredictionData", JSON.stringify(allData));
+                localStorage.setItem("isSubmitting", "false");
+                navigate("/prediction-result");
+              }}
+            >
+              ✅ บันทึกข้อมูลทั้งหมดลงระบบเพื่อวิเคราะห์ภาวะทุพโภชนาการ
+            </button>
+          )}
 
 
           <div

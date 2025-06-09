@@ -13,7 +13,7 @@ import {
   FaTint,
   FaShieldAlt,
   FaBalanceScale,
-   FaClipboardList,     // ✅ เพิ่มS
+  FaClipboardList,     // ✅ เพิ่มS
 } from "react-icons/fa";
 
 function ParentDashboard() {
@@ -90,88 +90,89 @@ function ParentDashboard() {
       <main className="dashboard-main">
         {/* ข้อมูลผู้ใช้ */}
         <div className="user-info-header">
-  <div className="profile-circle">
-    {parentData?.first_name_parent?.charAt(0)}
-    {parentData?.last_name_parent?.charAt(0)}
+          <div className="profile-circle">
+            {parentData?.first_name_parent?.charAt(0)}
+            {parentData?.last_name_parent?.charAt(0)}
 
-    {/* จุดเขียว + จุดขาวกระพริบ */}
-    <div className="status-dot">
-      <div className="status-inner"></div>
-    </div>
-  </div>
+            {/* จุดเขียว + จุดขาวกระพริบ */}
+            <div className="status-dot">
+              <div className="status-inner"></div>
+            </div>
+          </div>
 
-  <div className="user-details">
-    <p className="greeting1">ยินดีต้อนรับ 🌟</p>
-    <h2 className="role1">ผู้ปกครอง</h2>
-    <p className="username1">
-      คุณ{" "}
-      {parentData
-        ? `${parentData.first_name_parent} ${parentData.last_name_parent}`
-        : "Loading..."}
-    </p>
-    <div className="underline1" />
-  </div>
+          <div className="user-details">
+            <p className="greeting1">ยินดีต้อนรับ 🌟</p>
+            <h2 className="role1">ผู้ปกครอง</h2>
+            <p className="username1">
+              คุณ{" "}
+              {parentData
+                ? `${parentData.first_name_parent} ${parentData.last_name_parent}`
+                : "Loading..."}
+            </p>
+            <div className="underline1" />
+          </div>
 
-  <div className="user-date">
-    <p className="date-label">วันนี้</p>
-    <p className="date-value">
-      {new Date().toLocaleDateString("th-TH", {
-        year: "numeric",
-        month: "long",
-        day: "numeric",
-      })}
-    </p>
-  </div>
-</div>
+          <div className="user-date">
+            <p className="date-label">วันนี้</p>
+            <p className="date-value">
+              {new Date().toLocaleDateString("th-TH", {
+                year: "numeric",
+                month: "long",
+                day: "numeric",
+              })}
+            </p>
+          </div>
+        </div>
 
 
         {/* ปุ่มเมนูประเมิน */}
         <div className="menu-wrapper">
-  <div
-    className="menu-card"
-    onClick={() => navigate("/parent-risk-selection", { state: { hnNumber } })}
-  >
-    <div className="menu-left">
-      <div className="menu-icon-box">
-        <FaSearch className="menu-icon" />
-      </div>
-      <div className="menu-texts">
-        <p className="menu-title1">ประเมินความเสี่ยงเบื้องต้น</p>
-        <p className="menu-subtitle">Preliminary Risk Assessment</p>
-        <p className="menu-desc">คลิกเพื่อเริ่มการประเมิน</p>
-      </div>
-    </div>
-    <FaChevronRight className="menu-arrow" />
-  </div>
-</div>
+          <div
+            className="menu-card"
+            onClick={() => navigate("/parent-risk-selection", { state: { hnNumber } })}
+          >
+            <div className="menu-left">
+              <div className="menu-icon-box">
+                <FaSearch className="menu-icon" />
+              </div>
+              <div className="menu-texts">
+                <p className="menu-title1">ประเมินความเสี่ยงเบื้องต้น</p>
+                <p className="menu-subtitle">Preliminary Risk Assessment</p>
+                <p className="menu-desc">คลิกเพื่อเริ่มการประเมิน</p>
+              </div>
+            </div>
+            <FaChevronRight className="menu-arrow" />
+          </div>
+          <div
+            className="menu-card"
+            onClick={() => navigate("/medical-history", { state: { hnNumber } })}
+          >
+            <div className="menu-left">
+              <div className="menu-icon-box">
+                <FaClipboardList className="menu-icon" />
+              </div>
+              <div className="menu-texts">
+                <p className="menu-title1">ประวัติการตรวจ</p>
+                <p className="menu-subtitle">Examination History</p>
+                <p className="menu-desc">คลิกเพื่อดูประวัติการตรวจ</p>
+              </div>
+            </div>
+            <FaChevronRight className="menu-arrow" />
+          </div>
+        </div>
 
-<div
-  className="menu-card"
-  onClick={() => navigate("/medical-history", { state: { hnNumber } })}
->
-  <div className="menu-left">
-    <div className="menu-icon-box">
-      <FaClipboardList className="menu-icon" />
-    </div>
-    <div className="menu-texts">
-      <p className="menu-title1">ประวัติการตรวจ</p>
-      <p className="menu-subtitle">Examination History</p>
-      <p className="menu-desc">คลิกเพื่อดูประวัติการตรวจ</p>
-    </div>
-  </div>
-  <FaChevronRight className="menu-arrow" />
-</div>
+
 
 
         {/* คำแนะนำ */}
         <div className="recommendation-section">
           <h1 >
-    คำแนะนำเกี่ยวกับภาวะโภชนาการ 🍎
-  </h1>
-  <br></br>
-  <p className="subtitle">
-    แนวทางการดูแลสุขภาพสำหรับคุณและครอบครัว
-  </p>
+            คำแนะนำเกี่ยวกับภาวะโภชนาการ 🍎
+          </h1>
+          <br></br>
+          <p className="subtitle">
+            แนวทางการดูแลสุขภาพสำหรับคุณและครอบครัว
+          </p>
           <div className="recommendation-cards">
             {recommendations.map((item, idx) => (
               <div key={idx} className={`recommendation-card card-bg-${item.color}`}>

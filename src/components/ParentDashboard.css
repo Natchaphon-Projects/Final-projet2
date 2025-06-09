@@ -113,8 +113,15 @@
 
 /* เมนูประเมิน */
 .menu-wrapper {
-  margin: 40px 0;
+  display: grid;
+  grid-template-columns: repeat(2, 1fr); /* 2 คอลัมน์ */
+  gap: 1.5rem; /* ระยะห่างระหว่างกล่อง */
+  margin-bottom: 2rem;
+  max-width: 1300px; /* ความกว้างรวม */
+  margin-left: auto;
+  margin-right: auto;
 }
+
 
 .menu-card {
   position: relative; /* ต้องมีเพื่อวางเลเยอร์แสง */

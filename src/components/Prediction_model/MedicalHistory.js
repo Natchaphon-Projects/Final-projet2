@@ -6,6 +6,7 @@ import {
   Baby, Calendar, Clock, Heart, Music, Gift, Crown,
   Cloud, Star, TreePine, Zap, Smile, Stethoscope, Sun
 } from "lucide-react";
+import { CgDanger, FaChevronRight } from "react-icons/fa";
 
 const childName = "น้องน้ำใส";
 
@@ -24,7 +25,7 @@ const MedicalHistory = () => {
 
   return (
     <>
-      <Header />
+      <Header currentPage="form-nutrition" />
       <main className="mh-page">
 
         {/* Floating icons */}
@@ -47,26 +48,45 @@ const MedicalHistory = () => {
           <Baby className="icon bounce green-icon" />
         </h1>
 
-        {/* Latest Box */}
-        <div className="mh-latest-box">
-          <div className="child-badge">
-            <Baby className="icon-inline pink" />
-            <span className="child-name-text">{childName}</span>
-            <Heart className="icon-inline pink" />
+        {/* TOP SECTION → 3 กล่อง */}
+        <div className="mh-top-section">
+
+          {/* Summary - Normal */}
+          <div className="box green">
+            <div className="box-icon">😊</div>
+            <div className="box-label">สถานะปกติ</div>
+            <div className="count">{normalCount} ครั้ง</div>
           </div>
-          <p className="last-check">
-            <Clock className="icon-inline" /> การประเมินครั้งล่าสุด
-            <Star className="icon-inline yellow" />
-          </p>
-          <div className="latest-info">
-            <p><Calendar className="icon-inline" /> {latest?.date}</p>
-            <p><Clock className="icon-inline" /> {latest?.time}</p>
+
+          {/* Latest Box */}
+          <div className="mh-latest-box">
+            <div className="child-badge">
+              <Baby className="icon-inline pink" />
+              <span className="child-name-text">{childName}</span>
+              <Heart className="icon-inline pink" />
+            </div>
+            <p className="last-check">
+              <Clock className="icon-inline" /> การประเมินครั้งล่าสุด
+              <Star className="icon-inline yellow" />
+            </p>
+            <div className="latest-info">
+              <p><Calendar className="icon-inline" /> {latest?.date}</p>
+              <p><Clock className="icon-inline" /> {latest?.time}</p>
+            </div>
           </div>
+
+          {/* Summary - ต้องติดตาม */}
+          <div className="box orange">
+            <div className="box-icon">💗</div>
+            <div className="box-label">ต้องติดตาม</div>
+            <div className="count">{abnormalCount} ครั้ง</div>
+          </div>
+
         </div>
 
         {/* History cards */}
         <div className="space-y-4">
-          {medicalHistory.map((item, index) => (
+          {medicalHistory.map((item) => (
             <div key={item.id} className={`mh-card ${item.isLatest ? "latest" : ""}`}>
               <div className="mh-row">
                 <div><Calendar className="icon-inline" /> <b>วันที่:</b> {item.date}</div>
@@ -87,25 +107,6 @@ const MedicalHistory = () => {
             </div>
           ))}
         </div>
-
-        {/* Summary */}
-       <div className="mh-summary">
-  <div className="box green">
-    <div className="box-icon">😊</div>
-    <div className="box-label">
-      สถานะปกติ 
-    </div>
-    <div className="count">{normalCount} ครั้ง</div>
-  </div>
-
-  <div className="box orange">
-    <div className="box-icon">💗</div>
-    <div className="box-label">
-      ต้องติดตาม 
-    </div>
-    <div className="count">{abnormalCount} ครั้ง</div>
-  </div>
-</div>
 
       </main>
       <Footer />

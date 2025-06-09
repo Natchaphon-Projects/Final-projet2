@@ -3,6 +3,7 @@ import './Recomendation.css';
 import { resultData } from './data/resultData'; // Import array ที่แยกมา
 import Header from "../components/layout/Header";
 import Footer from "../components/layout/Footer";
+import WeightChart from '../components/chart/WeightChart';
 import Sunglasscat from '../assets/cat-sunglass.jpg';
 
 function Recomendation() {
@@ -18,32 +19,73 @@ function Recomendation() {
                     ดูผลลัพธ์การประเมินของผู้ป่วย
                 </div>
 
-                {/* Patient Info Section */}
-                <div className="recommendation-patient-section">
-                    {/* Left: Icon + Name */}
-                    <div className="patient-profile">
-                        <img
-                            src={Sunglasscat}
-                            alt="Patient Avatar"
-                            className="patient-icon-image"
-                        />
-                        <div className="patient-name-large">สันติ แซ่ลี</div>
+                {/* Patient Info + Graph */}
+                <div className="recommendation-patient-wrapper">
+
+                    {/* ซ้าย: Patient Section */}
+                    <div className="recommendation-patient-section">
+
+
+                        {/* ซ้าย: รูป + ชื่อ + ปุ่ม */}
+                        <div className="patient-profile">
+                            <div className="patient-date">
+                               วันที่ {new Date().toLocaleDateString('th-TH')}
+
+
+                            </div>
+                            <img
+                                src={Sunglasscat}
+                                alt="Patient Avatar"
+                                className="patient-icon-image"
+                            />
+
+                            <div className="patient-name-large">สันติ แซ่ลี</div>
+
+                            <div className="patient-health-badge">ข้อมูลสุขภาพ</div>
+                        </div>
+
+                        {/* ขวา: Grid 2 columns */}
+                        <div className="patient-main-info">
+
+                            <div className="patient-info-grid-two">
+                                <div className="info-card">
+                                    <div className="label">HN:</div>
+                                    <div className="value">1</div>
+                                </div>
+                                <div className="info-card">
+                                    <div className="label">เพศ:</div>
+                                    <div className="value">ชาย.</div>
+                                </div>
+                                <div className="info-card">
+                                    <div className="label">อายุ:</div>
+                                    <div className="value">3 ปี 3 เดือน</div>
+                                </div>
+                                <div className="info-card">
+                                    <div className="label">น้ำหนัก:</div>
+                                    <div className="value">13 กก.</div>
+                                </div>
+                                <div className="info-card">
+                                    <div className="label">ส่วนสูง:</div>
+                                    <div className="value">94 ซม.</div>
+                                </div>
+                                <div className="info-card">
+                                    <div className="label">โรคประจำตัว:</div>
+                                    <div className="value">แมวเป้า</div>
+                                </div>
+
+                            </div>
+
+                        </div>
+
                     </div>
 
-                    {/* Middle: Patient Info */}
-                    <div className="patient-info-box">
-                        <div className="patient-info-title">ข้อมูลผู้ป่วย</div>
-                        <div className="patient-info-item">HN: <span>1</span></div>
-                        <div className="patient-info-item">อายุ: <span>3 ปี 3 เดือน</span></div>
-                        <div className="patient-info-item">เพศ: <span>ชาย</span></div>
-                    </div>
 
-                    {/* Right: Medical Info */}
-                    <div className="patient-info-box">
-                        <div className="patient-info-title">ข้อมูลทางการแพทย์</div>
-                        <div className="patient-info-item">น้ำหนัก: <span>13 กก.</span></div>
-                        <div className="patient-info-item">ส่วนสูง: <span>94 ซม.</span></div>
-                        <div className="patient-info-item">แพทย์ผู้ดูแล: <span>แพทย์มาตครั้ง</span></div>
+                    {/* ขวา: Graph */}
+                    <div className="patient-graph-section">
+                        <WeightChart />
+                    </div>
+                    <div className="patient-graph-section">
+                        <WeightChart />
                     </div>
                 </div>
 
@@ -173,7 +215,18 @@ function Recomendation() {
                                         <td>อะไรสักอย่าง</td>
                                     </tr>
                                 </tbody>
+
                             </table>
+                            <div className="recommendation-feedback-section">
+                                <div className="feedback-title">ข้อเสนอแนะ / บันทึกเพิ่มเติม</div>
+                                <textarea
+                                    className="feedback-textarea"
+                                    placeholder="พิมพ์ข้อเสนอแนะหรือบันทึกเพิ่มเติมที่นี่..."
+                                    rows="5"
+                                ></textarea>
+                                <button className="feedback-submit-btn">บันทึกข้อเสนอแนะ</button>
+                            </div>
+
                         </div>
 
                     </div> {/* end .result-table-wrapper */}
