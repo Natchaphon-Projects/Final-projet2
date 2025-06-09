@@ -29,7 +29,7 @@ const uniquePatients = [];
 const seen = new Set();
 
 patients.forEach((p) => {
-  const key = `${p.patientId}-${p.date}`;// ✅ ใช้ patient_id จริง + datetime เต็ม (มีวินาที)
+ const key = `${p.id}-${p.date}`;// ✅ ใช้ patient_id จริง + datetime เต็ม (มีวินาที)
   if (!seen.has(key)) {
     seen.add(key);
     uniquePatients.push(p);
