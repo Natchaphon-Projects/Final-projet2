@@ -398,7 +398,7 @@ useEffect(() => {
               onClick={() => navigate("/parent-risk-assessment")} // เส้นทาง path ของหน้า GroupedDataInput
               style={{ background: "linear-gradient(to right, #f59e0b, #f97316)" }}
             >
-              🏠 กลับหน้าเลือกกลุ่มข้อมูล
+              🏠 กลับหน้าหลัก
             </button>
 
             {/* ปุ่มไปหน้าใหม่ */}

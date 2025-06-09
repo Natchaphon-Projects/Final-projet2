@@ -44,39 +44,38 @@ app.get("/doctors/:hn", (req, res) => {
   });
 });
 
+// ✅ GET: รายชื่อผู้ป่วยทั้งหมด
 app.get("/patients", (req, res) => {
   const query = `
     SELECT 
       p.patient_id AS id,
-      p.hn_number,
-      p.prefix_name_child AS childPrefix,
-      p.birth_date AS birthDate,
-      CONCAT(p.first_name_child, ' ', p.last_name_child) AS name,
-      p.age,
+      p.hn_number AS hn,
+      CONCAT(p.prefix_name_child, ' ', p.first_name_child, ' ', p.last_name_child) AS name,
       p.gender,
-      pa.parent_id AS parent_id,
-      CONCAT(pa.prefix_name_parent, ' ', pa.first_name_parent, ' ', pa.last_name_parent) AS parent,
-      r.relationship
+      p.birth_date AS birthDate,
+      CONCAT(pa.prefix_name_parent, ' ', pa.first_name_parent, ' ', pa.last_name_parent) AS parent
     FROM patient p
     LEFT JOIN relationship r ON p.patient_id = r.patient_id
     LEFT JOIN parent pa ON r.parent_id = pa.parent_id
-    ORDER BY p.hn_number 
   `;
 
   db.query(query, (err, results) => {
-    if (err) {
-      console.error("❌ SQL Error:", err);
-      return res.status(500).json({ message: "DB Error" });
-    }
-    res.json(results);
+    if (err) return res.status(500).send(err);
+
+    const enhanced = results.map(row => {
+      const birth = new Date(row.birthDate);
+      const ageMonth = (new Date().getFullYear() - birth.getFullYear()) * 12 + (new Date().getMonth() - birth.getMonth());
+      return { ...row, age: `${ageMonth} เดือน` };
+    });
+
+    res.json(enhanced);
   });
 });
 
 app.post("/patients", (req, res) => {
   const {
-    hn_number,   // ✅ เปลี่ยนจาก hn เป็น hn_number
     childPrefix,
-    name,
+    name, // first name
     lastName,
     age,
     gender,
@@ -86,21 +85,17 @@ app.post("/patients", (req, res) => {
     allergies,
     congenital_disease,
     parent_id,
-    relationship
   } = req.body;
 
-  console.log("📥 Received payload:", req.body);
-
-  const patientQuery = `
+  const query = `
     INSERT INTO patient 
-    (hn_number, prefix_name_child, first_name_child, last_name_child, birth_date, gender, age, weight, height, allergies, congenital_disease, created_at)
+    (prefix_name_child, first_name_child, last_name_child, birth_date, gender, age, weight, height, allergies, congenital_disease, parent_id, created_at)
     VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, NOW())
   `;
 
   db.query(
-    patientQuery,
+    query,
     [
-      hn_number,
       childPrefix,
       name,
       lastName,
@@ -110,29 +105,18 @@ app.post("/patients", (req, res) => {
       weight,
       height,
       allergies,
-      congenital_disease
+      congenital_disease,
+      parent_id,
     ],
     (err, results) => {
       if (err) return res.status(500).send(err);
-
-      const newPatientId = results.insertId;
-
-      const relQuery = `
-        INSERT INTO relationship (patient_id, parent_id, relationship, created_at)
-        VALUES (?, ?, ?, NOW())
-      `;
-
-      db.query(relQuery, [newPatientId, parent_id, relationship], (err2) => {
-        if (err2) return res.status(500).send(err2);
-
-        res.json({ id: newPatientId, message: "✅ เพิ่มข้อมูลเด็กพร้อมความสัมพันธ์สำเร็จ" });
-      });
+      res.json({ id: results.insertId });
     }
   );
 });
 
 
-
+// ✅ PUT: แก้ไขข้อมู้ป่วย
 app.put("/patients/:id", (req, res) => {
   const {
     childPrefix,
@@ -145,19 +129,18 @@ app.put("/patients/:id", (req, res) => {
     height,
     allergies,
     congenital_disease,
-    parent_id,
-    relationship // <<== เพิ่มมา
+    parent_id
   } = req.body;
 
-  const patientQuery = `
+  const query = `
     UPDATE patient
     SET prefix_name_child = ?, first_name_child = ?, last_name_child = ?,
-        birth_date = ?, gender = ?, age = ?,
-        weight = ?, height = ?, allergies = ?, congenital_disease = ?
+        birth_date = ?, gender = ?, age = ?, weight = ?, height = ?,
+        allergies = ?, congenital_disease = ?, parent_id = ?
     WHERE patient_id = ?
   `;
 
-   db.query(patientQuery, [
+  db.query(query, [
     childPrefix,
     name,
     lastName,
@@ -168,47 +151,20 @@ app.put("/patients/:id", (req, res) => {
     height,
     allergies,
     congenital_disease,
+    parent_id,
     req.params.id
   ], (err) => {
     if (err) return res.status(500).send(err);
-
-    // ✅ อัปเดต relationship
-    const relQuery = `
-      UPDATE relationship
-      SET parent_id = ?, relationship = ?
-      WHERE patient_id = ?
-    `;
-
-    db.query(relQuery, [parent_id, relationship, req.params.id], (err2) => {
-      if (err2) return res.status(500).send(err2);
-
-      res.json({ message: "✅ อัปเดตสำเร็จ" });
-    });
+    res.json({ message: "✅ อัปเดตสำเร็จ" });
   });
 });
 
-// ✅ DELETE: ลบ patient + relationship
+
+// ✅ DELETE: ลบผู้ป่วย
 app.delete("/patients/:id", (req, res) => {
-  const patientId = req.params.id;
-
-  // ต้องลบ relationship ก่อน → เพราะมี foreign key
-  const deleteRelationshipQuery = `
-    DELETE FROM relationship WHERE patient_id = ?
-  `;
-
-  db.query(deleteRelationshipQuery, [patientId], (err) => {
+ db.query("DELETE FROM patient WHERE patient_id = ?", [req.params.id], (err) => {
     if (err) return res.status(500).send(err);
-
-    // แล้วค่อยลบ patient
-    const deletePatientQuery = `
-      DELETE FROM patient WHERE patient_id = ?
-    `;
-
-    db.query(deletePatientQuery, [patientId], (err2) => {
-      if (err2) return res.status(500).send(err2);
-
-      res.json({ message: "🗑️ ลบข้อมูลเด็กสำเร็จ" });
-    });
+    res.json({ message: "🗑️ ลบสำเร็จ" });
   });
 });
 
@@ -403,7 +359,7 @@ app.get("/users/:hn", (req, res) => {
 
 app.get("/find-patient-id", (req, res) => {
   const hn = req.query.hn;
-  const query = `SELECT patient_id FROM patient WHERE hn_number = ?`;
+  const query = `SELECT patient_id FROM patient WHERE hn = ?`;
   db.query(query, [hn], (err, results) => {
     if (err) return res.status(500).json({ message: "DB Error" });
     if (results.length > 0) {
@@ -457,16 +413,7 @@ app.get("/children-by-parent/:hn", (req, res) => {
 // ดึงข้อมูลเด็กจาก patient_id
 app.get("/patients/:id", (req, res) => {
   const id = req.params.id;
-  const query = `
-    SELECT 
-      patient_id,
-      hn_number AS hn,          
-      prefix_name_child,
-      first_name_child,
-      last_name_child
-    FROM patient
-    WHERE patient_id = ?
-  `;
+  const query = `SELECT * FROM patient WHERE patient_id = ?`;
   db.query(query, [id], (err, results) => {
     if (err) return res.status(500).json({ message: "DB error" });
     if (results.length > 0) {
@@ -485,31 +432,6 @@ app.get("/parents", (req, res) => {
   `;
   db.query(query, (err, results) => {
     if (err) return res.status(500).json({ message: "DB Error" });
-    res.json(results);
-  });
-});
-
-// ✅ GET: รายชื่อผู้ปกครองพร้อมเด็กในความดูแล
-app.get("/parents-with-children", (req, res) => {
-  const query = `
-    SELECT 
-      pa.parent_id,
-      CONCAT(pa.prefix_name_parent, ' ', pa.first_name_parent, ' ', pa.last_name_parent) AS parent_name,
-      pa.phone_number,
-      GROUP_CONCAT(CONCAT(p.prefix_name_child, ' ', p.first_name_child, ' ', p.last_name_child) SEPARATOR ', ') AS children,
-      GROUP_CONCAT(r.relationship SEPARATOR ', ') AS relationships
-    FROM parent pa
-    LEFT JOIN relationship r ON pa.parent_id = r.parent_id
-    LEFT JOIN patient p ON r.patient_id = p.patient_id
-    GROUP BY pa.parent_id
-    ORDER BY pa.parent_id
-  `;
-
-  db.query(query, (err, results) => {
-    if (err) {
-      console.error("❌ SQL Error:", err);
-      return res.status(500).json({ message: "DB Error" });
-    }
     res.json(results);
   });
 });

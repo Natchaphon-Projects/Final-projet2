@@ -403,7 +403,7 @@ useEffect(() => {
   onClick={() => navigate("/parent-risk-assessment")} // ✅ ตัด handleSubmit ออก
   style={{ background: "linear-gradient(to right, #f59e0b, #f97316)" }}
 >
-  🏠 กลับหน้าเลือกกลุ่มข้อมูล
+  🏠 กลับหน้าหลัก
 </button>
 
 
