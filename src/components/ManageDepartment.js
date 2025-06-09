@@ -9,186 +9,224 @@ const API_URL = "http://localhost:5000/patients";
 
 const ManageDepartment = () => {
   const [patients, setPatients] = useState([]);
+  const [parents, setParents] = useState([]); // 🔥 รายชื่อผู้ปกครอง
+  const [relationship, setRelationship] = useState("");
+  const [customRelationship, setCustomRelationship] = useState("");
+
   const [searchTerm, setSearchTerm] = useState("");
   const [currentPage, setCurrentPage] = useState(1);
   const [editingPatient, setEditingPatient] = useState(null);
   const [viewingPatient, setViewingPatient] = useState(null);
   const [showModal, setShowModal] = useState(false);
   const [birthDate, setBirthDate] = useState("");
-const [formData, setFormData] = useState({
-  childPrefix: "",
-  name: "",         // first name
-  lastName: "",     // last name
-  age: "",
-  gender: "",
-  birthDate: "",
-  weight: "",
-  height: "",
-  allergies: "",
-  congenital_disease: "",
-  parentPrefix: "",
-  parent: "",
-  parentId: null
-});
 
-
+  const [formData, setFormData] = useState({
+    childPrefix: "",
+    name: "",
+    lastName: "",
+    age: "",
+    gender: "",
+    birthDate: "",
+    weight: "",
+    height: "",
+    allergies: "",
+    congenital_disease: "",
+    parentId: null
+  });
 
   const itemsPerPage = 5;
 
   useEffect(() => {
     loadPatients();
+    loadParents();
   }, []);
 
   const loadPatients = async () => {
     try {
       const res = await axios.get(API_URL);
-      console.log("📦 patient data:", res.data); // ✅ เพิ่มบรรทัดนี้
       setPatients(res.data);
     } catch (err) {
       console.error("โหลดข้อมูลผิดพลาด", err);
     }
   };
 
-  const calculateAgeInMonths = (dob) => {
+  const loadParents = async () => {
+    try {
+      const res = await axios.get("http://localhost:5000/parents");
+      setParents(res.data);
+    } catch (err) {
+      console.error("โหลดผู้ปกครองผิดพลาด", err);
+    }
+  };
+
+  const formatAgeText = (months) => {
+    const years = Math.floor(months / 12);
+    const remainingMonths = months % 12;
+    if (years > 0) {
+      return `${years} ปี ${remainingMonths} เดือน`;
+    } else {
+      return `${remainingMonths} เดือน`;
+    }
+  };
+
+  const calculateAgeInText = (dob) => {
     const birth = new Date(dob);
     const today = new Date();
-    const years = today.getFullYear() - birth.getFullYear();
-    const months = today.getMonth() - birth.getMonth();
-    return (years * 12 + months).toString();
+
+    let years = today.getFullYear() - birth.getFullYear();
+    let months = today.getMonth() - birth.getMonth();
+    let days = today.getDate() - birth.getDate();
+
+    if (days < 0) {
+      months -= 1;
+    }
+
+    if (months < 0) {
+      years -= 1;
+      months += 12;
+    }
+
+    if (years > 0 && months > 0) {
+      return `${years} ปี ${months} เดือน`;
+    } else if (years > 0) {
+      return `${years} ปี`;
+    } else {
+      return `${months} เดือน`;
+    }
+  };
+
+  const extractMonths = (ageText) => {
+    const yearMatch = ageText.match(/(\d+)\s*ปี/);
+    const monthMatch = ageText.match(/(\d+)\s*เดือน/);
+    const years = yearMatch ? parseInt(yearMatch[1]) : 0;
+    const months = monthMatch ? parseInt(monthMatch[1]) : 0;
+    return years * 12 + months;
+  };
+
+  const handleSave = async () => {
+    if (
+  !formData.hn ||
+  !formData.name ||
+  !formData.lastName ||
+  !birthDate ||  // ✅ เพิ่มเช็ค birthDate
+  !formData.age ||
+  !formData.gender ||
+  !formData.childPrefix ||
+  !formData.parentId ||
+  !relationship ||
+  (relationship === "อื่นๆ" && customRelationship.trim() === "") // ✅ ถ้าเลือก "อื่นๆ" → ต้องกรอกด้วย
+) {
+  alert("กรุณากรอกข้อมูลให้ครบถ้วน");
+  return;
+}
+
+  const totalMonths = extractMonths(formData.age);
+    const payload = {
+      hn_number: formData.hn,  // ✅ เปลี่ยนจาก hn → hn_number
+      childPrefix: formData.childPrefix,
+      name: formData.name,
+      lastName: formData.lastName,
+      age: totalMonths,
+      gender: formData.gender,
+      birthDate,
+      weight: formData.weight || null,
+      height: formData.height || null,
+      allergies: formData.allergies || null,
+      congenital_disease: formData.congenital_disease || null,
+      parent_id: formData.parentId,
+      relationship: relationship === "อื่นๆ" ? customRelationship : relationship
+    };
+
+    try {
+      if (editingPatient) {
+        await axios.put(`${API_URL}/${editingPatient.id}`, payload);
+      } else {
+        await axios.post(API_URL, payload);
+      }
+      alert("บันทึกข้อมูลเด็กสำเร็จ");
+      setShowModal(false);
+      setEditingPatient(null);
+      resetForm();
+      loadPatients();
+    } catch (err) {
+      console.error("❌ Error saving data:", err);
+      alert("เกิดข้อผิดพลาดในการบันทึกข้อมูล");
+    }
+  };
+
+  const resetForm = () => {
+  setFormData({
+    id: null,
+    hn: "",
+    childPrefix: "",
+    name: "",
+    lastName: "",
+    age: "",
+    gender: "",
+    birthDate: "",
+    weight: "",                // ✅ เพิ่ม
+    height: "",                // ✅ เพิ่ม
+    allergies: "",             // ✅ เพิ่ม
+    congenital_disease: "",    // ✅ เพิ่ม
+    parentId: null
+  });
+  setRelationship("");
+  setCustomRelationship("");
+  setBirthDate("");
+};
+
+  const handleAdd = () => {
+    const lastPatient = [...patients].sort((a, b) => parseInt(b.hn_number) - parseInt(a.hn_number))[0];
+    const newHN = lastPatient ? (parseInt(lastPatient.hn_number) + 1).toString().padStart(5, "0") : "00001";
+
+    setEditingPatient(null);
+    setViewingPatient(null);
+    resetForm();
+    setFormData((prev) => ({ ...prev, hn: newHN }));
+    setShowModal(true);
+  };
+
+  const handleEdit = (patient) => {
+    console.log("DEBUG patient", patient);   // ✅ เพิ่มตรงนี้
+
+    const rawAge = formatAgeText(patient.age);
+    const formattedDate = patient.birthDate ? new Date(patient.birthDate).toISOString().split("T")[0] : "";
+
+    setEditingPatient(patient);
+    setBirthDate(formattedDate);
+    setFormData({
+      hn: patient.hn_number,
+      childPrefix: patient.childPrefix || "",
+      name: patient.name?.split(" ")[0] || "",
+      lastName: patient.name?.split(" ")[1] || "",
+      age: rawAge,
+      gender: patient.gender,
+      birthDate: formattedDate,
+      weight: patient.weight,
+      height: patient.height,
+      allergies: patient.allergies,
+      congenital_disease: patient.congenital_disease,
+      parentId: patient.parent_id || null
+    });
+    setRelationship(patient.relationship || "");
+    setCustomRelationship(patient.relationship === "อื่นๆ" ? patient.relationship_detail || "" : "");
+    setShowModal(true);
   };
 
   const handleDelete = async (id) => {
     if (window.confirm("❌ คุณแน่ใจหรือไม่ว่าต้องการลบข้อมูลเด็กคนนี้?")) {
       await axios.delete(`${API_URL}/${id}`);
+      alert("ลบข้อมูลสำเร็จ");
       loadPatients();
     }
   };
-
- const handleSave = async () => {
-  if (!formData.hn || !formData.name || !formData.age || !formData.gender || !formData.childPrefix || !formData.parentPrefix || !formData.parent) {
-    alert("กรุณากรอกข้อมูลให้ครบถ้วน");
-    return;
-  }
-  if (parseInt(formData.age) < 1 || parseInt(formData.age) > 60) {
-    alert("กรุณาเลือกอายุที่น้อยกว่า 60 เดือน");
-    return;
-  }
-
-
-  let parentId;
-
-  try {
-    // 🔍 ดึง parentId จาก backend
-    const res = await axios.get(`http://localhost:5000/find-parent-id?name=${formData.parentPrefix} ${formData.parent}`);
-    parentId = res.data?.parent_id;
-
-    if (!parentId) {
-      alert("ไม่พบผู้ปกครองในระบบ กรุณาตรวจสอบชื่อ");
-      return;
-    }
-  } catch (err) {
-    console.error("ไม่สามารถดึง parent_id ได้:", err);
-    return;
-  }
-
-const payload = {
-  childPrefix: formData.childPrefix,
-  name: formData.name, // first name
-  lastName: formData.lastName, // สร้างเพิ่มใน formData
-  age: formData.age,
-  gender: formData.gender,
-  birthDate,
-  weight: formData.weight,
-  height: formData.height,
-  allergies: formData.allergies,
-  congenital_disease: formData.congenital_disease,
-  parent_id: parentId
-};
-
-
-  try {
-    if (editingPatient) {
-      console.log("🔄 Updating:", editingPatient.id);
-      await axios.put(`${API_URL}/${editingPatient.id}`, payload);
-    } else {
-      console.log("🆕 Creating New Patient");
-      await axios.post(API_URL, payload);
-    }
-
-    setShowModal(false);
-    setEditingPatient(null);
-    setBirthDate("");
-    setFormData({
-      id: null,
-      hn: "",
-      childPrefix: "",
-      name: "",
-      age: "",
-      gender: "",
-      parentPrefix: "",
-      parent: ""
-    });
-    loadPatients();
-  } catch (err) {
-    console.error("❌ Error saving data:", err);
-    alert("เกิดข้อผิดพลาดในการบันทึกข้อมูล");
-  }
-};
-
-
-  const handleEdit = (patient) => {
-    const rawAge = patient.age.replace(" เดือน", "");
-    const [childPrefix, ...nameParts] = patient.name.split(" ");
-    const [parentPrefix, ...parentParts] = patient.parent.split(" ");
-
-  const formattedDate = patient.birthDate
-  ? new Date(patient.birthDate).toISOString().split("T")[0]
-  : "";
-
-
-
-
-
-    setEditingPatient(patient);
-    setBirthDate(formattedDate); // ✅ สำคัญ!
-    setFormData({
-      hn: patient.hn,
-      childPrefix,
-      name: nameParts.join(" "),
-      age: rawAge,
-      gender: patient.gender,
-      parentPrefix,
-      parent: parentParts.join(" ")
-    });
-    setShowModal(true);
-  };
-
-const handleAdd = () => {
-  const maxHN = Math.max(0, ...patients.map((p) => parseInt(p.hn))) + 1;
-  const autoHN = maxHN.toString().padStart(5, "0");
-
-  setEditingPatient(null);      // ✅ รีเซ็ตการแก้ไข
-  setViewingPatient(null);      // ✅ ป้องกันการดูข้อมูลค้าง
-  setBirthDate("");             // ✅ รีเซ็ตวันเกิด
-  setFormData({                 // ✅ ฟอร์มว่าง
-    id: null,                // ✅ ต้องเพิ่มไว้
-    hn: autoHN,
-    childPrefix: "",
-    name: "",
-    age: "",
-    gender: "",
-    parentPrefix: "",
-    parent: ""
-  });
-  setShowModal(true);
-};
 
   const handleView = (patient) => {
     setViewingPatient(patient);
   };
 
   const filteredPatients = patients.filter((p) =>
-    p.hn?.includes(searchTerm) || p.name?.includes(searchTerm) || p.parent?.includes(searchTerm)
+    p.hn_number?.includes(searchTerm) || p.name?.includes(searchTerm) || p.parent?.includes(searchTerm)
   );
 
   const totalPages = Math.ceil(filteredPatients.length / itemsPerPage);
@@ -217,7 +255,7 @@ const handleAdd = () => {
       </div>
 
       <div className="table-title">
-        <h3>รายชื่อเด็ก <span>{filteredPatients.length} คน</span></h3>
+        <h3>รายชื่อเด็ก <span>ทั้งหมด {filteredPatients.length} คน</span></h3>
         <button className="add-btn" onClick={handleAdd}>
           <Plus /> เพิ่มเด็กใหม่
         </button>
@@ -231,17 +269,19 @@ const handleAdd = () => {
             <th>อายุ</th>
             <th>เพศ</th>
             <th>ผู้ปกครอง</th>
+            <th>ความสัมพันธ์</th>
             <th>การจัดการ</th>
           </tr>
         </thead>
         <tbody>
           {currentPatients.map((p) => (
             <tr key={p.id}>
-              <td>{p.hn}</td>
-              <td>{p.name}</td>
-              <td>{p.age}</td>
+              <td>{p.hn_number}</td>
+              <td>{`${p.childPrefix || ""} ${p.name}`}</td>
               <td>{p.gender}</td>
+              <td>{formatAgeText(p.age)}</td>
               <td>{p.parent}</td>
+              <td  className="center-text">{p.relationship}</td>
               <td className="actions">
                 <button className="icon view" onClick={() => handleView(p)}><Eye /></button>
                 <button className="icon edit" onClick={() => handleEdit(p)}><Edit /></button>
@@ -269,13 +309,61 @@ const handleAdd = () => {
 
             <input className="form-input" disabled value={formData.hn} />
 
-            <div className="form-row">
-              <select className="form-input prefix-select" value={formData.childPrefix} onChange={(e) => setFormData({ ...formData, childPrefix: e.target.value })}>
+            <div className="form-row" style={{ display: "flex", alignItems: "center", gap: "10px" }}>
+  
+              <select
+                className="form-input"
+                style={{ flex: "1" }}
+                value={formData.childPrefix}
+                onChange={(e) => {
+                  const prefix = e.target.value;
+                  let gender = formData.gender;
+
+                  if (prefix === "ด.ช.") gender = "ชาย";
+                  else if (prefix === "ด.ญ.") gender = "หญิง";
+
+                  setFormData({ ...formData, childPrefix: prefix, gender });
+                }}
+              >
                 <option value="">คำนำหน้า</option>
                 <option value="ด.ช.">ด.ช.</option>
                 <option value="ด.ญ.">ด.ญ.</option>
               </select>
-              <input className="form-input name-input" placeholder="ชื่อเด็ก" value={formData.name} onChange={(e) => setFormData({ ...formData, name: e.target.value })} />
+
+              <select
+                className="form-input"
+                style={{ flex: "1" }}
+                value={formData.gender}
+                onChange={(e) => {
+                  const gender = e.target.value;
+                  let prefix = formData.childPrefix;
+
+                  if (gender === "ชาย") prefix = "ด.ช.";
+                  else if (gender === "หญิง") prefix = "ด.ญ.";
+
+                  setFormData({ ...formData, gender, childPrefix: prefix });
+                }}
+              >
+                <option value="">เลือกเพศ</option>
+                <option value="ชาย">ชาย</option>
+                <option value="หญิง">หญิง</option>
+              </select>
+
+              <input
+                className="text-input name-input"
+                style={{ flex: "2" }}
+                placeholder="ชื่อเด็ก"
+                value={formData.name}
+                onChange={(e) => setFormData({ ...formData, name: e.target.value })}
+              />
+
+              <input
+                className="text-input name-input"
+                style={{ flex: "2" }}
+                placeholder="นามสกุลเด็ก"
+                value={formData.lastName}
+                onChange={(e) => setFormData({ ...formData, lastName: e.target.value })}
+              />
             </div>
 
             <div className="form-row">
@@ -286,33 +374,62 @@ const handleAdd = () => {
                 onChange={(e) => {
                   const dob = e.target.value;
                   setBirthDate(dob);
-                  const ageInMonths = calculateAgeInMonths(dob);
-                  setFormData({ ...formData, age: ageInMonths });
+                  const ageText = calculateAgeInText(dob);
+                  setFormData({ ...formData, age: ageText });
                 }}
+                min={new Date(new Date().setFullYear(new Date().getFullYear() - 5)).toISOString().split("T")[0]}
+                max={new Date(new Date().setFullYear(new Date().getFullYear() - 0)).toISOString().split("T")[0]}
               />
               <input
                 className="form-input age-display"
                 type="text"
-                value={formData.age ? `${formData.age} เดือน` : ""}
+                value={formData.age || ""}
                 disabled
                 readOnly
               />
             </div>
 
-            <select className="form-input" value={formData.gender} onChange={(e) => setFormData({ ...formData, gender: e.target.value })}>
-              <option value="">เลือกเพศ</option>
-              <option value="ชาย">ชาย</option>
-              <option value="หญิง">หญิง</option>
-            </select>
-
-            <div className="form-row">
-              <select className="form-input prefix-select" value={formData.parentPrefix} onChange={(e) => setFormData({ ...formData, parentPrefix: e.target.value })}>
-                <option value="">คำนำหน้า</option>
-                <option value="นาย">นาย</option>
-                <option value="นางสาว">นางสาว</option>
-                <option value="นาง">นาง</option>
+          
+           <div className="form-row" style={{ display: "flex", alignItems: "center", gap: "10px" }}>
+              <select
+                className="form-input"
+                style={{ flex: "2" }} // dropdown ผู้ปกครอง → กว้าง 2 ส่วน
+                value={formData.parentId || ""}
+                onChange={(e) => setFormData({ ...formData, parentId: e.target.value })}
+              >
+                <option value="">เลือกผู้ปกครอง</option>
+                {parents.map((parent) => (
+                  <option key={parent.id} value={parent.id}>
+                    {`${parent.prefix} ${parent.name} ${parent.lastName}`}
+                  </option>
+                ))}
               </select>
-              <input className="form-input name-input" placeholder="ชื่อผู้ปกครอง" value={formData.parent} onChange={(e) => setFormData({ ...formData, parent: e.target.value })} />
+
+              <select
+                className="form-input"
+                style={{ flex: "1" }} // dropdown ความสัมพันธ์ → กว้าง 1 ส่วน
+                value={relationship}
+                onChange={(e) => setRelationship(e.target.value)}
+              >
+                <option value="">เลือกความสัมพันธ์</option>
+                <option value="แม่">แม่</option>
+                <option value="พ่อ">พ่อ</option>
+                <option value="ปู่">ปู่</option>
+                <option value="ย่า">ย่า</option>
+                <option value="ตา">ตา</option>
+                <option value="ยาย">ยาย</option>
+                <option value="อื่นๆ">อื่นๆ</option>
+              </select>
+
+              {relationship === "อื่นๆ" && (
+                <input
+                  className=" text-input"
+                  style={{ flex: "1" }} // ช่องกรอกอื่นๆ → กว้าง 1 ส่วน
+                  placeholder="กรอกความสัมพันธ์อื่นๆ"
+                  value={customRelationship}
+                  onChange={(e) => setCustomRelationship(e.target.value)}
+                />
+              )}
             </div>
 
             <div className="button-group">
@@ -323,23 +440,19 @@ const handleAdd = () => {
         </div>
       )}
 
-     {viewingPatient && (
-  <div className="modal">
-    <div className="modal-content">
-      <h3 style={{ textAlign: "center" }}>👁️ ข้อมูลเด็ก</h3>
-      <p><strong>HN:</strong> {viewingPatient.hn}</p>
-      <p><strong>ชื่อ:</strong> {viewingPatient.name}</p>
-      <p><strong>อายุ:</strong> {viewingPatient.age}</p>
-      <p><strong>เพศ:</strong> {viewingPatient.gender}</p>
-      <p><strong>น้ำหนัก:</strong> {viewingPatient.weight} กก.</p>
-      <p><strong>ส่วนสูง:</strong> {viewingPatient.height} ซม.</p>
-      <p><strong>โรคประจำตัว:</strong> {viewingPatient.congenital_disease}</p>
-      <p><strong>แพ้อาหาร:</strong> {viewingPatient.allergies}</p>
-      <p><strong>ผู้ปกครอง:</strong> {viewingPatient.parent}</p>
-      <button className="cancel-btn" onClick={() => setViewingPatient(null)}>ปิด</button>
-    </div>
-  </div>
-)}
+      {viewingPatient && (
+        <div className="modal">
+          <div className="modal-content">
+            <h3 style={{ textAlign: "center" }}>👁️ ข้อมูลเด็ก</h3>
+            <p><strong>HN:</strong> {viewingPatient.hn_number}</p>
+            <p><strong>ชื่อ:</strong> {viewingPatient.name}</p>
+            <p><strong>อายุ:</strong> {formatAgeText(viewingPatient.age)}</p>
+            <p><strong>เพศ:</strong> {viewingPatient.gender}</p>
+            <p><strong>ผู้ปกครอง:</strong> {viewingPatient.parent}</p>
+            <button className="cancel-btn" onClick={() => setViewingPatient(null)}>ปิด</button>
+          </div>
+        </div>
+      )}
 
     </div>
     </div>
