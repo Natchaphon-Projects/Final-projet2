@@ -408,3 +408,30 @@
   flex: 0 0 150px;
   text-align: center;
 }
+
+.text-input {
+  width: 100%;
+  height: 110%;
+  padding: 24px 32px;
+  font-size: 16px;
+  border: 1.5px solid #d1d5db;
+  border-radius: 10px;
+  transition: 0.2s border;
+  background-color: white;
+  
+  appearance: textfield;
+  -webkit-appearance: textfield;
+  -moz-appearance: textfield;
+}
+
+.center-text {
+  text-align: center;
+  vertical-align: middle;
+  height: 100%; /* ช่วยให้ชิดตรงกลางจริงๆ */
+}
+
+.wrap-children {
+  white-space: normal;  /* ยอมให้ขึ้นบรรทัด */
+  word-break: break-word;  /* ถ้ามีคำยาวเกิน */
+  max-width: 300px; /* จำกัดความกว้าง (ปรับได้) */
+}

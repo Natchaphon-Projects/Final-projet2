@@ -202,6 +202,13 @@ useEffect(() => {
 
    <div className="nutrition-form-container">
         <div className="nutrition-card">
+            {childData && (
+            <div style={{ textAlign: "center", marginBottom: "1rem" }}>
+              <h3>แบบฟอร์มของ: {childData.prefix_name_child} {childData.first_name_child} {childData.last_name_child}</h3>
+              <p>HN: {childData.hn}</p>
+            </div>
+          )}
+
           <h2 className="nutrition-title">แบบสอบถามข้อมูลสุขาภิบาลของเด็ก</h2>
           <p className="nutrition-subtitle">กรุณาตอบคำถามเกี่ยวกับข้อมูลสุขาภิบาลของเด็ก</p>
           {/* ✅ Progress */}
