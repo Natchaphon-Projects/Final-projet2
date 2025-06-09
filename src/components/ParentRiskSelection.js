@@ -55,7 +55,7 @@ function ParentRiskSelection() {
 
   return (
     <div className="dashboard-container">
-      <Header />
+      <Header currentPage="form-nutrition" />
 
       {/* Title */}
       <div className="children-section-title">

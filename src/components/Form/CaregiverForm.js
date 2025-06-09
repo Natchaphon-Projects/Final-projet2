@@ -37,8 +37,8 @@ function CaregiverForm() {
   const prevPage = pages[prevIndex];
   const [patientId, setPatientId] = useState(null);
   const [childData, setChildData] = useState(null);
-
-
+const [showConfirmPopup, setShowConfirmPopup] = useState(false);
+const [pendingSubmitGroup, setPendingSubmitGroup] = useState(null);
   const [formData, setFormData] = useState(() => {
   const saved = localStorage.getItem("caregiverFormData");
   return saved ? JSON.parse(saved) : {};
@@ -52,9 +52,15 @@ useEffect(() => {
   useEffect(() => {
   const savedCompleted = localStorage.getItem("caregiverCompletedGroups");
   if (savedCompleted) {
-    setCompletedGroups(JSON.parse(savedCompleted));
+    const parsed = JSON.parse(savedCompleted);
+    setCompletedGroups(parsed);
+    // ปิด accordion ถ้ากลุ่มแรกใน saved เป็นสีเขียวแล้ว
+    if (parsed.length > 0) {
+      setExpandedGroup(-1);
+    }
   }
 }, []);
+
 
   const [completion, setCompletion] = useState(0);
 
@@ -170,7 +176,7 @@ useEffect(() => {
   return (
     
     <div className="dashboard-container">
-      <Header />
+      <Header currentPage="form-nutrition" />
 
     
       {/* ✅ แถบ progress รวม */}
@@ -282,21 +288,88 @@ useEffect(() => {
                     </div>
                   )}
 
-                  <button className="complete-btn" onClick={() => handleGroupComplete(index)}>
-                    บันทึก
-                  </button>
+                 <button
+  className="complete-btn"
+  onClick={() => {
+    setPendingSubmitGroup(index);
+    setShowConfirmPopup(true);
+  }}
+>
+  บันทึก
+</button>
                 </div>
               )}
             </div>
           ))}
 
-          {completedGroups.length === caregiverGroups.length && totalProgress === 100 && (
+
+
+ {completedGroups.length === caregiverGroups.length && totalProgress === 100 && (
+
   <button
     className="submit-btn"
-    onClick={() => navigate("/parent-risk-assessment")}
     style={{ background: "linear-gradient(to right, #22c55e, #16a34a)" }}
+    onClick={async () => {
+      const isSubmitting = localStorage.getItem("isSubmitting");
+      if (isSubmitting === "true") return;
+
+      localStorage.setItem("isSubmitting", "true");
+
+      const general = JSON.parse(localStorage.getItem("generalFormData") || "{}");
+      const caregiver = JSON.parse(localStorage.getItem("caregiverFormData") || "{}");
+      const nutrition = JSON.parse(localStorage.getItem("nutritionFormData") || "{}");
+      const sanitation = JSON.parse(localStorage.getItem("sanitationFormData") || "{}");
+      const patientId = localStorage.getItem("childId");
+
+      if (!patientId) {
+        alert("❌ ไม่พบรหัสผู้ป่วย กรุณาเลือกเด็กใหม่");
+        localStorage.setItem("isSubmitting", "false");
+        return;
+      }
+
+      const allData = {
+        patient_id: patientId,
+        ...general,
+        ...caregiver,
+        ...nutrition,
+        ...sanitation,
+      };
+
+      const requiredKeys = [
+        "Guardian", "Vitamin_A_Intake_First_8_Weeks", "Sanitary_Disposal",
+        "Mom_wash_hand_before_or_after_cleaning_children", "Mom_wash_hand_before_or_after_feeding_the_child",
+        "Child_wash_hand_before_or_after_eating_food", "Child_wash_hand_before_or_after_visiting_the_toilet",
+        "Last_Month_Weight_Check", "Weighed_Twice_Check_in_Last_3_Months",
+        "Given_Anything_to_Drink_in_First_6_Months", "Still_Breastfeeding",
+        "Is_Respondent_Biological_Mother", "Breastfeeding_Count_DayandNight",
+        "Received_Vitamin_or_Mineral_Supplements", "Received_Plain_Water",
+        "Infant_Formula_Intake_Count_Yesterday", "Received_Animal_Milk",
+        "Received_Animal_Milk_Count", "Received_Juice_or_Juice_Drinks",
+        "Received_Yogurt", "Received_Yogurt_Count", "Received_Thin_Porridge",
+        "Received_Tea", "Received_Other_Liquids", "Received_Grain_Based_Foods",
+        "Received_Orange_Yellow_Foods", "Received_White_Root_Foods",
+        "Received_Dark_Green_Leafy_Veggies", "Received_Ripe_Mangoes_Papayas",
+        "Received_Other_Fruits_Vegetables", "Received_Meat", "Received_Eggs",
+        "Received_Fish_Shellfish_Seafood", "Received_Legumes_Nuts_Foods",
+        "Received_Dairy_Products", "Received_Oil_Fats_Butter",
+        "Received_Sugary_Foods", "Received_Chilies_Spices_Herbs",
+        "Received_Grubs_Snails_Insects", "Received_Other_Solid_Semi_Solid_Food",
+        "Received_Salt", "Number_of_Times_Eaten_Solid_Food"
+      ];
+
+      // เติมค่าที่ขาด = 0
+      requiredKeys.forEach((key) => {
+        if (!(key in allData)) {
+          allData[key] = 0;
+        }
+      });
+
+      localStorage.setItem("latestPredictionData", JSON.stringify(allData));
+      localStorage.setItem("isSubmitting", "false");
+      navigate("/prediction-result");
+    }}
   >
-    🎉 กรอกข้อมูลครบแล้ว กลับหน้าหลักเพื่อวิเคราะห์ภาวะทุพโภชนาการ
+    ✅ บันทึกข้อมูลทั้งหมดลงระบบเพื่อวิเคราะห์ภาวะทุพโภชนาการ
   </button>
 )}
 
@@ -341,6 +414,51 @@ useEffect(() => {
 
         </div>
       </div>
+      {showConfirmPopup && (
+  <div className="popup-overlay">
+    <div className="popup-box">
+      <h3>ยืนยันการบันทึกข้อมูล</h3>
+
+      <ul className="popup-list">
+        {pendingSubmitGroup !== null &&
+          caregiverGroups[pendingSubmitGroup].questions.map((q) => (
+            <li className="popup-row" key={q.key}>
+              <span className="popup-label">{q.label}</span>
+              <span
+                className={`popup-value ${formData[q.key] ? "success" : "error"}`}
+              >
+                {formData[q.key] ? "เป็น" : "ไม่เป็น"}
+              </span>
+            </li>
+          ))}
+      </ul>
+
+      <div className="popup-actions">
+        <button
+          className="cancel"
+          onClick={() => {
+            setShowConfirmPopup(false);
+            setPendingSubmitGroup(null);
+          }}
+        >
+          ❌ ยกเลิก
+        </button>
+       <button
+  className="confirm"
+  onClick={() => {
+    setShowConfirmPopup(false);
+    handleGroupComplete(pendingSubmitGroup); // ✅ บันทึกกลุ่ม
+    setPendingSubmitGroup(null);
+    navigate(nextPage); // ✅ ไปหน้าถัดไป
+  }}
+>
+  ✅ ยืนยันบันทึก ➜
+</button>
+
+      </div>
+    </div>
+  </div>
+)}
       <Footer />
     </div>
   );

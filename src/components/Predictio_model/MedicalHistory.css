@@ -1,0 +1,244 @@
+/* พื้นหลังหลัก */
+.mh-page {
+  background: linear-gradient(to bottom right, #f0fff4, #e0fdf6);
+  padding: 2rem;
+  min-height: 100vh;
+  font-family: "Sarabun", sans-serif;
+  position: relative;
+  text-align: center;
+}
+
+/* ไอคอนลอย */
+.floating-icons {
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+  z-index: 0;
+}
+.floating-icon {
+  position: absolute;
+  opacity: 0.6;
+}
+.icon-heart { top: 10%; left: 5%; color: #f87171; }
+.icon-sun { top: 10%; right: 5%; color: #facc15; }
+.icon-music { bottom: 10%; left: 10%; color: #a78bfa; }
+.icon-tree { top: 40%; right: 3%; color: #34d399; }
+.icon-star { top: 20%; left: 25%; color: #fcd34d; }
+.icon-cloud { bottom: 40%; left: 15%; color: #93c5fd; }
+.icon-crown { top: 5%; right: 20%; color: #c084fc; }
+.icon-gift { bottom: 15%; right: 15%; color: #fbbf24; }
+.icon-zap { bottom: 20%; left: 40%; color: #fb923c; }
+
+/* แอนิเมชัน */
+@keyframes pulse {
+  0%, 100% { transform: scale(1); opacity: 1; }
+  50% { transform: scale(1.2); opacity: 0.6; }
+}
+@keyframes bounce {
+  0%, 100% { transform: translateY(0); }
+  50% { transform: translateY(-6px); }
+}
+@keyframes float {
+  0%, 100% { transform: translateY(0px); }
+  50% { transform: translateY(-10px); }
+}
+.pulse { animation: pulse 2s infinite; }
+.bounce { animation: bounce 3s infinite; }
+.float { animation: float 5s ease-in-out infinite; }
+
+/* ไอคอนทั่วไป */
+.icon-inline {
+  display: inline-block;
+  margin: 0 4px;
+  vertical-align: middle;
+  width: 20px;
+  height: 20px;
+}
+.icon {
+  width: 40px;
+  height: 40px;
+  margin: auto;
+  margin-bottom: 0.5rem;
+}
+.green-icon { color: #10b981; }
+.pink { color: #db2777; }
+.yellow { color: #facc15; }
+
+/* หัวเรื่อง */
+.mh-title-box {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.5rem;
+  font-size: 1.8rem;
+  font-weight: bold;
+  color: #047857;
+  background: #ecfdf5;
+  border: 2px solid #a7f3d0;
+  border-radius: 2rem;
+  padding: 0.75rem 1.5rem;
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.08);
+  margin: 0 auto 2rem;
+  width: fit-content;
+}
+.mh-title-text {
+  font-weight: 800;
+  color: #047857;
+}
+
+/* ชื่อเด็ก */
+.child-badge {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.5rem;
+  background: #fce7f3;
+  border-radius: 9999px;
+  padding: 0.5rem 1.25rem;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.08);
+  font-weight: 700;
+  font-size: 1.3rem;
+  color: #be185d;
+  margin-bottom: 1rem;
+}
+.child-name-text {
+  font-size: 1.4rem;
+  color: #a21caf;
+}
+
+/* กล่องล่าสุด */
+.mh-latest-box {
+  background: linear-gradient(to right, #ffffffcc, #e0fff4cc);
+  border: 2px solid #bbf7d0;
+  border-radius: 20px;
+  padding: 1.5rem 2rem;
+  margin: 0 auto 2rem;
+  box-shadow: 0 6px 14px rgba(0, 0, 0, 0.06);
+  max-width: 440px;
+  position: relative;
+  z-index: 1;
+}
+.last-check {
+  font-size: 1rem;
+  color: #15803d;
+  margin-top: 0.5rem;
+}
+.latest-info {
+  display: flex;
+  justify-content: center;
+  gap: 2rem;
+  margin-top: 0.5rem;
+  flex-wrap: wrap;
+}
+
+/* การ์ดประวัติ */
+.mh-card {
+  background: linear-gradient(to right, #ffffff, #f0fdf4);
+  border: 2px solid #b2f0ce;
+  border-radius: 16px;
+  padding: 1rem;
+  margin-bottom: 1.5rem;
+  box-shadow: 0 4px 10px rgba(0, 0, 0, 0.05);
+  max-width: 1000px;
+  margin-left: auto;
+  margin-right: auto;
+  transition: transform 0.3s ease;
+}
+.mh-card:hover {
+  transform: scale(1.01);
+}
+.mh-card.latest {
+  border-color: #22c55e;
+  box-shadow: 0 0 18px #bbf7d0;
+}
+
+/* ข้อมูลแต่ละแถว */
+.mh-row {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+  align-items: center;
+  gap: 10px;
+  text-align: left;
+  padding: 0 1rem;
+}
+
+/* สถานะ */
+.status {
+  font-weight: bold;
+  padding: 6px 12px;
+  border-radius: 9999px;
+  text-align: center;
+  display: inline-block;
+}
+.status.normal {
+  background: linear-gradient(to right, #bbf7d0, #ecfdf5);
+  color: #065f46;
+  border: 1px solid #99f6e4;
+}
+.status.alert {
+  background: linear-gradient(to right, #fde68a, #fef3c7);
+  color: #c2410c;
+  border: 1px solid #fcd34d;
+}
+.mh-summary {
+  display: flex;
+  justify-content: center;
+  align-items: flex-start;
+  gap: 3rem;
+  flex-wrap: wrap;
+  margin-top: 3rem;
+}
+
+.box {
+  width: 320px;
+  height: 230px;
+  padding: 2rem;
+  border-radius: 24px;
+  text-align: center;
+  transition: transform 0.3s ease;
+  box-shadow: 0 6px 14px rgba(0, 0, 0, 0.06);
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  position: relative;
+}
+
+.box:hover {
+  transform: scale(1.03);
+}
+
+.box.green {
+  background: linear-gradient(to bottom right, #d1fae5, #ecfdf5);
+  color: #065f46;
+}
+
+.box.orange {
+  background: linear-gradient(to bottom right, #fef3c7, #fff7ed);
+  color: #c2410c;
+}
+
+.box-icon {
+  font-size: 2.5rem;
+  margin-bottom: 0.5rem;
+}
+
+.box-label {
+  font-size: 1rem;
+  font-weight: 600;
+  margin-bottom: 0.4rem;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.4rem;
+}
+
+.count {
+  font-size: 1.5rem;
+  font-weight: 800;
+  line-height: 1.2;
+}
+
+.star-icon {
+  color: #facc15;
+  font-size: 1.2rem;
+}

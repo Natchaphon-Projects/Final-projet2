@@ -179,7 +179,7 @@ useEffect(() => {
 
   return (
     <div className="dashboard-container">
-      <Header />
+      <Header currentPage="form-nutrition" />
 
       <main className="dashboard-main center-content">
 
@@ -259,28 +259,7 @@ useEffect(() => {
             );
           })}
         </div>
-        {Math.round(totalProgress) === 100 && (
-  <div style={{ textAlign: "center", marginTop: "2rem" }}>
-    <button
-  className="submit-btn"
-  disabled={isSubmitting}
-  style={{
-    background: isSubmitting ? "#94a3b8" : "linear-gradient(to right, #0ea5e9, #2563eb)",
-    color: "white",
-    fontSize: "18px",
-    padding: "12px 24px",
-    borderRadius: "12px",
-    fontWeight: "bold",
-    boxShadow: "0 4px 12px rgba(0,0,0,0.1)",
-    cursor: isSubmitting ? "not-allowed" : "pointer"
-  }}
-  onClick={handleFinalSubmit}
->
-  {isSubmitting ? "⏳ กำลังบันทึก..." : "✅ บันทึกข้อมูลทั้งหมดลงระบบ"}
-</button>
-
-  </div>
-)}
+       
 
       </main>
 

@@ -122,7 +122,7 @@
 
 /* ปุ่มเริ่มต้นใช้งาน */
 .start-button {
-  background-color: #059669;
+  background: linear-gradient(to right, #10b981, #14b8a6);
   color: white;
   padding: 12px 32px;
   font-size: 16px;

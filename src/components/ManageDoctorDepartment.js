@@ -1,7 +1,9 @@
 import React, { useState } from "react";
 import { useNavigate } from "react-router-dom";
-import { FaEdit, FaTrashAlt, FaEye } from "react-icons/fa";
+import { FaEdit, FaTrashAlt, FaEye, FaSearch, FaPlus } from "react-icons/fa";
 import "./ManageDepartment.css";
+import Header from "../components/layout/Header";
+import Footer from "../components/layout/Footer";
 
 function ManageDoctorDepartment() {
   const navigate = useNavigate();
@@ -74,89 +76,84 @@ function ManageDoctorDepartment() {
   }
 
   return (
-    <div className="manage-department-container">
-      <header>
-        <h1 className="main-title-custom">การจัดการข้อมูลหมอ</h1>
-      </header>
+    <div className="dashboard-container">
+      <Header currentPage="manage-department" /> 
 
-      <div className="action-header">
-        <h2>รายชื่อหมอ</h2>
-        <div className="actions">
-          <button
-            className="add-child-button"
-            onClick={() => navigate("/add-doctor")}
-          >
-            + เพิ่มเด็กใหม่
-          </button>
-          <button className="filter-button">ล่าสุด</button>
+      <div className="manage-wrapper">
+
+        <div className="search-header">
+          <div className="left">
+            <h2>ค้นหาข้อมูลหมอ</h2>
+            <div className="search-box">
+              <FaSearch className="search-icon" />
+              <input
+                type="text"
+                placeholder="ค้นหา รหัส, ชื่อ, หรือความเชี่ยวชาญ..."
+                value={searchTerm}
+                onChange={(e) => setSearchTerm(e.target.value)}
+              />
+            </div>
+          </div>
         </div>
-      </div>
 
-      <div className="search-bar">
-        <input
-          type="text"
-          placeholder="ค้นหารายชื่อ"
-          value={searchTerm}
-          onChange={(e) => setSearchTerm(e.target.value)}
-        />
-        <button className="search-button">ค้นหา</button>
-      </div>
+        <div className="table-title">
+          <h3>รายชื่อหมอ <span>{filteredDoctors.length} คน</span></h3>
+          <button className="add-btn" onClick={() => navigate("/add-doctor")}>
+            <FaPlus /> เพิ่มหมอใหม่
+          </button>
+        </div>
 
-      <table className="patient-table">
-        <thead>
-          <tr>
-            <th>ชื่อ</th>
-            <th>ความเชี่ยวชาญ</th>
-            <th>เวรถัดไป</th>
-            <th>เบอร์โทร</th>
-            <th>การจัดการ</th>
-          </tr>
-        </thead>
-        <tbody>
-          {filteredDoctors.map((d) => (
-            <tr key={d.id}>
-              <td title={d.name}>{d.name}</td>
-              <td>{d.specialty}</td>
-              <td>
-                <div>{formatThaiDate(d.dutyTime)}</div>
-                <div>{formatThaiTime(d.dutyTime)}</div>
-              </td>
-              <td>{d.phone}</td>
-              <td className="action-buttons">
-                <button
-                  className="icon-button edit"
-                  title="แก้ไข"
-                  onClick={() => navigate(`/edit-doctor/${d.id}`)}
-                >
-                  <FaEdit />
-                </button>
-                <button className="icon-button delete" title="ลบ">
-                  <FaTrashAlt />
-                </button>
-                <button
-                  className="icon-button view"
-                  title="ดูข้อมูล"
-                  onClick={() => navigate(`/view-doctor/${d.id}`)}
-                >
-                  <FaEye />
-                </button>
-              </td>
+        <table className="modern-table">
+          <thead>
+            <tr>
+              <th>ชื่อ</th>
+              <th>ความเชี่ยวชาญ</th>
+              <th>เวรถัดไป</th>
+              <th>เบอร์โทร</th>
+              <th>การจัดการ</th>
             </tr>
-          ))}
-        </tbody>
-      </table>
+          </thead>
+          <tbody>
+            {filteredDoctors.map((d) => (
+              <tr key={d.id}>
+                <td title={d.name}>{d.name}</td>
+                <td>{d.specialty}</td>
+                <td>
+                  <div>{formatThaiDate(d.dutyTime)}</div>
+                  <div>{formatThaiTime(d.dutyTime)}</div>
+                </td>
+                <td>{d.phone}</td>
+                <td className="actions">
+                  <button
+                    className="icon edit"
+                    title="แก้ไข"
+                    onClick={() => navigate(`/edit-doctor/${d.id}`)}
+                  >
+                    <FaEdit />
+                  </button>
+                  <button className="icon delete" title="ลบ">
+                    <FaTrashAlt />
+                  </button>
+                  <button
+                    className="icon view"
+                    title="ดูข้อมูล"
+                    onClick={() => navigate(`/view-doctor/${d.id}`)}
+                  >
+                    <FaEye />
+                  </button>
+                </td>
+              </tr>
+            ))}
+          </tbody>
+        </table>
 
-      <div className="load-more-container">
-        <button className="load-more">เพิ่มเติม</button>
-      </div>
+        <div className="pagination-container">
+          <button disabled>ย้อนกลับ</button>
+          <button className="active">1</button>
+          <button disabled>ถัดไป</button>
+        </div>
 
-      <div className="back-to-dashboard-container">
-        <button
-          className="back-to-dashboard-button"
-          onClick={() => navigate("/admin-dashboard")}
-        >
-          ย้อนกลับหน้าหลัก
-        </button>
+
       </div>
     </div>
   );

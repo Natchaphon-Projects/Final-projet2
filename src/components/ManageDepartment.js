@@ -2,6 +2,8 @@ import React, { useState, useEffect } from "react";
 import axios from "axios";
 import { Search, Edit, Trash2, Eye, Plus } from "lucide-react";
 import "./ManageDepartment.css";
+import Header from "../components/layout/Header";
+import Footer from "../components/layout/Footer";
 
 const API_URL = "http://localhost:5000/patients";
 
@@ -232,7 +234,11 @@ const ManageDepartment = () => {
   const currentPatients = filteredPatients.slice(startIndex, startIndex + itemsPerPage);
 
   return (
+    <div className="dashboard-container">
+      <Header currentPage="manage-department" />  
+
     <div className="manage-wrapper">
+    
       <div className="search-header">
         <div className="left">
           <h2>ค้นหาข้อมูลเด็ก</h2>
@@ -448,6 +454,7 @@ const ManageDepartment = () => {
         </div>
       )}
 
+    </div>
     </div>
   );
 };

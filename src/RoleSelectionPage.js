@@ -22,7 +22,7 @@ function RoleSelectionPage() {
       <header className="custom-header">
             <div className="header-left">
               <FaHospitalSymbol className="hospital-icon" />
-              <span className="hospital-name">Project Hospital</span>
+              <span className="hospital-name">Healthy Kid</span>
             </div>
             <div className="header-right">
               <button className="logout-btn" onClick={handleStartClick}>

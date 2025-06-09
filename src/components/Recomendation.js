@@ -49,9 +49,9 @@ function Recomendation() {
 
                 {/* Action Buttons */}
                 <div className="recommendation-action-buttons">
-                    <button className="recommendation-action-btn">ดูประวัติแพทย์ผู้ป่วย</button>
-                    <button className="recommendation-action-btn">ดูประวัติการตรวจอื่นก่อนหน้า</button>
-                    <button className="recommendation-action-btn">แก้ไขข้อมูลการลักทักษวิถี</button>
+                    <button className="recommendation-action-btn">ดูประวัติเพิ่มเติม</button>
+                    <button className="recommendation-action-btn">ดูประวัติการตรวจย้อนหลัง</button>
+                    <button className="recommendation-action-btn">แก้ไขข้อมูลการซักประวัติ</button>
                 </div>
 
                 {/* Assessment Status */}
