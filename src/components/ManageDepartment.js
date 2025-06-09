@@ -455,7 +455,9 @@ const ManageDepartment = () => {
       )}
 
     </div>
+    <Footer />
     </div>
+    
   );
 };
 

@@ -276,7 +276,7 @@ app.get("/predictions", (req, res) => {
   const order = req.query.order === "asc" ? "ASC" : "DESC";
   const query = `
     SELECT 
-      p.patient_id AS id,
+      p.patient_id AS patientId,
       CONCAT(p.first_name_child, ' ', p.last_name_child) AS name,
       pr.created_at AS date,
       pr.Status_personal AS status
@@ -485,6 +485,31 @@ app.get("/parents", (req, res) => {
   `;
   db.query(query, (err, results) => {
     if (err) return res.status(500).json({ message: "DB Error" });
+    res.json(results);
+  });
+});
+
+// ✅ GET: รายชื่อผู้ปกครองพร้อมเด็กในความดูแล
+app.get("/parents-with-children", (req, res) => {
+  const query = `
+    SELECT 
+      pa.parent_id,
+      CONCAT(pa.prefix_name_parent, ' ', pa.first_name_parent, ' ', pa.last_name_parent) AS parent_name,
+      pa.phone_number,
+      GROUP_CONCAT(CONCAT(p.prefix_name_child, ' ', p.first_name_child, ' ', p.last_name_child) SEPARATOR ', ') AS children,
+      GROUP_CONCAT(r.relationship SEPARATOR ', ') AS relationships
+    FROM parent pa
+    LEFT JOIN relationship r ON pa.parent_id = r.parent_id
+    LEFT JOIN patient p ON r.patient_id = p.patient_id
+    GROUP BY pa.parent_id
+    ORDER BY pa.parent_id
+  `;
+
+  db.query(query, (err, results) => {
+    if (err) {
+      console.error("❌ SQL Error:", err);
+      return res.status(500).json({ message: "DB Error" });
+    }
     res.json(results);
   });
 });

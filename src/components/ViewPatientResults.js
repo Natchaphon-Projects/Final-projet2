@@ -64,7 +64,7 @@ const filteredPatients = uniquePatients.filter((p) =>
   });
 
   const handleViewDetails = (patient) => {
-    navigate(`/Recomendation/${patient.id}`, { state: { patient } });
+    navigate(`/Recomendation/${patient.patientId}`, { state: { patient } });
   };
 
   return (
@@ -122,7 +122,7 @@ const filteredPatients = uniquePatients.filter((p) =>
             {paginatedPatients.map((p) => {
               const date = new Date(p.date);
               return (
-                <tr key={p.id}>
+                <tr key={p.patientId}>
                   <td>{p.name}</td>
                   <td>{date.toLocaleDateString("th-TH")}</td>
                   <td>{date.toLocaleTimeString("th-TH", { hour: "2-digit", minute: "2-digit" })}</td>

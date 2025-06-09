@@ -1,32 +1,36 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import { FaEdit, FaTrashAlt, FaSearch, FaPlus } from "react-icons/fa";
 import "./ManageDepartment.css";
-import Header from "../components/layout/Header"; // ใช้ header เดียวกัน
+import Header from "../components/layout/Header";
 import Footer from "../components/layout/Footer";
 
 function ManageParentDepartment() {
   const navigate = useNavigate();
   const [searchTerm, setSearchTerm] = useState("");
+  const [parents, setParents] = useState([]);
 
-  const parents = [
-    { id: "P001", name: "นาย ชัย รง", phone: "089-123-4567", child: "ด.ช.ไม้", relation: "พ่อ" },
-    { id: "P002", name: "นาย แดง ขาว", phone: "090-234-5678", child: "ด.ช.อาย", relation: "พ่อ" },
-    { id: "P003", name: "นาย มั่น ม่วง", phone: "091-345-6789", child: "ด.ช.บิน", relation: "พ่อ" },
-    { id: "P004", name: "นาย เลย์ บาบีคิว", phone: "092-456-7890", child: "ด.ช.ตี้", relation: "พ่อ" },
-    { id: "P005", name: "นาย ชาเขียว มะนาว", phone: "093-567-8901", child: "ด.ช.ทีมพศ", relation: "พ่อ" }
-  ];
+  // โหลดข้อมูลผู้ปกครองจริง
+  useEffect(() => {
+    fetch("http://localhost:5000/parents-with-children")
+      .then((res) => res.json())
+      .then((data) => {
+        console.log("✅ Parents loaded:", data);
+        setParents(data);
+      })
+      .catch((err) => console.error("❌ โหลดข้อมูลผู้ปกครองผิดพลาด", err));
+  }, []);
 
   const filteredParents = parents.filter(
     (p) =>
-      p.id.includes(searchTerm) ||
-      p.name.includes(searchTerm) ||
-      p.child.includes(searchTerm)
+      p.parent_id.toString().includes(searchTerm) ||
+      p.parent_name.includes(searchTerm) ||
+      (p.children && p.children.includes(searchTerm))
   );
 
   return (
     <div className="dashboard-container">
-      <Header currentPage="manage-department" /> 
+      <Header currentPage="manage-parents" />
 
       <div className="manage-wrapper">
 
@@ -46,7 +50,7 @@ function ManageParentDepartment() {
         </div>
 
         <div className="table-title">
-          <h3>รายชื่อผู้ปกครอง <span>{filteredParents.length} คน</span></h3>
+          <h3>รายชื่อผู้ปกครอง <span>ทั้งหมด {filteredParents.length} คน</span></h3>
           <button className="add-btn" onClick={() => navigate("/add-parent")}>
             <FaPlus /> เพิ่มผู้ปกครอง
           </button>
@@ -64,29 +68,36 @@ function ManageParentDepartment() {
           </thead>
           <tbody>
             {filteredParents.map((p) => (
-              <tr key={p.id}>
-                <td title={p.name}>{p.name}</td>
-                <td>{p.phone}</td>
-                <td>{p.child}</td>
-                <td>{p.relation}</td>
+              <tr key={p.parent_id}>
+                <td title={p.parent_name}>{p.parent_name}</td>
+                <td>{p.phone_number || "-"}</td>
+                <td className="wrap-children">
+                  {p.children
+                    ? p.children.split(", ").map((child, index) => (
+                        <div key={index}>{child}</div>
+                      ))
+                    : "-"}
+                  </td>
+                <td>{p.relationships || "-"}</td>
                 <td className="actions">
                   <button
                     className="icon edit"
                     title="แก้ไข"
-                    onClick={() => navigate(`/edit-parent/${p.id}`)}
+                    onClick={() => navigate(`/edit-parent/${p.parent_id}`)}
                   >
                     <FaEdit />
                   </button>
                   <button
                     className="icon delete"
                     title="ลบ"
+                    onClick={() => alert("ลบยังไม่ทำจ้า")}
                   >
                     <FaTrashAlt />
                   </button>
                   <button
                     className="icon view"
                     title="ดูข้อมูล"
-                    onClick={() => navigate(`/view-parent/${p.id}`)}
+                    onClick={() => navigate(`/view-parent/${p.parent_id}`)}
                   >
                     <FaSearch />
                   </button>
@@ -102,8 +113,9 @@ function ManageParentDepartment() {
           <button disabled>ถัดไป</button>
         </div>
 
-
       </div>
+
+      <Footer />
     </div>
   );
 }

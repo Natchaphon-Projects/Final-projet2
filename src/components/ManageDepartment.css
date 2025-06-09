@@ -429,3 +429,9 @@
   vertical-align: middle;
   height: 100%; /* ช่วยให้ชิดตรงกลางจริงๆ */
 }
+
+.wrap-children {
+  white-space: normal;  /* ยอมให้ขึ้นบรรทัด */
+  word-break: break-word;  /* ถ้ามีคำยาวเกิน */
+  max-width: 300px; /* จำกัดความกว้าง (ปรับได้) */
+}
