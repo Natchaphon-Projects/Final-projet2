@@ -62,7 +62,7 @@ function App() {
         <Route path="/edit-assessment/:id" element={<RiskAssessmentEdit />} />
         <Route path="/patient-history" element={<PatientHistory />} />
         <Route path="/patient-assessment/:id" element={<PatientAssessmentResult />} />
-        <Route path="/Recomendation" element={<Recomendation />} />
+        <Route path="/Recomendation/:id" element={<Recomendation />} />
 
         {/* Admin Routes */}
         <Route path="/admin-dashboard" element={<AdminDashboard />} />

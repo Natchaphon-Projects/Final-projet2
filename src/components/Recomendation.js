@@ -1,3 +1,7 @@
+import { useParams } from "react-router-dom";
+import axios from "axios";
+import { useNavigate } from 'react-router-dom';
+import { useEffect } from "react";
 import React, { useState } from 'react';
 import './Recomendation.css';
 import { resultData } from './data/resultData'; // Import array ที่แยกมา
@@ -6,8 +10,11 @@ import Footer from "../components/layout/Footer";
 import WeightChart from '../components/chart/WeightChart';
 import HeightChart from '../components/chart/HeightChart';
 import Sunglasscat from '../assets/cat-sunglass.jpg';
+import { useLocation } from "react-router-dom";
 
 function Recomendation() {
+    const location = useLocation();
+    const patient = location.state?.patient || {};
     const [showFullTable, setShowFullTable] = useState(false);
     const [isDropdownOpen, setIsDropdownOpen] = useState(false);
     const [selectedOption, setSelectedOption] = useState("ประวัติการตรวจครั้งอื่น");
@@ -16,6 +23,21 @@ function Recomendation() {
         setSelectedOption(option);
         setIsDropdownOpen(false);
     };
+
+   const { id } = useParams(); // ✅ ย้ายขึ้นมา
+const [record, setRecord] = useState(null);
+
+useEffect(() => {
+  if (id) {
+    axios.get(`http://localhost:5000/patients/${id}/records`)
+      .then((res) => {
+        if (res.data.length > 0) {
+          setRecord(res.data[0]); // เก็บข้อมูลครั้งล่าสุด
+        }
+      })
+      .catch((err) => console.error("โหลดประวัติไม่สำเร็จ", err));
+  }
+}, [id]);
 
 
     return (
@@ -49,7 +71,7 @@ function Recomendation() {
                                 className="patient-icon-image"
                             />
 
-                            <div className="patient-name-large">สันติ แซ่ลี</div>
+                            <div className="patient-name-large">{patient.name || "ไม่ทราบชื่อ"}</div>
 
 
 
@@ -60,9 +82,10 @@ function Recomendation() {
 
                             <div className="patient-info-grid-two">
                                 <div className="info-card">
-                                    <div className="label">HN:</div>
-                                    <div className="value">1</div>
-                                </div>
+  <div className="label">HN:</div>
+  <div className="value">{patient.patientId || "--"}</div>
+</div>
+
                                 <div className="info-card">
                                     <div className="label">เพศ:</div>
                                     <div className="value">ชาย.</div>
@@ -71,18 +94,21 @@ function Recomendation() {
                                     <div className="label">อายุ:</div>
                                     <div className="value">3 ปี 3 เดือน</div>
                                 </div>
-                                <div className="info-card">
-                                    <div className="label">น้ำหนัก:</div>
-                                    <div className="value">13 กก.</div>
-                                </div>
-                                <div className="info-card">
-                                    <div className="label">ส่วนสูง:</div>
-                                    <div className="value">94 ซม.</div>
-                                </div>
-                                <div className="info-card">
-                                    <div className="label">โรคประจำตัว:</div>
-                                    <div className="value">แมวเป้า</div>
-                                </div>
+                              <div className="info-card">
+  <div className="label">น้ำหนัก:</div>
+  <div className="value">{record?.weight ? `${record.weight} กก.` : "--"}</div>
+</div>
+
+                               <div className="info-card">
+  <div className="label">ส่วนสูง:</div>
+  <div className="value">{record?.height ? `${record.height} ซม.` : "--"}</div>
+</div>
+
+                              <div className="info-card">
+  <div className="label">โรคประจำตัว:</div>
+  <div className="value">{record?.congenital_disease || "--"}</div>
+</div>
+
 
                             </div>
 
