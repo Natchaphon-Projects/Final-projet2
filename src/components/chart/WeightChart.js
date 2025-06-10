@@ -27,7 +27,7 @@ function WeightChart() {
           <XAxis dataKey="month" />
           <YAxis domain={[0, 16]} />
           <Tooltip />
-          <Line type="monotone" dataKey="weight" stroke="#007bff" strokeWidth={3} dot={{ r: 6 }} />
+          <Line type="monotone" dataKey="weight" stroke="#10b981" strokeWidth={3} dot={{ r: 6 }} />
         </LineChart>
       </ResponsiveContainer>
 
