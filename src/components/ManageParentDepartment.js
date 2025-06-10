@@ -19,16 +19,14 @@ const ManageParentDepartment = () => {
   name: "",
   lastName: "",
   phone: "",
-  address: {
-    houseNo: "",
-    moo: "",
-    alley: "",
-    street: "",
-    subDistrict: "",
-    district: "",
-    province: "",
-    postalCode: ""
-  }
+  houseNo: "",
+  moo: "",
+  alley: "",
+  street: "",
+  subDistrict: "",
+  district: "",
+  province: "",
+  postalCode: ""
 });
 
   const itemsPerPage = 5;
@@ -75,16 +73,14 @@ const ManageParentDepartment = () => {
     name: "",
     lastName: "",
     phone: "",
-    address: {
-      houseNo: "",
-      moo: "",
-      alley: "",
-      street: "",
-      subDistrict: "",
-      district: "",
-      province: "",
-      postalCode: ""
-    }
+    houseNo: "",
+    moo: "",
+    alley: "",
+    street: "",
+    subDistrict: "",
+    district: "",
+    province: "",
+    postalCode: ""
   });
 };
 
@@ -217,21 +213,21 @@ const ManageParentDepartment = () => {
               </select>
 
               <input
-                className="form-input"
+                className="text-input"
                 placeholder="ชื่อ"
                 value={formData.name}
                 onChange={(e) => setFormData({ ...formData, name: e.target.value })}
               />
 
               <input
-                className="form-input"
+                className="text-input"
                 placeholder="นามสกุล"
                 value={formData.lastName}
                 onChange={(e) => setFormData({ ...formData, lastName: e.target.value })}
               />
 
               <input
-                className="form-input"
+                className="text-input"
                 placeholder="เบอร์โทร"
                 value={formData.phone}
                 onChange={(e) => setFormData({ ...formData, phone: e.target.value })}
@@ -239,53 +235,53 @@ const ManageParentDepartment = () => {
 
              <div className="address-row">
               <input
-                className="form-input"
+                className="text-input"
                 placeholder="บ้านเลขที่"
-                value={formData.address.houseNo}
+                value={formData.houseNo}
                 onChange={(e) => setFormData({ ...formData, address: { ...formData.address, houseNo: e.target.value } })}
               />
               <input
-                className="form-input"
+                className="text-input"
                 placeholder="หมู่"
-                value={formData.address.moo}
+                value={formData.moo}
                 onChange={(e) => setFormData({ ...formData, address: { ...formData.address, moo: e.target.value } })}
               />
               <input
-                className="form-input"
+                className="text-input"
                 placeholder="ซอย"
-                value={formData.address.alley}
+                value={formData.alley}
                 onChange={(e) => setFormData({ ...formData, address: { ...formData.address, alley: e.target.value } })}
               />
               <input
-                className="form-input"
+                className="text-input"
                 placeholder="ถนน"
-                value={formData.address.street}
+                value={formData.street}
                 onChange={(e) => setFormData({ ...formData, address: { ...formData.address, street: e.target.value } })}
               />
             </div>
             <div className="address-row">
               <input
-                className="form-input"
+                className="text-input"
                 placeholder="ตำบล"
-                value={formData.address.subDistrict}
+                value={formData.subDistrict}
                 onChange={(e) => setFormData({ ...formData, address: { ...formData.address, subDistrict: e.target.value } })}
               />
               <input
-                className="form-input"
+                className="text-input"
                 placeholder="อำเภอ"
-                value={formData.address.district}
+                value={formData.district}
                 onChange={(e) => setFormData({ ...formData, address: { ...formData.address, district: e.target.value } })}
               />
               <input
-                className="form-input"
+                className="text-input"
                 placeholder="จังหวัด"
-                value={formData.address.province}
+                value={formData.province}
                 onChange={(e) => setFormData({ ...formData, address: { ...formData.address, province: e.target.value } })}
               />
               <input
-                className="form-input"
+                className="text-input"
                 placeholder="รหัสไปรษณีย์"
-                value={formData.address.postalCode}
+                value={formData.postalCode}
                 onChange={(e) => setFormData({ ...formData, address: { ...formData.address, postalCode: e.target.value } })}
               />
             </div>
