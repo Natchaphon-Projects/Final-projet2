@@ -1,4 +1,5 @@
-import React from "react";
+import React, { useEffect, useState } from "react";
+import axios from "axios";
 import "./MedicalHistory.css";
 import Header from "../layout/Header";
 import Footer from "../layout/Footer";
@@ -8,18 +9,45 @@ import {
 } from "lucide-react";
 import { CgDanger, FaChevronRight } from "react-icons/fa";
 
-const childName = "น้องน้ำใส";
 
-const medicalHistory = [
-  { id: 1, date: "7/6/2568", time: "18:55", status: "ปกติ", doctor: "หมอน้อง", isLatest: true },
-  { id: 2, date: "5/6/2568", time: "14:30", status: "กรุณาพบแพทย์", doctor: "หมอใจดี" },
-  { id: 3, date: "3/6/2568", time: "10:15", status: "ปกติ", doctor: "หมอน้อง" },
-  { id: 4, date: "1/6/2568", time: "16:45", status: "ปกติ", doctor: "หมอสมหวัง" },
-  { id: 5, date: "28/5/2568", time: "11:20", status: "กรุณาพบแพทย์", doctor: "หมอใจดี" },
-];
 
 const MedicalHistory = () => {
-  const normalCount = medicalHistory.filter((r) => r.status === "ปกติ").length;
+const [childName, setChildName] = useState("ไม่ทราบชื่อ");
+const [medicalHistory, setMedicalHistory] = useState([]);
+
+const normalCount = medicalHistory.filter((r) => r.status === "ปกติ").length;
+
+useEffect(() => {
+  const patientId = localStorage.getItem("childId");
+
+  if (!patientId) return;
+
+  // ดึงชื่อเด็ก
+  axios.get(`http://localhost:5000/patients/${patientId}`)
+    .then((res) => {
+      const child = res.data;
+      setChildName(`${child.prefix_name_child}${child.first_name_child} ${child.last_name_child}`);
+    })
+    .catch((err) => console.error("โหลดชื่อเด็กล้มเหลว", err));
+
+  // ดึงผลการประเมิน
+  axios.get("http://localhost:5000/predictions?order=desc")
+    .then((res) => {
+      const all = res.data;
+      const filtered = all.filter((item) => item.patientId?.toString() === patientId);
+      const mapped = filtered.map((item, index) => ({
+        id: index + 1,
+        date: new Date(item.date).toLocaleDateString("th-TH"),
+        time: new Date(item.date).toLocaleTimeString("th-TH", { hour: "2-digit", minute: "2-digit" }),
+        doctor: "หมอยังไม่ระบุ", // จะดึงจาก doctor_id ได้ในอนาคต
+        status: item.status === "Normal" ? "ปกติ" : "กรุณาพบแพทย์",
+        isLatest: index === 0
+      }));
+      setMedicalHistory(mapped);
+    })
+    .catch((err) => console.error("โหลดประวัติล้มเหลว", err));
+}, []);
+
   const abnormalCount = medicalHistory.length - normalCount;
   const latest = medicalHistory.find((r) => r.isLatest);
 
