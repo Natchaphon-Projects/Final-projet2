@@ -97,7 +97,13 @@ const ManageParentDepartment = () => {
       name: parent.name || "",
       lastName: parent.lastName || "",
       phone: parent.phone || "",
-      address: parent.address || ""
+      moo:parent.moo || "",
+      alley:parent.alley || "",
+      street:parent.street || "",
+      subDistrict:parent.subDistrict || "",
+      district:parent.district || "",
+      province:parent.province || "",
+      postalCode:parent.postalCode || ""
     });
     setShowModal(true);
   };
@@ -111,7 +117,7 @@ const ManageParentDepartment = () => {
   };
 
   const filteredParents = parents.filter((p) =>
-    p.parent_name?.includes(searchTerm) || p.phone_number?.includes(searchTerm)
+    p.parent_name?.includes(searchTerm) || p.phone_number?.includes(searchTerm)|| p.parent_address?.includes(searchTerm)
   );
 
   const totalPages = Math.ceil(filteredParents.length / itemsPerPage);
@@ -156,7 +162,7 @@ const ManageParentDepartment = () => {
             </tr>
           </thead>  
           <tbody>
-            {currentParents.map((p) => {
+              {currentParents.map((p) => {
               // แปลง children และ relationships จาก string เป็น array
               const childrenArray = p.children ? p.children.split(", ").filter(Boolean) : [];
               const relationshipsArray = p.relationships ? p.relationships.split(", ").filter(Boolean) : [];
@@ -164,17 +170,30 @@ const ManageParentDepartment = () => {
               return (
                 <tr key={p.parent_id}>
                   <td>{p.parent_name}</td>
-                  <td>{p.phone_number?.replace(/^(\d{3})(\d+)/, "$1-$2")}</td>
+                  <td>{p.phone_number?.replace(/^(\d{3})(\d{3})(\d+)/, "$1-$2-$3")}</td>
                   <td>
                     {childrenArray.length > 0 ? (
-                      childrenArray.map((child, index) => (
-                        <div key={index}>
-                          {child} ({relationshipsArray[index] || "ไม่ระบุความสัมพันธ์"})
-                        </div>
-                      ))
+                      childrenArray.map((child, index) => {
+                        const rel = relationshipsArray[index] || "ไม่ระบุความสัมพันธ์";
+                        return (
+                          <div key={index}>
+                           <strong> {rel}</strong> ของ <strong>{child}</strong>
+                          </div>
+                        );
+                      })
                     ) : (
                       <span style={{ color: "#999" }}>ไม่มีข้อมูล</span>
                     )}
+                  </td>
+                  <td>
+                    {p.houseNo && `บ้านเลขที่ ${p.houseNo} `}
+                    {p.moo && `หมู่ ${p.moo} `}
+                    {p.alley && `ซอย ${p.alley} `}
+                    {p.street && `ถนน ${p.street} `}
+                    {p.subDistrict && `ตำบล ${p.subDistrict} `}
+                    {p.district && `อำเภอ ${p.district} `}
+                    {p.province && `จังหวัด ${p.province} `}
+                    {p.postalCode && `รหัสไปรษณีย์ ${p.postalCode}`}
                   </td>
                   <td className="actions">
                     <button className="icon edit" onClick={() => handleEdit(p)}><Edit /></button>
@@ -238,25 +257,25 @@ const ManageParentDepartment = () => {
                 className="text-input"
                 placeholder="บ้านเลขที่"
                 value={formData.houseNo}
-                onChange={(e) => setFormData({ ...formData, address: { ...formData.address, houseNo: e.target.value } })}
+                onChange={(e) => setFormData({ ...formData, houseNo: e.target.value  })}
               />
               <input
                 className="text-input"
                 placeholder="หมู่"
                 value={formData.moo}
-                onChange={(e) => setFormData({ ...formData, address: { ...formData.address, moo: e.target.value } })}
+                onChange={(e) => setFormData({ ...formData, moo: e.target.value  })}
               />
               <input
                 className="text-input"
                 placeholder="ซอย"
                 value={formData.alley}
-                onChange={(e) => setFormData({ ...formData, address: { ...formData.address, alley: e.target.value } })}
+                onChange={(e) => setFormData({ ...formData, alley: e.target.value  })}
               />
               <input
                 className="text-input"
                 placeholder="ถนน"
                 value={formData.street}
-                onChange={(e) => setFormData({ ...formData, address: { ...formData.address, street: e.target.value } })}
+                onChange={(e) => setFormData({ ...formData, street: e.target.value  })}
               />
             </div>
             <div className="address-row">
@@ -264,25 +283,25 @@ const ManageParentDepartment = () => {
                 className="text-input"
                 placeholder="ตำบล"
                 value={formData.subDistrict}
-                onChange={(e) => setFormData({ ...formData, address: { ...formData.address, subDistrict: e.target.value } })}
+                onChange={(e) => setFormData({ ...formData, subDistrict: e.target.value  })}
               />
               <input
                 className="text-input"
                 placeholder="อำเภอ"
                 value={formData.district}
-                onChange={(e) => setFormData({ ...formData, address: { ...formData.address, district: e.target.value } })}
+                onChange={(e) => setFormData({ ...formData, district: e.target.value  })}
               />
               <input
                 className="text-input"
                 placeholder="จังหวัด"
                 value={formData.province}
-                onChange={(e) => setFormData({ ...formData, address: { ...formData.address, province: e.target.value } })}
+                onChange={(e) => setFormData({ ...formData, province: e.target.value  })}
               />
               <input
                 className="text-input"
                 placeholder="รหัสไปรษณีย์"
                 value={formData.postalCode}
-                onChange={(e) => setFormData({ ...formData, address: { ...formData.address, postalCode: e.target.value } })}
+                onChange={(e) => setFormData({ ...formData, postalCode: e.target.value  })}
               />
             </div>
 

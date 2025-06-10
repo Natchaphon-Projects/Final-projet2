@@ -27,10 +27,6 @@ const ManageDepartment = () => {
     age: "",
     gender: "",
     birthDate: "",
-    weight: "",
-    height: "",
-    allergies: "",
-    congenital_disease: "",
     parentId: null
   });
 
@@ -129,10 +125,6 @@ const ManageDepartment = () => {
       age: totalMonths,
       gender: formData.gender,
       birthDate,
-      weight: formData.weight || null,
-      height: formData.height || null,
-      allergies: formData.allergies || null,
-      congenital_disease: formData.congenital_disease || null,
       parent_id: formData.parentId,
       relationship: relationship === "อื่นๆ" ? customRelationship : relationship
     };
@@ -164,10 +156,6 @@ const ManageDepartment = () => {
     age: "",
     gender: "",
     birthDate: "",
-    weight: "",                // ✅ เพิ่ม
-    height: "",                // ✅ เพิ่ม
-    allergies: "",             // ✅ เพิ่ม
-    congenital_disease: "",    // ✅ เพิ่ม
     parentId: null
   });
   setRelationship("");
@@ -202,10 +190,6 @@ const ManageDepartment = () => {
       age: rawAge,
       gender: patient.gender,
       birthDate: formattedDate,
-      weight: patient.weight,
-      height: patient.height,
-      allergies: patient.allergies,
-      congenital_disease: patient.congenital_disease,
       parentId: patient.parent_id || null
     });
     setRelationship(patient.relationship || "");
@@ -232,6 +216,7 @@ const ManageDepartment = () => {
   const totalPages = Math.ceil(filteredPatients.length / itemsPerPage);
   const startIndex = (currentPage - 1) * itemsPerPage;
   const currentPatients = filteredPatients.slice(startIndex, startIndex + itemsPerPage);
+  console.log("Current Page:", currentPage, "Patients:", currentPatients);
 
   return (
     <div className="dashboard-container">
@@ -269,23 +254,51 @@ const ManageDepartment = () => {
             <th>อายุ</th>
             <th>เพศ</th>
             <th>ผู้ปกครอง</th>
-            <th>ความสัมพันธ์</th>
             <th>การจัดการ</th>
           </tr>
         </thead>
         <tbody>
-          {currentPatients.map((p) => (
-            <tr key={p.id}>
-              <td>{p.hn_number}</td>
-              <td>{`${p.childPrefix || ""} ${p.name}`}</td>
-              <td>{p.gender}</td>
-              <td>{formatAgeText(p.age)}</td>
-              <td>{p.parent}</td>
-              <td  className="center-text">{p.relationship}</td>
+          
+          {Object.values(
+            currentPatients.reduce((acc, p) => {
+              if (!acc[p.hn_number]) {
+                acc[p.hn_number] = {
+                  ...p,
+                  parents: [{ name: p.parent, relationship: p.relationship }]
+                };
+              } else {
+                acc[p.hn_number].parents.push({
+                  name: p.parent,
+                  relationship: p.relationship
+                });
+              }
+              return acc;
+            }, {})
+          ).map((child) => (
+            <tr key={child.id}>
+              <td>{child.hn_number}</td>
+              <td>{`${child.childPrefix || ""} ${child.name}`}</td>
+              <td>{formatAgeText(child.age)}</td>
+              <td>{child.gender}</td>
+              <td>
+                {child.parents.map((parent, idx) =>
+                  parent.name ? (
+                    <div key={idx}>
+                      {parent.name} ({parent.relationship || "-"})
+                    </div>
+                  ) : null
+                )}
+              </td>
               <td className="actions">
-                <button className="icon view" onClick={() => handleView(p)}><Eye /></button>
-                <button className="icon edit" onClick={() => handleEdit(p)}><Edit /></button>
-                <button className="icon delete" onClick={() => handleDelete(p.id)}><Trash2 /></button>
+                <button className="icon view" onClick={() => handleView(child)}>
+                  <Eye />
+                </button>
+                <button className="icon edit" onClick={() => handleEdit(child)}>
+                  <Edit />
+                </button>
+                <button className="icon delete" onClick={() => handleDelete(child.id)}>
+                  <Trash2 />
+                </button>
               </td>
             </tr>
           ))}
