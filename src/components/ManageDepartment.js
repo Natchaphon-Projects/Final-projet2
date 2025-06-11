@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from "react";
 import axios from "axios";
-import { Search, Edit, Trash2, Eye, Plus } from "lucide-react";
+import { Search, Edit, Trash2, Plus } from "lucide-react";
 import "./ManageDepartment.css";
 import Header from "../components/layout/Header";
 import Footer from "../components/layout/Footer";
@@ -16,9 +16,15 @@ const ManageDepartment = () => {
   const [searchTerm, setSearchTerm] = useState("");
   const [currentPage, setCurrentPage] = useState(1);
   const [editingPatient, setEditingPatient] = useState(null);
-  const [viewingPatient, setViewingPatient] = useState(null);
   const [showModal, setShowModal] = useState(false);
   const [birthDate, setBirthDate] = useState("");
+  const [parentPrefix, setParentPrefix] = useState("");
+
+  const relationshipOptions = parentPrefix === "นาย"
+    ? ["พ่อ", "ปู่", "ตา", "อื่นๆ"]
+    : parentPrefix === "นาง" || parentPrefix === "นางสาว"
+      ? ["แม่", "ย่า", "ยาย", "อื่นๆ"]
+      : []; // ถ้ายังไม่เลือกผู้ปกครอง
 
   const [formData, setFormData] = useState({
     childPrefix: "",
@@ -168,7 +174,6 @@ const ManageDepartment = () => {
     const newHN = lastPatient ? (parseInt(lastPatient.hn_number) + 1).toString().padStart(5, "0") : "00001";
 
     setEditingPatient(null);
-    setViewingPatient(null);
     resetForm();
     setFormData((prev) => ({ ...prev, hn: newHN }));
     setShowModal(true);
@@ -205,17 +210,28 @@ const ManageDepartment = () => {
     }
   };
 
-  const handleView = (patient) => {
-    setViewingPatient(patient);
-  };
 
   const filteredPatients = patients.filter((p) =>
     p.hn_number?.includes(searchTerm) || p.name?.includes(searchTerm) || p.parent?.includes(searchTerm)
   );
 
-  const totalPages = Math.ceil(filteredPatients.length / itemsPerPage);
+  const groupedPatients = Object.values(
+  filteredPatients.reduce((acc, p) => {
+    if (!acc[p.hn_number]) {
+      acc[p.hn_number] = {
+        ...p,
+        parents: [{ name: p.parent, relationship: p.relationship }]
+      };
+    } else {
+      acc[p.hn_number].parents.push({ name: p.parent, relationship: p.relationship });
+    }
+    return acc;
+  }, {})
+);
+
+  const totalPages = Math.ceil(groupedPatients.length / itemsPerPage);
   const startIndex = (currentPage - 1) * itemsPerPage;
-  const currentPatients = filteredPatients.slice(startIndex, startIndex + itemsPerPage);
+  const currentPatients = groupedPatients.slice(startIndex, startIndex + itemsPerPage);
   console.log("Current Page:", currentPage, "Patients:", currentPatients);
 
   return (
@@ -258,23 +274,7 @@ const ManageDepartment = () => {
           </tr>
         </thead>
         <tbody>
-          
-          {Object.values(
-            currentPatients.reduce((acc, p) => {
-              if (!acc[p.hn_number]) {
-                acc[p.hn_number] = {
-                  ...p,
-                  parents: [{ name: p.parent, relationship: p.relationship }]
-                };
-              } else {
-                acc[p.hn_number].parents.push({
-                  name: p.parent,
-                  relationship: p.relationship
-                });
-              }
-              return acc;
-            }, {})
-          ).map((child) => (
+          {currentPatients.map((child) => (
             <tr key={child.id}>
               <td>{child.hn_number}</td>
               <td>{`${child.childPrefix || ""} ${child.name}`}</td>
@@ -290,9 +290,6 @@ const ManageDepartment = () => {
                 )}
               </td>
               <td className="actions">
-                <button className="icon view" onClick={() => handleView(child)}>
-                  <Eye />
-                </button>
                 <button className="icon edit" onClick={() => handleEdit(child)}>
                   <Edit />
                 </button>
@@ -404,11 +401,20 @@ const ManageDepartment = () => {
 
           
            <div className="form-row" style={{ display: "flex", alignItems: "center", gap: "10px" }}>
-              <select
+             <select
                 className="form-input"
-                style={{ flex: "2" }} // dropdown ผู้ปกครอง → กว้าง 2 ส่วน
+                style={{ flex: "2" }}
                 value={formData.parentId || ""}
-                onChange={(e) => setFormData({ ...formData, parentId: e.target.value })}
+                onChange={(e) => {
+                  const selectedId = parseInt(e.target.value);
+                  const selectedParent = parents.find((p) => p.id === selectedId);
+                  const prefix = selectedParent?.prefix || "";
+
+                  setParentPrefix(prefix); 
+                  setFormData({ ...formData, parentId: selectedId });
+                  setRelationship(""); 
+                  setCustomRelationship("");
+                }}
               >
                 <option value="">เลือกผู้ปกครอง</option>
                 {parents.map((parent) => (
@@ -420,18 +426,15 @@ const ManageDepartment = () => {
 
               <select
                 className="form-input"
-                style={{ flex: "1" }} // dropdown ความสัมพันธ์ → กว้าง 1 ส่วน
+                style={{ flex: "1" }}
                 value={relationship}
                 onChange={(e) => setRelationship(e.target.value)}
+                disabled={relationshipOptions.length === 0} // 🆕 ถ้ายังไม่ได้เลือกผู้ปกครอง
               >
                 <option value="">เลือกความสัมพันธ์</option>
-                <option value="แม่">แม่</option>
-                <option value="พ่อ">พ่อ</option>
-                <option value="ปู่">ปู่</option>
-                <option value="ย่า">ย่า</option>
-                <option value="ตา">ตา</option>
-                <option value="ยาย">ยาย</option>
-                <option value="อื่นๆ">อื่นๆ</option>
+                {relationshipOptions.map((option) => (
+                  <option key={option} value={option}>{option}</option>
+                ))}
               </select>
 
               {relationship === "อื่นๆ" && (
@@ -453,19 +456,6 @@ const ManageDepartment = () => {
         </div>
       )}
 
-      {viewingPatient && (
-        <div className="modal">
-          <div className="modal-content">
-            <h3 style={{ textAlign: "center" }}>👁️ ข้อมูลเด็ก</h3>
-            <p><strong>HN:</strong> {viewingPatient.hn_number}</p>
-            <p><strong>ชื่อ:</strong> {viewingPatient.name}</p>
-            <p><strong>อายุ:</strong> {formatAgeText(viewingPatient.age)}</p>
-            <p><strong>เพศ:</strong> {viewingPatient.gender}</p>
-            <p><strong>ผู้ปกครอง:</strong> {viewingPatient.parent}</p>
-            <button className="cancel-btn" onClick={() => setViewingPatient(null)}>ปิด</button>
-          </div>
-        </div>
-      )}
 
     </div>
     <Footer />
