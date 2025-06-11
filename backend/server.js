@@ -74,15 +74,14 @@ app.get("/patients", (req, res) => {
 
 app.post("/patients", (req, res) => {
   const {
-    hn_number,   // ✅ เปลี่ยนจาก hn เป็น hn_number
+    hn_number,
     childPrefix,
     name,
     lastName,
-    age,  
+    age,
     gender,
     birthDate,
-    parent_id,
-    relationship
+    relationships // ✅ รับ array มา
   } = req.body;
 
   console.log("📥 Received payload:", req.body);
@@ -109,15 +108,27 @@ app.post("/patients", (req, res) => {
 
       const newPatientId = results.insertId;
 
+      if (!Array.isArray(relationships) || relationships.length === 0) {
+        return res.status(400).json({ message: "❌ ต้องระบุข้อมูล relationships อย่างน้อยหนึ่งรายการ" });
+      }
+
       const relQuery = `
         INSERT INTO relationship (patient_id, parent_id, relationship, created_at)
-        VALUES (?, ?, ?, NOW())
+        VALUES ?
       `;
 
-      db.query(relQuery, [newPatientId, parent_id, relationship], (err2) => {
+      // ✅ สร้าง array ของ [patient_id, parent_id, relationship, created_at]
+      const relValues = relationships.map(rel => [
+        newPatientId,
+        rel.parent_id,
+        rel.relationship,
+        new Date()
+      ]);
+
+      db.query(relQuery, [relValues], (err2) => {
         if (err2) return res.status(500).send(err2);
 
-        res.json({ id: newPatientId, message: "✅ เพิ่มข้อมูลเด็กพร้อมความสัมพันธ์สำเร็จ" });
+        res.json({ id: newPatientId, message: "✅ เพิ่มข้อมูลเด็กพร้อมความสัมพันธ์ทั้งหมดสำเร็จ" });
       });
     }
   );
