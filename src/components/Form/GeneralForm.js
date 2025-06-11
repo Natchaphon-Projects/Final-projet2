@@ -464,14 +464,15 @@ function GeneralForm() {
                   localStorage.setItem("isSubmitting", "false");
                   return;
                 }
-
-                const allData = {
+                
+                  const allData = {
                   patient_id: patientId,
                   ...general,
                   ...caregiver,
                   ...nutrition,
                   ...sanitation,
                 };
+
 
                 const requiredKeys = [
                   "Guardian", "Vitamin_A_Intake_First_8_Weeks", "Sanitary_Disposal",

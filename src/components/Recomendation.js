@@ -14,30 +14,39 @@ import { useLocation } from "react-router-dom";
 
 function Recomendation() {
     const location = useLocation();
-    const patient = location.state?.patient || {};
+    const patient = location.state?.patient;
+    const { id } = useParams();
+    const [record, setRecord] = useState(null);
     const [showFullTable, setShowFullTable] = useState(false);
     const [isDropdownOpen, setIsDropdownOpen] = useState(false);
     const [selectedOption, setSelectedOption] = useState("ประวัติการตรวจครั้งอื่น");
+    useEffect(() => {
+  if (id) {
+    axios.get(`http://localhost:5000/patients/${id}/records`)
+      .then((res) => {
+        console.log("📦 ข้อมูลล่าสุดที่ได้:", res.data); // ตรวจสอบข้อมูลจริง
+        setRecord(res.data); // ✅ ไม่ต้อง .data[0] แล้ว เพราะ backend ส่ง object มาแล้ว
+      })
+      .catch((err) => console.error("โหลดประวัติไม่สำเร็จ", err));
+  }
+}, [id]);
+
+
+if (!patient) {
+  return (
+    <div style={{ padding: 20 }}>
+      <h2>ไม่พบข้อมูลผู้ป่วย</h2>
+      <p>กรุณากลับไปหน้าเดิมแล้วเลือกผู้ป่วยอีกครั้ง</p>
+    </div>
+  );
+}
 
     const handleSelect = (option) => {
         setSelectedOption(option);
         setIsDropdownOpen(false);
     };
 
-   const { id } = useParams(); // ✅ ย้ายขึ้นมา
-const [record, setRecord] = useState(null);
 
-useEffect(() => {
-  if (id) {
-    axios.get(`http://localhost:5000/patients/${id}/records`)
-      .then((res) => {
-        if (res.data.length > 0) {
-          setRecord(res.data[0]); // เก็บข้อมูลครั้งล่าสุด
-        }
-      })
-      .catch((err) => console.error("โหลดประวัติไม่สำเร็จ", err));
-  }
-}, [id]);
 
 
     return (
@@ -87,28 +96,27 @@ useEffect(() => {
 </div>
 
                                 <div className="info-card">
-                                    <div className="label">เพศ:</div>
-                                    <div className="value">ชาย.</div>
+                                     <div className="label">เพศ:</div>
+                                     <div className="value">{patient.gender === "male" ? "ชาย" : "หญิง"}</div>
                                 </div>
                                 <div className="info-card">
                                     <div className="label">อายุ:</div>
-                                    <div className="value">3 ปี 3 เดือน</div>
+                                    <div className="value">{patient.age || "--"}</div>
                                 </div>
-                              <div className="info-card">
-  <div className="label">น้ำหนัก:</div>
-  <div className="value">{record?.weight ? `${record.weight} กก.` : "--"}</div>
-</div>
-
-                               <div className="info-card">
-  <div className="label">ส่วนสูง:</div>
-  <div className="value">{record?.height ? `${record.height} ซม.` : "--"}</div>
-</div>
+                             <div className="info-card">
+                                <div className="label">น้ำหนัก:</div>
+                                <div className="value">{record?.weight ? `${record.weight} กก.` : "--"}</div>
+                            </div>
 
                               <div className="info-card">
-  <div className="label">โรคประจำตัว:</div>
-  <div className="value">{record?.congenital_disease || "--"}</div>
-</div>
+                                <div className="label">ส่วนสูง:</div>
+                                <div className="value">{record?.height ? `${record.height} ซม.` : "--"}</div>
+                            </div>
 
+                            <div className="info-card">
+                                <div className="label">โรคประจำตัว:</div>
+                                <div className="value">{record?.congenital_disease || "--"}</div>
+                            </div>
 
                             </div>
 
@@ -147,10 +155,12 @@ useEffect(() => {
                 </div>
 
                 {/* Assessment Status */}
+                {record?.status && (
                 <div className="recommendation-status">
-                    <div className="status-text">อยู่ในเกณฑ์: แคระแกร็น (Stunting)</div>
+                    <div className="status-text">อยู่ในเกณฑ์: {record.status} ({record.status === "Normal" ? "ปกติ" : "กรุณาพบแพทย์"})</div>
                     <div className="status-subtext">Assessment Status</div>
                 </div>
+                )}
 
                 {/* ผลการตรวจ Section */}
                 <div className="recommendation-result-section">
@@ -158,9 +168,18 @@ useEffect(() => {
                     <div className="result-header-row">
                         <div className="result-title">ผลการตรวจ :</div>
 
-                        <div className="food-allergy-badge">
-                            แพ้อาหาร: แพ้ถั่วเหลือง
+                        <div className="info-card">
+                            <div className="label">แพ้อาหาร:</div>
+                            <div className="value">{record?.Food_allergy || "--"}</div>
                         </div>
+
+                        <div className="info-card">
+                            <div className="label">แพ้ยา:</div>
+                            <div className="value">{record?.drug_allergy || "--"}</div>
+                        </div>
+
+
+
                     </div>
 
                     {/* Wrapper → 2 ตาราง */}

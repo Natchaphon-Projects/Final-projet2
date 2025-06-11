@@ -63,9 +63,21 @@ const filteredPatients = uniquePatients.filter((p) =>
     }
   });
 
-  const handleViewDetails = (patient) => {
-    navigate(`/Recomendation/${patient.patientId}`, { state: { patient } });
-  };
+const handleViewDetails = async (patient) => {
+  try {
+    const res = await axios.get(`http://localhost:5000/patients/${patient.patientId}`);
+    const fullPatient = {
+      ...res.data,     // ✅ ให้ข้อมูลจากฐานข้อมูลมาก่อน (เช่น age, gender)
+      ...patient       // ❗ จะไม่ override ถ้าไม่มี age อยู่ใน patient
+    }
+    navigate(`/Recomendation/${patient.patientId}`, { state: { patient: fullPatient } });
+  } catch (error) {
+    console.error("❌ โหลดข้อมูลผู้ป่วยไม่สำเร็จ:", error);
+    alert("ไม่สามารถโหลดข้อมูลผู้ป่วยเพิ่มเติมได้");
+  }
+};
+
+
 
   return (
     <div className="view-results-container">

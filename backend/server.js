@@ -204,18 +204,7 @@ app.delete("/patients/:id", (req, res) => {
   });
 });
 
-// ✅ GET: ดึงประวัติของผู้ป่วย
-app.get("/patients/:id/records", (req, res) => {
-  const query = `
-    SELECT * FROM patient_records
-    WHERE patient_id = ?
-    ORDER BY visit_date DESC
-  `;
-  db.query(query, [req.params.id], (err, results) => {
-    if (err) return res.status(500).send(err);
-    res.json(results);
-  });
-});
+
 
 // ✅ POST: เพิ่มประวัติใหม่
 app.post("/patients/:id/records", (req, res) => {
@@ -326,26 +315,36 @@ app.post("/predictions/combined", (req, res) => {
     return res.status(400).json({ error: "Missing patient_id" });
   }
 
-  // ✅ แยก weight และ height ไปเก็บใน medical_records
-  const weight = data.Weight;
-  const height = data.Height;
-  const visit_date = new Date().toISOString().split("T")[0];
+ // 🔍 หาโค้ดนี้ใน server.js
+const weight = data.Weight;
+const height = data.Height;
+const visit_date = new Date().toISOString().split("T")[0];
 
-  // ลบ field ที่ไม่ใช่ของ prediction ออก
-  delete data.Weight;
-  delete data.Height;
+// ✅ เพิ่มตัวแปรใหม่
+const foodAllergy = data.Food_allergy || null;
+const drugAllergy = data.Drug_allergy || null;
+const disease = data.congenital_disease || null;
+
+// ❗ ลบจาก data ก่อนส่งเข้า prediction
+delete data.Weight;
+delete data.Height;
+delete data.Food_allergy;
+delete data.Drug_allergy;
+delete data.congenital_disease;
+
 
   // ✅ สร้าง query สำหรับ medical_records
-  const insertMedical = `
-    INSERT INTO medical_records (patient_id, visit_date, weight, height, created_at)
-    VALUES (?, ?, ?, ?, NOW())
-  `;
+ const insertMedical = `
+  INSERT INTO medical_records (patient_id, visit_date, weight, height, Food_allergy, Drug_allergy, congenital_disease, created_at)
+  VALUES (?, ?, ?, ?, ?, ?, ?, NOW())
+`;
 
-  db.query(insertMedical, [patientId, visit_date, weight, height], (err1) => {
-    if (err1) {
-      console.error("❌ Insert medical_records failed:", err1);
-      return res.status(500).json({ error: "Insert medical_records failed" });
-    }
+db.query(insertMedical, [patientId, visit_date, weight, height, foodAllergy, drugAllergy, disease], (err1) => {
+  if (err1) {
+    console.error("❌ Insert medical_records failed:", err1);
+    return res.status(500).json({ error: "Insert medical_records failed" });
+  }
+
 
     // ✅ เตรียมข้อมูลสำหรับ prediction
     const fields = Object.keys(data)
@@ -446,18 +445,19 @@ app.get("/children-by-parent/:hn", (req, res) => {
   });
 });
 
-// ดึงข้อมูลเด็กจาก patient_id
 app.get("/patients/:id", (req, res) => {
   const id = req.params.id;
   const query = `
     SELECT 
-      patient_id,
-      hn_number AS hn,          
-      prefix_name_child,
-      first_name_child,
-      last_name_child
-    FROM patient
-    WHERE patient_id = ?
+    patient_id,
+    hn_number AS hn,
+    prefix_name_child,
+    first_name_child,
+    last_name_child,
+    age,
+    gender
+  FROM patient
+  WHERE patient_id = ?
   `;
   db.query(query, [id], (err, results) => {
     if (err) return res.status(500).json({ message: "DB error" });
@@ -468,6 +468,7 @@ app.get("/patients/:id", (req, res) => {
     }
   });
 });
+
 
 // ✅ GET: รายชื่อผู้ปกครองทั้งหมด (สำหรับ dropdown)
 app.get("/parents", (req, res) => {
@@ -508,7 +509,51 @@ app.get("/parents-with-children", (req, res) => {
 });
 
 
+
+
+app.get("/patients/:id/records", (req, res) => {
+  const id = req.params.id;
+  const query = `
+    SELECT 
+      m.weight,
+      m.height,
+      m.Food_allergy AS Food_allergy,
+      m.Drug_allergy AS drug_allergy,
+      m.congenital_disease,
+      p.Status_personal AS status
+    FROM medical_records m
+    JOIN (
+      SELECT * FROM prediction
+      WHERE patient_id = ?
+      ORDER BY created_at DESC
+      LIMIT 1
+    ) p ON m.patient_id = p.patient_id
+    WHERE m.patient_id = ?
+    ORDER BY m.created_at DESC
+    LIMIT 1;
+  `;
+
+  db.query(query, [id, id], (err, results) => {
+    if (err) {
+      console.error("❌ Error fetching medical record:", err);
+      return res.status(500).json({ error: "Database error" });
+    }
+
+    if (results.length > 0) {
+      res.json(results[0]);
+    } else {
+      res.status(404).json({ message: "No records found" });
+    }
+  });
+});
+
+
+
+
+
+
 // ✅ Start server
 app.listen(port, () => {
   console.log(`🚀 Server is running on http://localhost:${port}`);
 });
+

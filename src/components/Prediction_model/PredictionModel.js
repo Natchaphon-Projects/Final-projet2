@@ -46,7 +46,8 @@ function PredictionModel() {
   useEffect(() => {
   const data = localStorage.getItem("latestPredictionData");
   if (data) {
-    handlePredict(JSON.parse(data));
+    const parsed = JSON.parse(data); // ✅ สร้างตัวแปร parsed ให้ถูกต้องก่อน
+    handlePredict(parsed); // ✅ เรียกแค่ครั้งเดียว
   }
 }, []);
 
@@ -84,7 +85,24 @@ function PredictionModel() {
  const handlePredict = async (customData = null) => {
   setLoading(true);
   const inputData = customData || getRandomData();
-  const transformedData = preprocessData(inputData);
+ const extraMedicalData = {
+  Weight: inputData.Weight || null,
+  Height: inputData.Height || null,
+  Food_allergy: inputData.Food_allergies || "", // ✅ เปลี่ยนจาก Food_allergies เป็น Food_allergy
+  Drug_allergy: inputData.Drug_allergy || "",
+  congenital_disease: inputData.congenital_disease || ""
+};
+
+
+const transformedData = preprocessData(inputData);
+
+// ✅ ลบ field ที่ไม่ควรส่งเข้า prediction
+delete transformedData.Weight;
+delete transformedData.Height;
+delete transformedData.Food_allergy;
+delete transformedData.Drug_allergy;
+delete transformedData.congenital_disease;
+
 
   const filteredData = {};
   featureKeys.forEach((key) => {
@@ -114,10 +132,12 @@ function PredictionModel() {
     // ✅ เก็บผลลัพธ์เข้า SQL ด้วย
     const patientId = localStorage.getItem("childId");
     await axios.post("http://localhost:5000/predictions/combined", {
-      patient_id: patientId,
-      ...filteredData,
-      Status_personal: result // <== ตรงนี้จะเก็บลง SQL
-    });
+        patient_id: patientId,
+        ...filteredData,
+        ...extraMedicalData,
+        Status_personal: result
+      });
+
 
     // ✅ แสดงผลบนหน้าเว็บ
     setLatestPrediction({
