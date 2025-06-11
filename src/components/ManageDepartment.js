@@ -19,6 +19,9 @@ const ManageDepartment = () => {
   const [showModal, setShowModal] = useState(false);
   const [birthDate, setBirthDate] = useState("");
   const [parentPrefix, setParentPrefix] = useState("");
+  const [parentRelations, setParentRelations] = useState([
+  { parentId: "", relationship: "", customRelationship: "", parentPrefix: "" }
+]);
 
   const relationshipOptions = parentPrefix === "นาย"
     ? ["พ่อ", "ปู่", "ตา", "อื่นๆ"]
@@ -106,34 +109,44 @@ const ManageDepartment = () => {
   };
 
   const handleSave = async () => {
-    if (
-  !formData.hn ||
-  !formData.name ||
-  !formData.lastName ||
-  !birthDate ||  // ✅ เพิ่มเช็ค birthDate
-  !formData.age ||
-  !formData.gender ||
-  !formData.childPrefix ||
-  !formData.parentId ||
-  !relationship ||
-  (relationship === "อื่นๆ" && customRelationship.trim() === "") // ✅ ถ้าเลือก "อื่นๆ" → ต้องกรอกด้วย
-) {
-  alert("กรุณากรอกข้อมูลให้ครบถ้วน");
-  return;
-}
+  if (
+    !formData.hn ||
+    !formData.name ||
+    !formData.lastName ||
+    !birthDate ||
+    !formData.age ||
+    !formData.gender ||
+    !formData.childPrefix ||
+    parentRelations.length === 0 ||
+    parentRelations.some(
+      (rel) =>
+        !rel.parentId ||
+        !rel.relationship ||
+        (rel.relationship === "อื่นๆ" && (!rel.customRelationship || rel.customRelationship.trim() === ""))
+    )
+  ) {
+    alert("กรุณากรอกข้อมูลให้ครบถ้วน");
+    return;
+  }
 
   const totalMonths = extractMonths(formData.age);
-    const payload = {
-      hn_number: formData.hn,  // ✅ เปลี่ยนจาก hn → hn_number
-      childPrefix: formData.childPrefix,
-      name: formData.name,
-      lastName: formData.lastName,
-      age: totalMonths,
-      gender: formData.gender,
-      birthDate,
-      parent_id: formData.parentId,
-      relationship: relationship === "อื่นๆ" ? customRelationship : relationship
-    };
+
+  // ✅ แปลง parentRelations เป็น array ของความสัมพันธ์
+  const relationships = parentRelations.map((rel) => ({
+    parent_id: rel.parentId,
+    relationship: rel.relationship === "อื่นๆ" ? rel.customRelationship : rel.relationship,
+  }));
+
+  const payload = {
+    hn_number: formData.hn,
+    childPrefix: formData.childPrefix,
+    name: formData.name,
+    lastName: formData.lastName,
+    age: totalMonths,
+    gender: formData.gender,
+    birthDate,
+    relationships, // ✅ ส่งหลายความสัมพันธ์
+  };
 
     try {
       if (editingPatient) {
@@ -178,6 +191,27 @@ const ManageDepartment = () => {
     setFormData((prev) => ({ ...prev, hn: newHN }));
     setShowModal(true);
   };
+
+  const handleAddParentRelation = () => {
+  setParentRelations([...parentRelations, { parentId: '', relationship: '' }]);
+};
+
+const handleRemoveParentRelation = (index) => {
+  const updated = parentRelations.filter((_, i) => i !== index);
+  setParentRelations(updated);
+};
+
+const handleParentChange = (index, value) => {
+  const updated = [...parentRelations];
+  updated[index].parentId = value;
+  setParentRelations(updated);
+};
+
+const handleRelationshipChange = (index, value) => {
+  const updated = [...parentRelations];
+  updated[index].relationship = value;
+  setParentRelations(updated);
+};
 
   const handleEdit = (patient) => {
     console.log("DEBUG patient", patient);   // ✅ เพิ่มตรงนี้
@@ -400,53 +434,94 @@ const ManageDepartment = () => {
             </div>
 
           
-           <div className="form-row" style={{ display: "flex", alignItems: "center", gap: "10px" }}>
-             <select
-                className="form-input"
-                style={{ flex: "2" }}
-                value={formData.parentId || ""}
-                onChange={(e) => {
-                  const selectedId = parseInt(e.target.value);
-                  const selectedParent = parents.find((p) => p.id === selectedId);
-                  const prefix = selectedParent?.prefix || "";
+           <h4 style={{ marginTop: "10px" }}>ความสัมพันธ์กับผู้ปกครอง</h4>
+              {parentRelations.map((relation, index) => {
+              
+              const selectedParent = parents.find((p) => p.id === relation.parentId);
+  const relationshipOptions = ["พ่อ", "แม่", "ปู่", "ย่า", "ตา", "ยาย", "อื่นๆ"];
+                return (
+                  <div key={index} className="form-row" style={{ display: "flex", alignItems: "center", gap: "10px", marginBottom: "10px" }}>
+                    <select
+                      className="form-input"
+                      style={{ flex: "2" }}
+                      value={relation.parentId || ""}
+                      onChange={(e) => {
+                        const selectedId = parseInt(e.target.value);
+                        const parent = parents.find((p) => p.id === selectedId);
+                        const prefix = parent?.prefix || "";
 
-                  setParentPrefix(prefix); 
-                  setFormData({ ...formData, parentId: selectedId });
-                  setRelationship(""); 
-                  setCustomRelationship("");
+                        const updated = [...parentRelations];
+                        updated[index] = { ...updated[index], parentId: selectedId, relationship: "", customRelationship: "", parentPrefix: prefix };
+                        setParentRelations(updated);
+                      }}
+                    >
+                      <option value="">เลือกผู้ปกครอง</option>
+                      {parents.map((parent) => (
+                        <option key={parent.id} value={parent.id}>
+                          {`${parent.prefix} ${parent.name} ${parent.lastName}`}
+                        </option>
+                      ))}
+                    </select>
+
+                    <select
+                      className="form-input"
+                      style={{ flex: "1" }}
+                      value={relation.relationship || ""}
+                      onChange={(e) => {
+                        const updated = [...parentRelations];
+                        updated[index] = { ...updated[index], relationship: e.target.value, customRelationship: "" };
+                        setParentRelations(updated);
+                      }}
+                      disabled={!relation.parentId}
+                    >
+                      <option value="">เลือกความสัมพันธ์</option>
+                      {relationshipOptions.map((option) => (
+                        <option key={option} value={option}>{option}</option>
+                      ))}
+                    </select>
+
+                    {relation.relationship === "อื่นๆ" && (
+                      <input
+                        className="text-input"
+                        style={{ flex: "1" }}
+                        placeholder="กรอกความสัมพันธ์อื่นๆ"
+                        value={relation.customRelationship || ""}
+                        onChange={(e) => {
+                          const updated = [...parentRelations];
+                          updated[index].customRelationship = e.target.value;
+                          setParentRelations(updated);
+                        }}
+                      />
+                    )}
+
+                    {parentRelations.length > 1 && (
+                      <button
+                        type="button"
+                        onClick={() => {
+                          const updated = [...parentRelations];
+                          updated.splice(index, 1);
+                          setParentRelations(updated);
+                        }}
+                        className="text-red-600 hover:text-red-800"
+                        style={{ fontSize: "20px", lineHeight: "1" }}
+                      >
+                        🗑️
+                      </button>
+                    )}
+                  </div>
+                );
+              })}
+
+              <button
+                type="button"
+                onClick={() => {
+                  setParentRelations([...parentRelations, { parentId: "", relationship: "", customRelationship: "", parentPrefix: "" }]);
                 }}
+                className="text-green-600 hover:text-green-800"
+                style={{ marginTop: "5px", fontWeight: "bold" }}
               >
-                <option value="">เลือกผู้ปกครอง</option>
-                {parents.map((parent) => (
-                  <option key={parent.id} value={parent.id}>
-                    {`${parent.prefix} ${parent.name} ${parent.lastName}`}
-                  </option>
-                ))}
-              </select>
-
-              <select
-                className="form-input"
-                style={{ flex: "1" }}
-                value={relationship}
-                onChange={(e) => setRelationship(e.target.value)}
-                disabled={relationshipOptions.length === 0} // 🆕 ถ้ายังไม่ได้เลือกผู้ปกครอง
-              >
-                <option value="">เลือกความสัมพันธ์</option>
-                {relationshipOptions.map((option) => (
-                  <option key={option} value={option}>{option}</option>
-                ))}
-              </select>
-
-              {relationship === "อื่นๆ" && (
-                <input
-                  className=" text-input"
-                  style={{ flex: "1" }} // ช่องกรอกอื่นๆ → กว้าง 1 ส่วน
-                  placeholder="กรอกความสัมพันธ์อื่นๆ"
-                  value={customRelationship}
-                  onChange={(e) => setCustomRelationship(e.target.value)}
-                />
-              )}
-            </div>
+                + เพิ่มผู้ปกครอง
+              </button>
 
             <div className="button-group">
               <button className="confirm-btn" onClick={handleSave}>บันทึก</button>
