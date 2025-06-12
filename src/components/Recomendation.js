@@ -21,25 +21,25 @@ function Recomendation() {
     const [isDropdownOpen, setIsDropdownOpen] = useState(false);
     const [selectedOption, setSelectedOption] = useState("ประวัติการตรวจครั้งอื่น");
     useEffect(() => {
-  if (id) {
-    axios.get(`http://localhost:5000/patients/${id}/records`)
-      .then((res) => {
-        console.log("📦 ข้อมูลล่าสุดที่ได้:", res.data); // ตรวจสอบข้อมูลจริง
-        setRecord(res.data); // ✅ ไม่ต้อง .data[0] แล้ว เพราะ backend ส่ง object มาแล้ว
-      })
-      .catch((err) => console.error("โหลดประวัติไม่สำเร็จ", err));
-  }
-}, [id]);
+        if (id) {
+            axios.get(`http://localhost:5000/patients/${id}/records`)
+                .then((res) => {
+                    console.log("📦 ข้อมูลล่าสุดที่ได้:", res.data); // ตรวจสอบข้อมูลจริง
+                    setRecord(res.data); // ✅ ไม่ต้อง .data[0] แล้ว เพราะ backend ส่ง object มาแล้ว
+                })
+                .catch((err) => console.error("โหลดประวัติไม่สำเร็จ", err));
+        }
+    }, [id]);
 
 
-if (!patient) {
-  return (
-    <div style={{ padding: 20 }}>
-      <h2>ไม่พบข้อมูลผู้ป่วย</h2>
-      <p>กรุณากลับไปหน้าเดิมแล้วเลือกผู้ป่วยอีกครั้ง</p>
-    </div>
-  );
-}
+    if (!patient) {
+        return (
+            <div style={{ padding: 20 }}>
+                <h2>ไม่พบข้อมูลผู้ป่วย</h2>
+                <p>กรุณากลับไปหน้าเดิมแล้วเลือกผู้ป่วยอีกครั้ง</p>
+            </div>
+        );
+    }
 
     const handleSelect = (option) => {
         setSelectedOption(option);
@@ -91,32 +91,32 @@ if (!patient) {
 
                             <div className="patient-info-grid-two">
                                 <div className="info-card">
-  <div className="label">HN:</div>
-  <div className="value">{patient.patientId || "--"}</div>
-</div>
+                                    <div className="label">HN:</div>
+                                    <div className="value">{record?.hn_number || "--"}</div>
+                                </div>
 
                                 <div className="info-card">
-                                     <div className="label">เพศ:</div>
-                                     <div className="value">{patient.gender === "male" ? "ชาย" : "หญิง"}</div>
+                                    <div className="label">เพศ:</div>
+                                    <div className="value">{patient.gender === "male" ? "ชาย" : "หญิง"}</div>
                                 </div>
                                 <div className="info-card">
                                     <div className="label">อายุ:</div>
                                     <div className="value">{patient.age || "--"}</div>
                                 </div>
-                             <div className="info-card">
-                                <div className="label">น้ำหนัก:</div>
-                                <div className="value">{record?.weight ? `${record.weight} กก.` : "--"}</div>
-                            </div>
+                                <div className="info-card">
+                                    <div className="label">น้ำหนัก:</div>
+                                    <div className="value">{record?.weight ? `${record.weight} กก.` : "--"}</div>
+                                </div>
 
-                              <div className="info-card">
-                                <div className="label">ส่วนสูง:</div>
-                                <div className="value">{record?.height ? `${record.height} ซม.` : "--"}</div>
-                            </div>
+                                <div className="info-card">
+                                    <div className="label">ส่วนสูง:</div>
+                                    <div className="value">{record?.height ? `${record.height} ซม.` : "--"}</div>
+                                </div>
 
-                            <div className="info-card">
-                                <div className="label">โรคประจำตัว:</div>
-                                <div className="value">{record?.congenital_disease || "--"}</div>
-                            </div>
+                                <div className="info-card">
+                                    <div className="label">โรคประจำตัว:</div>
+                                    <div className="value">{record?.congenital_disease || "--"}</div>
+                                </div>
 
                             </div>
 
@@ -156,10 +156,10 @@ if (!patient) {
 
                 {/* Assessment Status */}
                 {record?.status && (
-                <div className="recommendation-status">
-                    <div className="status-text">อยู่ในเกณฑ์: {record.status} ({record.status === "Normal" ? "ปกติ" : "กรุณาพบแพทย์"})</div>
-                    <div className="status-subtext">Assessment Status</div>
-                </div>
+                    <div className="recommendation-status">
+                        <div className="status-text">อยู่ในเกณฑ์: {record.status} ({record.status === "Normal" ? "ปกติ" : "กรุณาพบแพทย์"})</div>
+                        <div className="status-subtext">Assessment Status</div>
+                    </div>
                 )}
 
                 {/* ผลการตรวจ Section */}
