@@ -4,7 +4,6 @@ import { useNavigate } from 'react-router-dom';
 import { useEffect } from "react";
 import React, { useState } from 'react';
 import './Recomendation.css';
-import { resultData } from './data/resultData'; // Import array ที่แยกมา
 import Header from "../components/layout/Header";
 import Footer from "../components/layout/Footer";
 import WeightChart from '../components/chart/WeightChart';
@@ -27,7 +26,8 @@ function Recomendation() {
       .then(res => {
         console.log("SHAP Local:", res.data);
         if (Array.isArray(res.data.top_features)) {
-          setTopFeatures(res.data.top_features);
+          const sorted = res.data.top_features.sort((a, b) => b.shap - a.shap);
+setTopFeatures(sorted);
         } else {
           setTopFeatures([]);
         }
@@ -230,57 +230,26 @@ if (!patient) {
                                     </tr>
                                 </thead>
                                 <tbody>
-                                    {resultData.slice(0, 5).map((item, index) => (
-                                        <tr key={index}>
-                                            <td>{item.info}</td>
-                                            <td>
-                                                <span className={item.behaviorType === 'red' ? 'badge-red' : 'badge-green'}>
-                                                    {item.behavior}
-                                                </span>
-                                            </td>
-                                            <td>
-                                                <span className={item.calcType === 'red' ? 'badge-red' : 'badge-green'}>
-                                                    {item.calc}
-                                                </span>
-                                            </td>
-                                            <td>
-                                                {item.advice.split('Stunting').map((part, i, arr) => (
-                                                    i < arr.length - 1 ? (
-                                                        <React.Fragment key={i}>
-                                                            {part}
-                                                            <span className="highlight-blue">Stunting</span>
-                                                        </React.Fragment>
-                                                    ) : part
-                                                ))}
-                                            </td>
-                                        </tr>
-                                    ))}
+                            {topFeatures.slice(0, 5).map((item, index) => (
+                                <tr key={index}>
+                                    <td>{item.feature}</td>
+                                    <td>
+                                    <span className={item.value === 1 ? 'badge-red' : 'badge-green'}>
+                                        {item.value === 1 ? 'เป็น' : 'ไม่เป็น'}
+                                    </span>
+                                    </td>
+                                    <td>
+                                    <span className="badge-green">
+                                        {globalAverages[item.feature] !== undefined ? globalAverages[item.feature] : "--"}
+                                    </span>
+                                    </td>
+                                    <td>ควรดูแลเพิ่มเติมตามคำแนะนำแพทย์</td>
+                                </tr>
+                                ))}
 
-                                    {showFullTable && resultData.slice(5, 10).map((item, index) => (
-                                        <tr key={index + 5}>
-                                            <td>{item.info}</td>
-                                            <td>
-                                                <span className={item.behaviorType === 'red' ? 'badge-red' : 'badge-green'}>
-                                                    {item.behavior}
-                                                </span>
-                                            </td>
-                                            <td>
-                                                <span className={item.calcType === 'red' ? 'badge-red' : 'badge-green'}>
-                                                    {item.calc}
-                                                </span>
-                                            </td>
-                                            <td>
-                                                {item.advice.split('Stunting').map((part, i, arr) => (
-                                                    i < arr.length - 1 ? (
-                                                        <React.Fragment key={i}>
-                                                            {part}
-                                                            <span className="highlight-blue">Stunting</span>
-                                                        </React.Fragment>
-                                                    ) : part
-                                                ))}
-                                            </td>
-                                        </tr>
-                                    ))}
+
+                                    {showFullTable && null}
+
                                 </tbody>
                             </table>
 
@@ -292,7 +261,7 @@ if (!patient) {
                                 >
                                     {showFullTable ? 'ซ่อนเพิ่มเติม' : 'แสดงเพิ่มเติม'}
                                 </button>
-                            </div>
+                                </div>
                         </div>
 
                         {/* ตารางขวา (1/4) */}
@@ -304,7 +273,7 @@ if (!patient) {
                                     </tr>
                                 </thead>
                               {Array.isArray(topFeatures) ? (
-  topFeatures.map((item, index) => (
+  (showFullTable ? topFeatures : topFeatures.slice(0, 5)).map((item, index) => (
     <tr key={index}>
       <td>
         <strong>{item.feature}</strong><br />
