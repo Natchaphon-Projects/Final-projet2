@@ -8,6 +8,7 @@ import joblib
 
 router = APIRouter()
 
+
 # ✅ โหลด model และ metadata
 try:
     model = joblib.load("src/model/best_model.joblib")
@@ -100,7 +101,8 @@ def explain_local(patient_id: int):
         print("📌 shap_patient preview:", shap_patient[:5])
 
         # 🔝 Top 5 features
-        top_indexes = np.argsort(np.abs(shap_patient))[::-1][:5]
+        top_indexes = np.argsort(shap_patient)[::-1]  # เรียงจากค่ามาก → น้อย ตามทิศทางจริง
+
         result = []
         for i in top_indexes:
             feat = feature_columns[i]
@@ -109,6 +111,7 @@ def explain_local(patient_id: int):
                 "value": float(df_input.iloc[0][feat]),
                 "shap": float(shap_patient[i]),
             })
+
 
         return {"top_features": result}
 

@@ -9,7 +9,7 @@ router = APIRouter()
 
 # ✅ โหลด model, columns, mapping, และ CSV
 try:
-    joblib.load("src/model/best_model.joblib")
+    model = joblib.load("src/model/best_model.joblib")
     with open("src/model/columns.pkl", "rb") as f:
         feature_columns = pickle.load(f)
     with open("src/model/mapping.pkl", "rb") as f:
@@ -20,50 +20,43 @@ except Exception as e:
     print("❌ ERROR while loading model or data:", e)
     raise e
 
-# ✅ Endpoint อธิบาย global shap
+# ✅ Endpoint อธิบาย global shap โดยใช้ค่าจากเด็กที่เป็น Normal
 @router.get("/shap/global/{status}")
-def explain_global(status: str):  # เช่น status = 'Normal'
+def explain_global(status: str):  # เช่น 'Normal'
     try:
-        # ✅ กรองเฉพาะแถวที่มีสถานะตรงกับที่ระบุ เช่น 'Normal'
-        subset_df = df[df["status"] == status]
-
-        # ✅ เตรียม X สำหรับ SHAP
+        subset_df = df[df["status"] == status].copy()
         X = subset_df[feature_columns].copy()
 
-        # ✅ ทำ label encoding ตาม mapping ที่ใช้กับ model
+        # ✅ Apply LabelEncoder ตาม mapping
         for col in feature_columns:
             if col in label_mapping:
                 encoder = label_mapping[col]
                 try:
                     X[col] = encoder.transform(X[col])
                 except:
-                    X[col] = 0  # fallback
+                    X[col] = 0  # fallback เผื่อ transform ไม่ได้
 
-        # ✅ ใช้ SHAP อธิบายแบบ Global
+        # ✅ สร้าง SHAP explainer และคำนวณค่า shap
         explainer = shap.TreeExplainer(model)
         shap_values = explainer.shap_values(X)
 
-        # ✅ หากเป็น multiclass → เอาเฉพาะ class ที่สนใจ
-        if isinstance(shap_values, list):
+        if isinstance(shap_values, list):  # multiclass
             label_index = list(model.classes_).index(status)
             shap_vals = shap_values[label_index]
         else:
             shap_vals = shap_values
 
-        # ✅ คำนวณค่าความสำคัญเฉลี่ยแต่ละ feature
-        mean_shap = np.abs(shap_vals).mean(axis=0)
-        top_indices = np.argsort(mean_shap)[::-1][:5]
+        # ✅ ค่ามาตรฐาน: ดึงค่าของ feature จากเด็กที่ shap สูงสุดในฝั่งบวก
+        result = {}
+        for i, feature in enumerate(feature_columns):
+            shap_column = shap_vals[:, i]
+            max_index = np.argmax(shap_column)  # หาค่า SHAP ที่มากที่สุด
+            max_shap = shap_column[max_index]
 
-        result = []
-        for i in top_indices:
-            feat = feature_columns[i]
-            result.append({
-                "feature": feat,
-                "mean_value": float(X[feat].mean()),
-                "shap_value": float(mean_shap[i])
-            })
+            if max_shap > 0:  # เฉพาะฟีเจอร์ที่สนับสนุน class นี้
+                result[feature] = float(X.iloc[max_index][feature])
 
-        return {"global_features": result}
+        return result  # ✅ ส่งไปให้ frontend เป็น globalAverages
 
     except Exception as e:
         import traceback
