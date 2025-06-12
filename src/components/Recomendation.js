@@ -97,7 +97,7 @@ function Recomendation() {
 
                                 <div className="info-card">
                                     <div className="label">เพศ:</div>
-                                    <div className="value">{patient.gender === "male" ? "ชาย" : "หญิง"}</div>
+                                    <div className="value">{patient.gender || "--"}</div>
                                 </div>
                                 <div className="info-card">
                                     <div className="label">อายุ:</div>
