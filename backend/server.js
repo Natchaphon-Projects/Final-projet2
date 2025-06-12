@@ -541,7 +541,11 @@ app.get("/patients/:id/records", (req, res) => {
       LIMIT 1
     ) p ON m.patient_id = p.patient_id
 <<<<<<< Updated upstream
+<<<<<<< Updated upstream
     JOIN patient pt ON pt.patient_id = m.patient_id
+=======
+     JOIN patient pt ON pt.patient_id = m.patient_id
+>>>>>>> Stashed changes
 =======
      JOIN patient pt ON pt.patient_id = m.patient_id
 >>>>>>> Stashed changes

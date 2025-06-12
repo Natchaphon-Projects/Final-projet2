@@ -127,8 +127,13 @@ function Recomendation() {
 
                                 <div className="info-card">
 <<<<<<< Updated upstream
+<<<<<<< Updated upstream
                                      <div className="label">เพศ:</div>
                                      <div className="value">{patient.gender === "male" ? "ชาย" : "หญิง"}</div>
+=======
+                                    <div className="label">เพศ:</div>
+                                    <div className="value">{patient.gender || "--"}</div>
+>>>>>>> Stashed changes
 =======
                                     <div className="label">เพศ:</div>
                                     <div className="value">{patient.gender || "--"}</div>
@@ -192,11 +197,14 @@ function Recomendation() {
                 {/* Assessment Status */}
                 {record?.status && (
 <<<<<<< Updated upstream
+<<<<<<< Updated upstream
                 <div className="recommendation-status">
                     <div className="status-text">อยู่ในเกณฑ์: {record.status} ({record.status === "Normal" ? "ปกติ" : "กรุณาพบแพทย์"})</div>
                     <div className="status-subtext">Assessment Status</div>
                 </div>
 =======
+=======
+>>>>>>> Stashed changes
                     <div className="recommendation-status">
                         <div className="status-text">
                             อยู่ในเกณฑ์ : {record.status}
@@ -204,6 +212,9 @@ function Recomendation() {
 
                         <div className="status-subtext">Assessment Status</div>
                     </div>
+<<<<<<< Updated upstream
+>>>>>>> Stashed changes
+=======
 >>>>>>> Stashed changes
                 )}
 
