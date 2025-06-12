@@ -22,28 +22,28 @@ function Recomendation() {
     const [showFullTable, setShowFullTable] = useState(false);
     const [isDropdownOpen, setIsDropdownOpen] = useState(false);
     useEffect(() => {
-        if (id) {
-            axios.get(`http://localhost:8000/shap/local/${id}`)
-                .then(res => {
-                    console.log("SHAP Local:", res.data);
-                    if (Array.isArray(res.data.top_features)) {
-                        setTopFeatures(res.data.top_features);
-                    } else {
-                        setTopFeatures([]);
-                    }
-                })
-                .catch(() => {
-                    console.log("⚠️ ดึง SHAP local ไม่สำเร็จ");
-                    setTopFeatures([]);
-                });
+  if (id) {
+     axios.get(`http://localhost:8000/shap/local/${id}`)
+      .then(res => {
+        console.log("SHAP Local:", res.data);
+        if (Array.isArray(res.data.top_features)) {
+          setTopFeatures(res.data.top_features);
+        } else {
+          setTopFeatures([]);
         }
+      })
+      .catch(() => {
+        console.log("⚠️ ดึง SHAP local ไม่สำเร็จ");
+        setTopFeatures([]);
+      });
+  }
 
-        if (record?.status) {
-            axios.get(`http://localhost:8000/shap/global/${record.status}`)
-                .then(res => setGlobalAverages(res.data))
-                .catch(() => console.log("⚠️ ดึง SHAP global ไม่สำเร็จ"));
-        }
-    }, [id, record?.status]);
+  if (record?.status) {
+    axios.get(`http://localhost:8000/shap/global/${record.status}`)
+      .then(res => setGlobalAverages(res.data))
+      .catch(() => console.log("⚠️ ดึง SHAP global ไม่สำเร็จ"));
+  }
+}, [id, record?.status]);
 
 
     const [selectedOption, setSelectedOption] = useState("ประวัติการตรวจครั้งอื่น");
@@ -51,25 +51,25 @@ function Recomendation() {
 
 
     useEffect(() => {
-        if (id) {
-            axios.get(`http://localhost:5000/patients/${id}/records`)
-                .then((res) => {
-                    console.log("📦 ข้อมูลล่าสุดที่ได้:", res.data); // ตรวจสอบข้อมูลจริง
-                    setRecord(res.data); // ✅ ไม่ต้อง .data[0] แล้ว เพราะ backend ส่ง object มาแล้ว
-                })
-                .catch((err) => console.error("โหลดประวัติไม่สำเร็จ", err));
-        }
-    }, [id]);
+  if (id) {
+    axios.get(`http://localhost:5000/patients/${id}/records`)
+      .then((res) => {
+        console.log("📦 ข้อมูลล่าสุดที่ได้:", res.data); // ตรวจสอบข้อมูลจริง
+        setRecord(res.data); // ✅ ไม่ต้อง .data[0] แล้ว เพราะ backend ส่ง object มาแล้ว
+      })
+      .catch((err) => console.error("โหลดประวัติไม่สำเร็จ", err));
+  }
+}, [id]);
 
 
-    if (!patient) {
-        return (
-            <div style={{ padding: 20 }}>
-                <h2>ไม่พบข้อมูลผู้ป่วย</h2>
-                <p>กรุณากลับไปหน้าเดิมแล้วเลือกผู้ป่วยอีกครั้ง</p>
-            </div>
-        );
-    }
+if (!patient) {
+  return (
+    <div style={{ padding: 20 }}>
+      <h2>ไม่พบข้อมูลผู้ป่วย</h2>
+      <p>กรุณากลับไปหน้าเดิมแล้วเลือกผู้ป่วยอีกครั้ง</p>
+    </div>
+  );
+}
 
     const handleSelect = (option) => {
         setSelectedOption(option);
@@ -121,42 +121,32 @@ function Recomendation() {
 
                             <div className="patient-info-grid-two">
                                 <div className="info-card">
-                                    <div className="label">HN:</div>
-                                    <div className="value">{record?.hn_number || "--"}</div>
-                                </div>
+  <div className="label">HN:</div>
+  <div className="value">{record?.hn_number || "--"}</div>
+</div>
 
                                 <div className="info-card">
-<<<<<<< Updated upstream
-<<<<<<< Updated upstream
                                      <div className="label">เพศ:</div>
-                                     <div className="value">{patient.gender === "male" ? "ชาย" : "หญิง"}</div>
-=======
-                                    <div className="label">เพศ:</div>
-                                    <div className="value">{patient.gender || "--"}</div>
->>>>>>> Stashed changes
-=======
-                                    <div className="label">เพศ:</div>
-                                    <div className="value">{patient.gender || "--"}</div>
->>>>>>> Stashed changes
+                                     <div className="value">{patient.gender || "--"}</div>
                                 </div>
                                 <div className="info-card">
                                     <div className="label">อายุ:</div>
                                     <div className="value">{patient.age || "--"}</div>
                                 </div>
-                                <div className="info-card">
-                                    <div className="label">น้ำหนัก:</div>
-                                    <div className="value">{record?.weight ? `${record.weight} กก.` : "--"}</div>
-                                </div>
+                             <div className="info-card">
+                                <div className="label">น้ำหนัก:</div>
+                                <div className="value">{record?.weight ? `${record.weight} กก.` : "--"}</div>
+                            </div>
 
-                                <div className="info-card">
-                                    <div className="label">ส่วนสูง:</div>
-                                    <div className="value">{record?.height ? `${record.height} ซม.` : "--"}</div>
-                                </div>
+                              <div className="info-card">
+                                <div className="label">ส่วนสูง:</div>
+                                <div className="value">{record?.height ? `${record.height} ซม.` : "--"}</div>
+                            </div>
 
-                                <div className="info-card">
-                                    <div className="label">โรคประจำตัว:</div>
-                                    <div className="value">{record?.congenital_disease || "--"}</div>
-                                </div>
+                            <div className="info-card">
+                                <div className="label">โรคประจำตัว:</div>
+                                <div className="value">{record?.congenital_disease || "--"}</div>
+                            </div>
 
                             </div>
 
@@ -196,26 +186,13 @@ function Recomendation() {
 
                 {/* Assessment Status */}
                 {record?.status && (
-<<<<<<< Updated upstream
-<<<<<<< Updated upstream
                 <div className="recommendation-status">
-                    <div className="status-text">อยู่ในเกณฑ์: {record.status} ({record.status === "Normal" ? "ปกติ" : "กรุณาพบแพทย์"})</div>
+                    <div className="status-text">
+  อยู่ในเกณฑ์ : {record.status}
+</div>
+
                     <div className="status-subtext">Assessment Status</div>
                 </div>
-=======
-=======
->>>>>>> Stashed changes
-                    <div className="recommendation-status">
-                        <div className="status-text">
-                            อยู่ในเกณฑ์ : {record.status}
-                        </div>
-
-                        <div className="status-subtext">Assessment Status</div>
-                    </div>
-<<<<<<< Updated upstream
->>>>>>> Stashed changes
-=======
->>>>>>> Stashed changes
                 )}
 
                 {/* ผลการตรวจ Section */}
@@ -326,22 +303,22 @@ function Recomendation() {
                                         <th>สาเหตุที่สนับสนุนให้เกิด</th>
                                     </tr>
                                 </thead>
-                                {Array.isArray(topFeatures) ? (
-                                    topFeatures.map((item, index) => (
-                                        <tr key={index}>
-                                            <td>
-                                                <strong>{item.feature}</strong><br />
-                                                ค่าผู้ป่วย: {item.value}<br />
-                                                ค่ามาตรฐาน: {globalAverages[item.feature] || "--"}<br />
-                                                shap: {item.shap.toFixed(3)}
-                                            </td>
-                                        </tr>
-                                    ))
-                                ) : (
-                                    <tr>
-                                        <td>ไม่พบข้อมูล SHAP</td>
-                                    </tr>
-                                )}
+                              {Array.isArray(topFeatures) ? (
+  topFeatures.map((item, index) => (
+    <tr key={index}>
+      <td>
+        <strong>{item.feature}</strong><br />
+        ค่าผู้ป่วย: {item.value}<br />
+        ค่ามาตรฐาน: {globalAverages[item.feature] || "--"}<br />
+        shap: {item.shap.toFixed(3)}
+      </td>
+    </tr>
+  ))
+) : (
+  <tr>
+    <td>ไม่พบข้อมูล SHAP</td>
+  </tr>
+)}
 
                             </table>
                             <div className="recommendation-feedback-section">
