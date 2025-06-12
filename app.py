@@ -8,19 +8,32 @@ import numpy as np
 import pandas as pd
 import os
 import warnings
+from fastapi import FastAPI
+import sys
+
+sys.path.append(".")
+
+from shap_explain import shap_local, shap_global
 
 warnings.filterwarnings("ignore", category=FutureWarning)
 
 app = FastAPI(title="Child Nutrition Prediction API", version="1.0")
 
-# ✅ CORS
+
+from fastapi.middleware.cors import CORSMiddleware
+# ✅ ใส่ allow_origins ให้ตรง React
 app.add_middleware(
     CORSMiddleware,
-    allow_origins=["http://localhost:3000"],
+    allow_origins=["http://localhost:3000"],  # หรือ ["*"] ถ้าให้ทุก origin
     allow_credentials=True,
     allow_methods=["*"],
     allow_headers=["*"],
 )
+
+
+
+app.include_router(shap_local.router)
+app.include_router(shap_global.router)
 
 # ✅ Static
 if not os.path.exists("static"):
@@ -29,10 +42,11 @@ app.mount("/static", StaticFiles(directory="static"), name="static")
 
 # ✅ Load model + metadata
 try:
-    model = load('src/model/best_model.pkl')
+    model = load("src/model/best_model.joblib")
     columns = load('src/model/columns.pkl')
     mapping = load('src/model/mapping.pkl')
     print("✅ Model and metadata loaded successfully")
+    print(type(model))
 
     if hasattr(model, "feature_names_in_"):
         print("🧠 Model trained with features:", model.feature_names_in_)
@@ -128,7 +142,6 @@ class PredictionInput(BaseModel):
 @app.post("/prediction")
 async def get_prediction(input_data: PredictionInput):
     try:
-
         print("📥 ได้รับข้อมูลจาก frontend:", input_data.dict())
 
         if model is None:
@@ -137,11 +150,12 @@ async def get_prediction(input_data: PredictionInput):
             return {"error": "Scaler not ready"}
 
         original_input = input_data.dict()
-        
-        
 
-        # ✅ Build DataFrame with column names
-        df = pd.DataFrame([original_input], columns=columns)
+        # ✅ กรองเฉพาะ key ที่อยู่ใน columns เท่านั้น
+        filtered_input = {k: v for k, v in original_input.items() if k in columns}
+
+        # ✅ แปลงเป็น DataFrame
+        df = pd.DataFrame([filtered_input], columns=columns)
 
         # ✅ Check feature name match
         if hasattr(model, "feature_names_in_"):
@@ -160,7 +174,7 @@ async def get_prediction(input_data: PredictionInput):
 
         return {
             "prediction": predicted_class,
-            "input_features": original_input
+            "input_features": filtered_input
         }
 
     except Exception as e:
