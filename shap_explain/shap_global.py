@@ -22,45 +22,50 @@ except Exception as e:
 
 # ✅ Endpoint อธิบาย global shap
 @router.get("/shap/global/{status}")
-def explain_global(status: str):
+def explain_global(status: str):  # เช่น status = 'Normal'
     try:
-        print(f"🔍 สถานะที่ร้องขอ: {status}")
-        print("🧾 สถานะทั้งหมดในข้อมูล:", df["Status_personal"].unique())
+        # ✅ กรองเฉพาะแถวที่มีสถานะตรงกับที่ระบุ เช่น 'Normal'
+        subset_df = df[df["status"] == status]
 
-        # ✅ กรองข้อมูลเฉพาะ status ที่ต้องการ
-        subset = df[df["Status_personal"] == status]
+        # ✅ เตรียม X สำหรับ SHAP
+        X = subset_df[feature_columns].copy()
 
-        if subset.empty:
-            return {"error": f"ไม่พบข้อมูลสำหรับสถานะ '{status}'"}
+        # ✅ ทำ label encoding ตาม mapping ที่ใช้กับ model
+        for col in feature_columns:
+            if col in label_mapping:
+                encoder = label_mapping[col]
+                try:
+                    X[col] = encoder.transform(X[col])
+                except:
+                    X[col] = 0  # fallback
 
-        # ✅ กรองเฉพาะคอลัมน์ที่อยู่ใน feature_columns
-        X = subset[feature_columns].fillna(0)
-
-        # ✅ อธิบายด้วย SHAP TreeExplainer
+        # ✅ ใช้ SHAP อธิบายแบบ Global
         explainer = shap.TreeExplainer(model)
         shap_values = explainer.shap_values(X)
 
-        # ✅ สำหรับ classification → เลือกคลาสที่ตรงกับ status
-        status_index = list(label_mapping.values()).index(status)
-        shap_class = shap_values[status_index]
+        # ✅ หากเป็น multiclass → เอาเฉพาะ class ที่สนใจ
+        if isinstance(shap_values, list):
+            label_index = list(model.classes_).index(status)
+            shap_vals = shap_values[label_index]
+        else:
+            shap_vals = shap_values
 
-        # ✅ คำนวณค่าเฉลี่ย absolute SHAP value ของแต่ละฟีเจอร์
-        mean_shap = np.abs(shap_class).mean(axis=0)
-
-        # ✅ เลือก top 5 features ที่สำคัญที่สุด
+        # ✅ คำนวณค่าความสำคัญเฉลี่ยแต่ละ feature
+        mean_shap = np.abs(shap_vals).mean(axis=0)
         top_indices = np.argsort(mean_shap)[::-1][:5]
 
         result = []
-        for idx in top_indices:
-            feat = feature_columns[idx]
+        for i in top_indices:
+            feat = feature_columns[i]
             result.append({
                 "feature": feat,
-                "mean_value": float(X.iloc[:, idx].mean()),
-                "mean_shap": float(mean_shap[idx])
+                "mean_value": float(X[feat].mean()),
+                "shap_value": float(mean_shap[i])
             })
 
-        return {"top_features": result}
+        return {"global_features": result}
 
     except Exception as e:
-        print("❌ ERROR ใน explain_global:", str(e))
+        import traceback
+        traceback.print_exc()
         return {"error": str(e)}
