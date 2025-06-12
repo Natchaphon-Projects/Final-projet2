@@ -531,6 +531,7 @@ app.get("/patients/:id/records", (req, res) => {
       m.Food_allergy AS Food_allergy,
       m.Drug_allergy AS drug_allergy,
       m.congenital_disease,
+      pt.hn_number,
       p.Status_personal AS status
     FROM medical_records m
     JOIN (
@@ -539,6 +540,7 @@ app.get("/patients/:id/records", (req, res) => {
       ORDER BY created_at DESC
       LIMIT 1
     ) p ON m.patient_id = p.patient_id
+    JOIN patient pt ON pt.patient_id = m.patient_id
     WHERE m.patient_id = ?
     ORDER BY m.created_at DESC
     LIMIT 1;
