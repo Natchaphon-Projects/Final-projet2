@@ -22,28 +22,28 @@ function Recomendation() {
     const [showFullTable, setShowFullTable] = useState(false);
     const [isDropdownOpen, setIsDropdownOpen] = useState(false);
     useEffect(() => {
-  if (id) {
-     axios.get(`http://localhost:8000/shap/local/${id}`)
-      .then(res => {
-        console.log("SHAP Local:", res.data);
-        if (Array.isArray(res.data.top_features)) {
-          setTopFeatures(res.data.top_features);
-        } else {
-          setTopFeatures([]);
+        if (id) {
+            axios.get(`http://localhost:8000/shap/local/${id}`)
+                .then(res => {
+                    console.log("SHAP Local:", res.data);
+                    if (Array.isArray(res.data.top_features)) {
+                        setTopFeatures(res.data.top_features);
+                    } else {
+                        setTopFeatures([]);
+                    }
+                })
+                .catch(() => {
+                    console.log("⚠️ ดึง SHAP local ไม่สำเร็จ");
+                    setTopFeatures([]);
+                });
         }
-      })
-      .catch(() => {
-        console.log("⚠️ ดึง SHAP local ไม่สำเร็จ");
-        setTopFeatures([]);
-      });
-  }
 
-  if (record?.status) {
-    axios.get(`http://localhost:8000/shap/global/${record.status}`)
-      .then(res => setGlobalAverages(res.data))
-      .catch(() => console.log("⚠️ ดึง SHAP global ไม่สำเร็จ"));
-  }
-}, [id, record?.status]);
+        if (record?.status) {
+            axios.get(`http://localhost:8000/shap/global/${record.status}`)
+                .then(res => setGlobalAverages(res.data))
+                .catch(() => console.log("⚠️ ดึง SHAP global ไม่สำเร็จ"));
+        }
+    }, [id, record?.status]);
 
 
     const [selectedOption, setSelectedOption] = useState("ประวัติการตรวจครั้งอื่น");
@@ -126,8 +126,13 @@ function Recomendation() {
                                 </div>
 
                                 <div className="info-card">
+<<<<<<< Updated upstream
                                      <div className="label">เพศ:</div>
                                      <div className="value">{patient.gender === "male" ? "ชาย" : "หญิง"}</div>
+=======
+                                    <div className="label">เพศ:</div>
+                                    <div className="value">{patient.gender || "--"}</div>
+>>>>>>> Stashed changes
                                 </div>
                                 <div className="info-card">
                                     <div className="label">อายุ:</div>
@@ -186,10 +191,20 @@ function Recomendation() {
 
                 {/* Assessment Status */}
                 {record?.status && (
+<<<<<<< Updated upstream
                 <div className="recommendation-status">
                     <div className="status-text">อยู่ในเกณฑ์: {record.status} ({record.status === "Normal" ? "ปกติ" : "กรุณาพบแพทย์"})</div>
                     <div className="status-subtext">Assessment Status</div>
                 </div>
+=======
+                    <div className="recommendation-status">
+                        <div className="status-text">
+                            อยู่ในเกณฑ์ : {record.status}
+                        </div>
+
+                        <div className="status-subtext">Assessment Status</div>
+                    </div>
+>>>>>>> Stashed changes
                 )}
 
                 {/* ผลการตรวจ Section */}
@@ -300,22 +315,22 @@ function Recomendation() {
                                         <th>สาเหตุที่สนับสนุนให้เกิด</th>
                                     </tr>
                                 </thead>
-                              {Array.isArray(topFeatures) ? (
-  topFeatures.map((item, index) => (
-    <tr key={index}>
-      <td>
-        <strong>{item.feature}</strong><br />
-        ค่าผู้ป่วย: {item.value}<br />
-        ค่ามาตรฐาน: {globalAverages[item.feature] || "--"}<br />
-        shap: {item.shap.toFixed(3)}
-      </td>
-    </tr>
-  ))
-) : (
-  <tr>
-    <td>ไม่พบข้อมูล SHAP</td>
-  </tr>
-)}
+                                {Array.isArray(topFeatures) ? (
+                                    topFeatures.map((item, index) => (
+                                        <tr key={index}>
+                                            <td>
+                                                <strong>{item.feature}</strong><br />
+                                                ค่าผู้ป่วย: {item.value}<br />
+                                                ค่ามาตรฐาน: {globalAverages[item.feature] || "--"}<br />
+                                                shap: {item.shap.toFixed(3)}
+                                            </td>
+                                        </tr>
+                                    ))
+                                ) : (
+                                    <tr>
+                                        <td>ไม่พบข้อมูล SHAP</td>
+                                    </tr>
+                                )}
 
                             </table>
                             <div className="recommendation-feedback-section">

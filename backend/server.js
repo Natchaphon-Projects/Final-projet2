@@ -540,7 +540,11 @@ app.get("/patients/:id/records", (req, res) => {
       ORDER BY created_at DESC
       LIMIT 1
     ) p ON m.patient_id = p.patient_id
+<<<<<<< Updated upstream
     JOIN patient pt ON pt.patient_id = m.patient_id
+=======
+     JOIN patient pt ON pt.patient_id = m.patient_id
+>>>>>>> Stashed changes
     WHERE m.patient_id = ?
     ORDER BY m.created_at DESC
     LIMIT 1;
