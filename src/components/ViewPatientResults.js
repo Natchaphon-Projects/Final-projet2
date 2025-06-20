@@ -19,28 +19,26 @@ function ViewPatientResults() {
       .catch((err) => console.error("โหลดข้อมูลไม่สำเร็จ", err));
   }, [sortOrder]);
 
-  useEffect(() => {
-    setCurrentPage(1);
-  }, [searchTerm, sortOrder]);
-
- 
-// 🔁 กรองให้เหลือเพียงรายการเดียวต่อ patient_id + created_at ที่ซ้ำกันเป๊ะ
-const uniquePatients = [];
-const seen = new Set();
-
-patients.forEach((p) => {
-  const key = `${p.patientId}-${p.date}`;// ✅ ใช้ patient_id จริง + datetime เต็ม (มีวินาที)
-  if (!seen.has(key)) {
-    seen.add(key);
-    uniquePatients.push(p);
-  }
-});
 
 
-// 🔍 จากนั้นค่อย filter ตามชื่อ
-const filteredPatients = uniquePatients.filter((p) =>
-  p.name.toLowerCase().includes(searchTerm.toLowerCase())
-);
+
+  // 🔁 กรองให้เหลือเพียงรายการเดียวต่อ patient_id + created_at ที่ซ้ำกันเป๊ะ
+  const uniquePatients = [];
+  const seen = new Set();
+
+  patients.forEach((p) => {
+    const key = `${p.patientId}-${p.date}`;// ✅ ใช้ patient_id จริง + datetime เต็ม (มีวินาที)
+    if (!seen.has(key)) {
+      seen.add(key);
+      uniquePatients.push(p);
+    }
+  });
+
+
+  // 🔍 จากนั้นค่อย filter ตามชื่อ
+  const filteredPatients = uniquePatients.filter((p) =>
+    p.name.toLowerCase().includes(searchTerm.toLowerCase())
+  );
 
   const totalPages = Math.ceil(filteredPatients.length / itemsPerPage);
   const paginatedPatients = filteredPatients.slice(
@@ -62,20 +60,20 @@ const filteredPatients = uniquePatients.filter((p) =>
       statusCount[p.status]++;
     }
   });
+  const handleViewDetails = (patient) => {
+    navigate(`/Recomendation/${patient.patientId}`, {
+      state: {
+        patient: {
+          name: patient.name,
+          gender: patient.gender,
+          age: patient.age
+        },
+        createdAt: patient.date
+      }
+    });
+  };
 
-const handleViewDetails = async (patient) => {
-  try {
-    const res = await axios.get(`http://localhost:5000/patients/${patient.patientId}`);
-    const fullPatient = {
-      ...res.data,     // ✅ ให้ข้อมูลจากฐานข้อมูลมาก่อน (เช่น age, gender)
-      ...patient       // ❗ จะไม่ override ถ้าไม่มี age อยู่ใน patient
-    }
-    navigate(`/Recomendation/${patient.patientId}`, { state: { patient: fullPatient } });
-  } catch (error) {
-    console.error("❌ โหลดข้อมูลผู้ป่วยไม่สำเร็จ:", error);
-    alert("ไม่สามารถโหลดข้อมูลผู้ป่วยเพิ่มเติมได้");
-  }
-};
+
 
 
 
@@ -118,6 +116,8 @@ const handleViewDetails = async (patient) => {
         </div>
       </div>
 
+
+
       {/* Table */}
       <div className="patient-table">
         <table>
@@ -132,6 +132,7 @@ const handleViewDetails = async (patient) => {
           </thead>
           <tbody>
             {paginatedPatients.map((p) => {
+              console.log("📦 Patient data:", p);
               const date = new Date(p.date);
               return (
                 <tr key={p.patientId}>

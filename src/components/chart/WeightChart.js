@@ -1,35 +1,41 @@
-// WeightChart.js
 import React from 'react';
 import {
   LineChart, Line, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer
 } from 'recharts';
-import './WeightChart.css';  // สำหรับแต่งหัวข้อ กับน้ำหนักปัจจุบัน
+import './WeightChart.css';
 
-const data = [
-  { month: 'ม.ค.', weight: 11 },
-  { month: 'ก.พ.', weight: 11.5 },
-  { month: 'มี.ค.', weight: 12 },
-  { month: 'เม.ย.', weight: 12.3 },
-  { month: 'พ.ค.', weight: 12.7 },
-  { month: 'มิ.ย.', weight: 13 },
-];
-
-function WeightChart() {
-  const currentWeight = data[data.length - 1].weight;
+function WeightChart({ data = [] }) {
+  const currentWeight = data.length > 0 ? data[data.length - 1].weight : 0;
 
   return (
     <div className="weight-chart-container">
       <div className="weight-chart-title">📊 กราฟน้ำหนัก (กิโลกรัม)</div>
 
-      <ResponsiveContainer width="100%" height={200}>
-        <LineChart data={data} margin={{ top: 20, right: 20, left: 0, bottom: 20 }}>
-          <CartesianGrid strokeDasharray="3 3" />
-          <XAxis dataKey="month" />
-          <YAxis domain={[0, 16]} />
-          <Tooltip />
-          <Line type="monotone" dataKey="weight" stroke="#10b981" strokeWidth={3} dot={{ r: 6 }} />
-        </LineChart>
-      </ResponsiveContainer>
+      <div className="chart-wrapper">
+        <ResponsiveContainer width="100%" height={250}>
+          <LineChart data={data} margin={{ top: 10, right: 30, left: 20, bottom: 20 }}>
+            <CartesianGrid strokeDasharray="3 3" />
+            <XAxis
+              dataKey="date"
+              tickFormatter={(dateStr) =>
+                new Date(dateStr).toLocaleDateString('th-TH', {
+                  day: '2-digit',
+                  month: 'short',
+                })
+              }
+            />
+            <YAxis domain={[0, 'dataMax + 5']} />
+            <Tooltip />
+            <Line
+              type="monotone"
+              dataKey="weight"
+              stroke="#007bff"
+              strokeWidth={3}
+              dot={{ r: 6 }}
+            />
+          </LineChart>
+        </ResponsiveContainer>
+      </div>
 
       <div className="current-weight-label">
         น้ำหนักปัจจุบัน<br />

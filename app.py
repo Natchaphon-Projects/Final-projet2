@@ -8,7 +8,6 @@ import numpy as np
 import pandas as pd
 import os
 import warnings
-from fastapi import FastAPI
 import sys
 
 sys.path.append(".")
@@ -33,7 +32,7 @@ app.add_middleware(
 
 
 app.include_router(shap_local.router)
-app.include_router(shap_global.router)
+app.include_router(shap_global.router, prefix="/shap")
 
 # ✅ Static
 if not os.path.exists("static"):
@@ -81,12 +80,10 @@ try:
         if df_features[col].dtype == object:
             print(f"⚠️ คอลัมน์ {col} ยังมี string:", df_features[col].unique()[:5])
 
-    scaler = StandardScaler()
-    scaler.fit(df_features)
-    print("✅ Scaler trained from raw data")
+    scaler = load("src/model/scaler.joblib")  # ใช้ path จากที่อัปโหลดมา
+    print("✅ Scaler loaded from file successfully")
 except Exception as e:
     print(f"❌ Scaler training error: {e}")
-    scaler = None
 
 # ✅ Ping
 @app.get("/ping")

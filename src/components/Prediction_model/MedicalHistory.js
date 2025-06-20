@@ -12,44 +12,61 @@ import { CgDanger, FaChevronRight } from "react-icons/fa";
 
 
 const MedicalHistory = () => {
-const [childName, setChildName] = useState("ไม่ทราบชื่อ");
-const [medicalHistory, setMedicalHistory] = useState([]);
+  const [childName, setChildName] = useState("ไม่ทราบชื่อ");
+  const [medicalHistory, setMedicalHistory] = useState([]);
+  const [selectedNote, setSelectedNote] = useState("");
+  const [showPopup, setShowPopup] = useState(false);
+  const [selectedCreatedAt, setSelectedCreatedAt] = useState("");
 
-const normalCount = medicalHistory.filter((r) => r.status === "ปกติ").length;
 
-useEffect(() => {
-  const patientId = localStorage.getItem("childId");
+  const normalCount = medicalHistory.filter((r) => r.status === "ปกติ").length;
 
-  if (!patientId) return;
+  useEffect(() => {
+    const patientId = localStorage.getItem("childId");
+    if (!patientId) return;
 
-  // ดึงชื่อเด็ก
-  axios.get(`http://localhost:5000/patients/${patientId}`)
-    .then((res) => {
-      const child = res.data;
-      setChildName(`${child.prefix_name_child}${child.first_name_child} ${child.last_name_child}`);
-    })
-    .catch((err) => console.error("โหลดชื่อเด็กล้มเหลว", err));
+    // โหลดชื่อเด็ก (ทำครั้งเดียว)
+    axios.get(`http://localhost:5000/patients/${patientId}`)
+      .then((res) => {
+        const child = res.data;
+        setChildName(`${child.prefix_name_child}${child.first_name_child} ${child.last_name_child}`);
+      })
+      .catch((err) => console.error("โหลดชื่อเด็กล้มเหลว", err));
 
-  // ดึงผลการประเมิน
-  axios.get("http://localhost:5000/predictions?order=desc")
-    .then((res) => {
-      const all = res.data;
-      const filtered = all.filter((item) => item.patientId?.toString() === patientId);
-      const mapped = filtered.map((item, index) => ({
-        id: index + 1,
-        date: new Date(item.date).toLocaleDateString("th-TH"),
-        time: new Date(item.date).toLocaleTimeString("th-TH", { hour: "2-digit", minute: "2-digit" }),
-        doctor: "หมอยังไม่ระบุ", // จะดึงจาก doctor_id ได้ในอนาคต
-        status: item.status === "Normal" ? "ปกติ" : "กรุณาพบแพทย์",
-        isLatest: index === 0
-      }));
-      setMedicalHistory(mapped);
-    })
-    .catch((err) => console.error("โหลดประวัติล้มเหลว", err));
-}, []);
+    const fetchData = () => {
+      axios.get("http://localhost:5000/predictions?order=desc")
+        .then((res) => {
+          const all = res.data;
+          const filtered = all.filter((item) => item.patientId?.toString() === patientId);
+          const mapped = filtered.map((item, index) => ({
+            id: index + 1,
+            createdAt: item.date, // <-- raw datetime จริงจาก MySQL
+            date: new Date(item.date).toLocaleDateString("th-TH"),
+            time: new Date(item.date).toLocaleTimeString("th-TH", { hour: "2-digit", minute: "2-digit" }),
+            doctor: "หมอยังไม่ระบุ",
+            status: item.status === "Normal" ? "ปกติ" : "กรุณาพบแพทย์",
+            public_note: item.public_note || "",
+            note_updated_at: item.note_updated_at || item.date, // ✅ ต้องระบุแบบนี้
+            isLatest: index === 0
+          }));
+
+          setMedicalHistory(mapped);
+        })
+        .catch((err) => console.error("โหลดประวัติล้มเหลว", err));
+    };
+
+    fetchData(); // ดึงครั้งแรก
+    const interval = setInterval(fetchData, 2000); // ทุก 2 วินาที
+
+
+    return () => clearInterval(interval); // ล้าง interval ตอน component ถูกถอด
+  }, []);
+
 
   const abnormalCount = medicalHistory.length - normalCount;
   const latest = medicalHistory.find((r) => r.isLatest);
+  const [selectedDate, setSelectedDate] = useState("");
+  const [selectedTime, setSelectedTime] = useState("");
 
   return (
     <>
@@ -132,11 +149,48 @@ useEffect(() => {
                   )}
                 </div>
               </div>
+              <button
+                className="note-button"
+                onClick={() => {
+                  setSelectedNote({
+                    text: item.public_note?.trim() || "",
+                    updatedAt: item.note_updated_at
+                  });
+                  setSelectedCreatedAt(item.createdAt);
+
+                  setShowPopup(true);
+                }}
+              >
+                📝 ดูคำแนะนำ
+              </button>
+
+
+
             </div>
           ))}
         </div>
 
       </main>
+
+      {showPopup && (
+        <div className="popup-overlay">
+          <div className="popup-box">
+            <h2>📝 คำแนะนำจากแพทย์</h2>
+            <p className="note-date">
+              📅 วันที่: {new Date(selectedNote.updatedAt || selectedCreatedAt).toLocaleDateString("th-TH")} ⏰ เวลา: {new Date(selectedNote.updatedAt || selectedCreatedAt).toLocaleTimeString("th-TH", { hour: "2-digit", minute: "2-digit" })}
+            </p>
+            <p>
+              {selectedNote.text && selectedNote.text.trim() !== ""
+                ? selectedNote.text
+                : "กรุณารอคุณหมอให้คำแนะนำในครั้งถัดไปนะครับ 😊"}
+            </p>
+
+            <button className="close-btn" onClick={() => setShowPopup(false)}>ปิด</button>
+          </div>
+        </div>
+      )}
+
+
       <Footer />
     </>
   );

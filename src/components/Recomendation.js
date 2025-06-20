@@ -1,8 +1,6 @@
 import { useParams } from "react-router-dom";
 import axios from "axios";
 import { useNavigate } from 'react-router-dom';
-import { useEffect } from "react";
-import React, { useState } from 'react';
 import './Recomendation.css';
 import Header from "../components/layout/Header";
 import Footer from "../components/layout/Footer";
@@ -10,15 +8,16 @@ import WeightChart from '../components/chart/WeightChart';
 import HeightChart from '../components/chart/HeightChart';
 import Sunglasscat from '../assets/cat-sunglass.jpg';
 import { useLocation } from "react-router-dom";
+import React, { useState, useEffect } from "react";
 
 const valueMap = {
   // ✅ dropdown
   Number_of_Times_Eaten_Solid_Food: {
     label: "จำนวนมื้ออาหารแข็ง",
     values: {
-      0: "ไม่ได้บริโภค",
-      1: "1-2 มื้อ",
-      2: "3-4 มื้อ",
+      0: "1-2 มื้อ",
+      1: "3-4 มื้อ",
+      2: "ไม่ได้บริโภค",
       3: "4 มื้อขึ้นไป"
     }
   },
@@ -61,7 +60,7 @@ const valueMap = {
   Received_Grubs_Snails_Insects: { label: "ได้รับแมลง/หอยทาก", values: { 0: "ไม่ได้บริโภค", 1: "บริโภค" } },
   Received_Other_Solid_Semi_Solid_Food: { label: "ได้รับอาหารอื่นๆ", values: { 0: "ไม่ได้บริโภค", 1: "บริโภค" } },
   Received_Salt: { label: "ได้รับเกลือ", values: { 0: "ไม่ได้บริโภค", 1: "บริโภค" } },
-  Received_Animal_Milk: { label: "ได้รับนมวัว/แพะ", values: { 0: "ไม่ได้บริโภค", 1: "บริโภค" } },
+  Received_Animal_Milk: { label: "ได้รับนมสัตว์", values: { 0: "ไม่ได้บริโภค", 1: "บริโภค" } },
   Received_Dairy_Products: { label: "ได้รับผลิตภัณฑ์นม", values: { 0: "ไม่ได้บริโภค", 1: "บริโภค" } },
   Given_Anything_to_Drink_in_First_6_Months: { label: "ดื่มของเหลวใน 6 เดือนแรก", values: { 0: "ไม่ได้บริโภค", 1: "บริโภค" } },
   Received_Plain_Water: { label: "ได้รับน้ำเปล่า", values: { 0: "ไม่ได้บริโภค", 1: "บริโภค" } },
@@ -85,56 +84,377 @@ const valueMap = {
   Received_Yogurt_Count: { label: "จำนวนครั้งบริโภคโยเกิร์ต" }
 };
 
+function normalizeTimestamp(ts) {
+  const d = new Date(ts);
+  const yyyy = d.getFullYear();
+  const mm = String(d.getMonth() + 1).padStart(2, '0');
+  const dd = String(d.getDate()).padStart(2, '0');
+  const hh = String(d.getHours()).padStart(2, '0');
+  const mi = String(d.getMinutes()).padStart(2, '0');
+  const ss = String(d.getSeconds()).padStart(2, '0');
+  return `${yyyy}-${mm}-${dd} ${hh}:${mi}:${ss}`;
+}
+
+
+
 
 function Recomendation() {
+  const [dotText, setDotText] = useState("");
+  const [initialLoading, setInitialLoading] = useState(true);
   const [topFeatures, setTopFeatures] = useState([]);
   const [globalAverages, setGlobalAverages] = useState({});
+  const [privateNote, setPrivateNote] = useState("");
+  const [publicNote, setPublicNote] = useState("");
+  const [isSaving, setIsSaving] = useState(false);
+  const [weightHistory, setWeightHistory] = useState([]);   // ✅ ใส่ตรงนี้
+  const [heightHistory, setHeightHistory] = useState([]);   // ✅ ใส่ตรงนี้
+  const [isLoading, setIsLoading] = useState(false);
   const location = useLocation();
+  const createdAt = location.state?.createdAt;
   const patient = location.state?.patient;
   const { id } = useParams();
   const [record, setRecord] = useState(null);
-  const [showFullTable, setShowFullTable] = useState(false);
-  const [isDropdownOpen, setIsDropdownOpen] = useState(false);
+  const [timestamps, setTimestamps] = useState([]);
+  const [mostGlobalFeatures, setMostGlobalFeatures] = useState([]);
+
   useEffect(() => {
     if (id) {
-      axios.get(`http://localhost:8000/shap/local/${id}`)
+      axios.get(`http://localhost:5000/patients/${id}/records/timestamps`)
         .then(res => {
-          console.log("SHAP Local:", res.data);
-          if (Array.isArray(res.data.top_features)) {
-            const sorted = res.data.top_features.sort((a, b) => b.shap - a.shap);
-            setTopFeatures(sorted);
-          } else {
-            setTopFeatures([]);
-          }
+          setTimestamps(res.data); // เป็น array ของ created_at
         })
-        .catch(() => {
-          console.log("⚠️ ดึง SHAP local ไม่สำเร็จ");
-          setTopFeatures([]);
+        .catch(err => console.error("❌ ดึง timestamps ไม่สำเร็จ:", err));
+    }
+  }, [id]);
+
+
+  // ถ้าไม่มี createdAt และมี timestamps แล้ว → ดึง record ล่าสุด
+  useEffect(() => {
+    if (id && !createdAt && timestamps.length > 0) {
+      const latest = normalizeTimestamp(timestamps[0]);
+      setShapTime(latest);
+
+      axios.get(`http://localhost:5000/patients/${id}/records`, {
+        params: { created_at: latest }
+      })
+        .then((res) => {
+          console.log("📦 record (ล่าสุด):", res.data);
+          setRecord(res.data);
+          setPrivateNote(res.data.private_note || "");
+          setPublicNote(res.data.public_note || "");
+        })
+        .catch((err) => {
+          console.error("❌ โหลด record ล่าสุดไม่สำเร็จ:", err);
         });
     }
+  }, [id, createdAt, timestamps]);
 
-    if (record?.status) {
-      axios.get(`http://localhost:8000/shap/global/${record.status}`)
-        .then(res => setGlobalAverages(res.data))
-        .catch(() => console.log("⚠️ ดึง SHAP global ไม่สำเร็จ"));
+  useEffect(() => {
+    if (!record || !record.status) return;
+
+    axios.get(`http://localhost:8000/shap/global/most/${record.status}`)
+      .then(res => {
+        const features = res.data.top_features || [];
+        setMostGlobalFeatures(features);
+      })
+      .catch(() => console.log("⚠️ ดึง SHAP global most ไม่สำเร็จ"));
+  }, [record]);
+
+  useEffect(() => {
+    if (timestamps.length > 0 && !shapTime) {
+      setShapTime(timestamps[0]); // อันแรกคือล่าสุด เพราะ DESC
     }
-  }, [id, record?.status]);
+  }, [timestamps]);
+
+  const [showFullTable, setShowFullTable] = useState(false);
+  const [isDropdownOpen, setIsDropdownOpen] = useState(false);
+  const [topGlobalFeatures, setTopGlobalFeatures] = useState([]);
+  const [bottomGlobalFeatures, setBottomGlobalFeatures] = useState([]);
+  const [shapTime, setShapTime] = useState(null); // สำหรับเวลาที่จะส่งไป
+  const normalizedTimestamps = timestamps.map(normalizeTimestamp);
+  const normalizedShapTime = shapTime ? normalizeTimestamp(shapTime) : null;
+  const combinedTimestamps = Array.from(new Set([...normalizedTimestamps, normalizedShapTime])).filter(Boolean);
+  const sortedTimestamps = combinedTimestamps.sort((a, b) => new Date(b) - new Date(a));
+  const statusMap = {
+    Normal: "ปกติ",
+    Obesity: "อ้วน",
+    Overweight: "น้ำหนักมากเกินไป",
+    SAM: "ภาวะทุพโภชนาการเฉียบพลันรุนแรง",
+    Stunting: "แคระแกร็น",
+    Underweight: "น้ำหนักน้อยเกินไป"
+  };
+  const [normalAverages, setNormalAverages] = useState({});
+  useEffect(() => {
+    if (id && shapTime) {
+      axios.get(`http://localhost:8000/shap/local/${id}`, {
+        params: { created_at: shapTime }
+      })
+        .then(res => {
+          const sorted = res.data.top_features.sort((a, b) => Math.abs(b.shap) - Math.abs(a.shap));
+          setTopFeatures(sorted);
+        })
+        .catch(() => setTopFeatures([]));
+    }
+  }, [id, shapTime]);
+
+  // 👉 ดึง SHAP global จาก status ของ record
+  useEffect(() => {
+    if (!record || !record.status) return;
+
+    axios.get(`http://localhost:8000/shap/global/${record.status}`)
+      .then(res => {
+        const all = res.data.summary_by_feature || [];
+
+        const sorted = [...all].sort((a, b) => b.mean_shap_at_mode - a.mean_shap_at_mode);
+        const top5 = sorted.slice(0, 5);
+
+        const bottom5 = [...all]
+          .sort((a, b) => a.mean_shap_at_mode - b.mean_shap_at_mode)
+          .slice(0, 5);
+
+        setTopGlobalFeatures(top5);
+        setBottomGlobalFeatures(bottom5);
+      })
+      .catch(() => console.log("⚠️ ดึง SHAP global ไม่สำเร็จ"));
+  }, [record]);
+
+  useEffect(() => {
+    if (id) {
+      axios.get(`http://localhost:5000/patients/${id}/records/history`)
+        .then((res) => {
+          const historyData = res.data || [];
+          console.log("📦 history data from API:", historyData);
+
+          const weight = historyData
+            .filter(item => item.weight && item.visit_date)
+            .map(item => {
+              const parsedWeight = parseFloat(item.weight);
+              return {
+                date: item.visit_date,
+                weight: isNaN(parsedWeight) ? 0 : parsedWeight,
+              };
+            });
+
+          const height = historyData
+            .filter(item => item.height && item.visit_date)
+            .map(item => {
+              const parsedHeight = parseFloat(item.height);
+              return {
+                date: item.visit_date,
+                height: isNaN(parsedHeight) ? 0 : parsedHeight,
+              };
+            });
+
+          console.log("📊 weight array:", weight);
+          console.log("📏 height array:", height);
+
+          setWeightHistory(weight);
+          setHeightHistory(height);
+        })
+        .catch(err => console.error("❌ ดึงประวัติกราฟไม่สำเร็จ:", err));
+    }
+  }, [id]);
+
+
+  useEffect(() => {
+    axios.get("http://localhost:8000/shap/only/normal")
+      .then(res => {
+        const normalData = res.data?.top_features || [];
+        const map = {};
+        normalData.forEach(item => {
+          map[item.feature] = item.real_value_original ?? item.real_value;
+        });
+        setNormalAverages(map); // ✅ ใช้ state ใหม่
+      })
+      .catch(() => console.warn("⚠️ ดึง SHAP normal ไม่สำเร็จ"));
+  }, []);
 
 
   const [selectedOption, setSelectedOption] = useState("ประวัติการตรวจครั้งอื่น");
 
+  useEffect(() => {
+    const allLoaded =
+      record !== null &&
+      topFeatures.length > 0 &&
+      mostGlobalFeatures.length > 0 &&
+      (topGlobalFeatures.length > 0 || bottomGlobalFeatures.length > 0) &&
+      weightHistory.length > 0 &&
+      heightHistory.length > 0 &&
+      timestamps.length > 0;
+
+    if (allLoaded) {
+      setInitialLoading(false); // ✅ ปิด loading ได้เมื่อทุกอย่างเสร็จ
+    }
+  }, [
+    record,
+    topFeatures,
+    mostGlobalFeatures,
+    topGlobalFeatures,
+    bottomGlobalFeatures,
+    weightHistory,
+    heightHistory,
+    timestamps
+  ]);
 
 
   useEffect(() => {
-    if (id) {
-      axios.get(`http://localhost:5000/patients/${id}/records`)
+    if (id && createdAt) {
+      // ➕ format datetime เป็น yyyy-MM-dd HH:mm:ss
+      const dateObj = new Date(createdAt);
+      const yyyy = dateObj.getFullYear();
+      const mm = String(dateObj.getMonth() + 1).padStart(2, '0');
+      const dd = String(dateObj.getDate()).padStart(2, '0');
+      const hh = String(dateObj.getHours()).padStart(2, '0');
+      const mi = String(dateObj.getMinutes()).padStart(2, '0');
+      const ss = String(dateObj.getSeconds()).padStart(2, '0');
+      const formatted = `${yyyy}-${mm}-${dd} ${hh}:${mi}:${ss}`;
+
+      console.log("📌 createdAt formatted:", formatted);
+      setShapTime(formatted);
+
+      // ✅ ใช้ created_at นี้ในการดึง record เฉพาะรอบ
+      axios.get(`http://localhost:5000/patients/${id}/records`, {
+        params: { created_at: formatted }
+      })
         .then((res) => {
-          console.log("📦 ข้อมูลล่าสุดที่ได้:", res.data); // ตรวจสอบข้อมูลจริง
-          setRecord(res.data); // ✅ ไม่ต้อง .data[0] แล้ว เพราะ backend ส่ง object มาแล้ว
+          console.log("📦 record from created_at:", res.data);
+          setRecord(res.data);
+          setPrivateNote(res.data.private_note || "");
+          setPublicNote(res.data.public_note || "");
         })
-        .catch((err) => console.error("โหลดประวัติไม่สำเร็จ", err));
+
+        .catch((err) => console.error("❌ โหลดข้อมูล record ไม่สำเร็จ:", err));
     }
-  }, [id]);
+  }, [id, createdAt]);
+
+  useEffect(() => {
+    if (id && !createdAt && timestamps.length > 0) {
+      const latest = normalizeTimestamp(timestamps[0]); // ล่าสุด
+      setShapTime(latest);
+
+      axios.get(`http://localhost:5000/patients/${id}/records`, {
+        params: { created_at: latest }
+      })
+        .then((res) => {
+          setRecord(res.data);
+          setPrivateNote(res.data.private_note || "");
+          setPublicNote(res.data.public_note || "");
+        })
+        .catch((err) => {
+          console.error("❌ โหลดข้อมูลล่าสุดไม่สำเร็จ:", err);
+        });
+    }
+  }, [id, createdAt, timestamps]);
+
+
+  useEffect(() => {
+    if (id && shapTime) {
+      setIsLoading(true); // 🌀 เริ่มโหลด
+
+      const normalized = normalizeTimestamp(shapTime);
+      // 🔁 โหลดข้อมูลผู้ป่วย ณ เวลานั้น
+      axios.get(`http://localhost:5000/patients/${id}/records`, {
+        params: { created_at: normalized }
+      })
+        .then((res) => {
+          setRecord(res.data);
+
+          // 🔁 โหลด SHAP local ใหม่
+          return axios.get(`http://localhost:8000/shap/local/${id}`, {
+            params: { created_at: shapTime }
+          });
+        })
+        .then((res) => {
+          const sorted = res.data.top_features.sort((a, b) => Math.abs(b.shap) - Math.abs(a.shap));
+          setTopFeatures(sorted);
+        })
+        .catch((err) => {
+          console.error("❌ โหลดข้อมูล record หรือ SHAP ไม่สำเร็จ:", err);
+          setRecord(null);
+          setTopFeatures([]);
+        })
+        .finally(() => {
+          setIsLoading(false); // ✅ จบโหลด
+        });
+    }
+  }, [id, shapTime]);
+
+
+  useEffect(() => {
+    // เริ่มหมุนจุด ...
+    const frames = ["", ".", "..", "..."];
+    let index = 0;
+
+    const interval = setInterval(() => {
+      index = (index + 1) % frames.length;
+      setDotText(frames[index]);
+    }, 500); // ทุก 0.5 วิ
+
+    return () => clearInterval(interval);
+  }, []);
+
+  if (initialLoading) {
+    return (
+      <div style={{
+        background: 'linear-gradient(135deg, #e0fff5, #f0fffc)',
+        height: '100vh',
+        width: '100vw',
+        display: 'flex',
+        justifyContent: 'center',
+        alignItems: 'center',
+        fontFamily: "'Prompt', sans-serif"
+      }}>
+        <div style={{
+          background: 'rgba(255, 255, 255, 0.75)',
+          backdropFilter: 'blur(12px)',
+          borderRadius: '24px',
+          padding: '40px 30px',
+          boxShadow: '0 10px 30px rgba(0, 0, 0, 0.08)',
+          textAlign: 'center',
+          animation: 'zoomIn 0.5s ease-out',
+          minWidth: '320px'
+        }}>
+          <img
+            src="/doctor-penguin.gif"
+            alt="กำลังโหลด"
+            style={{ width: 130, marginBottom: '20px' }}
+          />
+          <h2 style={{
+            fontSize: '22px',
+            fontWeight: '700',
+            color: '#075e54',
+            marginBottom: '10px'
+          }}>
+            กำลังโหลดผลการประเมิน
+            <span style={{ marginLeft: 6 }}>{dotText}</span>
+            <span style={{ visibility: 'hidden', marginLeft: 6 }}>...</span>
+          </h2>
+          <p style={{
+            fontSize: '15px',
+            color: '#444',
+            lineHeight: '1.6'
+          }}>
+            กรุณารอสักครู่ ข้อมูลสุขภาพของผู้ป่วยกำลังมา...
+          </p>
+        </div>
+
+        {/* CSS Animation */}
+        <style>{`
+          @keyframes zoomIn {
+            0% {
+              transform: scale(0.9);
+              opacity: 0;
+            }
+            100% {
+              transform: scale(1);
+              opacity: 1;
+            }
+          }
+        `}</style>
+      </div>
+    );
+  }
+
 
 
   if (!patient) {
@@ -151,8 +471,39 @@ function Recomendation() {
     setIsDropdownOpen(false);
   };
 
+  const handleSaveNotes = () => {
+    if (!id || !shapTime) return;  // ✅ ต้องมีเวลาที่ตรงกับใน DB
+    setIsSaving(true);
 
-const displayedFeatures = showFullTable ? topFeatures : topFeatures.slice(0, 5);
+    axios.put(`http://localhost:5000/patients/${id}/records/note`, {
+      created_at: shapTime,  // ✅ ใช้เวลาที่ตรงกับ DB
+      private_note: privateNote,
+      public_note: publicNote
+    })
+      .then(() => {
+        alert("✅ บันทึกสำเร็จแล้ว");
+        return axios.get(`http://localhost:5000/patients/${id}/records`, {
+          params: { created_at: shapTime }
+        });
+      })
+      .then((res) => {
+        setPrivateNote(res.data.private_note || "");
+        setPublicNote(res.data.public_note || "");
+      })
+      .catch(() => {
+        alert("❌ เกิดข้อผิดพลาดในการบันทึก");
+      })
+      .finally(() => {
+        setIsSaving(false);
+      });
+  };
+
+  // ✅ ใช้ topFeatures โดยตรง
+  const displayedFeatures = showFullTable ? topFeatures : topFeatures.slice(0, 14);
+
+
+  console.log("🧩 topFeatures:", topFeatures);
+  console.log("🧮 displayedFeatures:", displayedFeatures);
 
 
   return (
@@ -165,6 +516,13 @@ const displayedFeatures = showFullTable ? topFeatures : topFeatures.slice(0, 5);
           ดูผลลัพธ์การประเมินของผู้ป่วย
         </div>
 
+        {isLoading && (
+          <div style={{ textAlign: 'center', margin: '20px 0', fontSize: '18px', color: '#888' }}>
+            🔄 กำลังโหลดข้อมูล...
+          </div>
+        )}
+
+
         {/* Patient Info + Graph */}
         <div className="recommendation-patient-wrapper">
 
@@ -176,10 +534,12 @@ const displayedFeatures = showFullTable ? topFeatures : topFeatures.slice(0, 5);
             <div className="patient-profile">
               <div className="patient-health-badge">ข้อมูลสุขภาพ</div>
               <div className="patient-date">
-                วันที่ {new Date().toLocaleDateString('th-TH')}
-
-
+                วันที่ {shapTime ? new Date(shapTime).toLocaleString('th-TH', { dateStyle: 'long', timeStyle: 'short' }) : "--"}
               </div>
+
+
+
+
               <img
                 src={Sunglasscat}
                 alt="Patient Avatar"
@@ -232,12 +592,9 @@ const displayedFeatures = showFullTable ? topFeatures : topFeatures.slice(0, 5);
 
 
           {/* ขวา: Graph */}
-          <div className="patient-graph-section">
-            <WeightChart />
-          </div>
-          <div className="patient-graph-section">
-            <HeightChart />
-          </div>
+          <WeightChart data={weightHistory} />
+          <HeightChart data={heightHistory} />
+
         </div>
 
         {/* Action Buttons */}
@@ -245,27 +602,38 @@ const displayedFeatures = showFullTable ? topFeatures : topFeatures.slice(0, 5);
 
         <div className="recommendation-action-buttons">
           <div className="dropdown-wrapper">
-            <select className="recommendation-dropdown">
-              <option value="">ประวัติการตรวจครั้งอื่น</option>
-              <option value="history">ประวัติ</option>
-              <option value="checkup">การตรวจสุขภาพ</option>
-              <option value="edit">แก้ไขข้อมูล</option>
+            <select
+              className="recommendation-dropdown"
+              value={shapTime || ""}
+              onChange={(e) => setShapTime(e.target.value)}
+            >
+              <option value="">-- เลือกวันที่และเวลา --</option>
+
+              {sortedTimestamps.map((ts, idx) => (
+                <option
+                  key={idx}
+                  value={ts}
+                  style={{
+                    backgroundColor: shapTime === ts ? "#d1fae5" : "white", // ✅ เขียวอ่อนถ้าเลือกอยู่
+                  }}
+                >
+                  {new Date(ts).toLocaleString("th-TH")}
+                </option>
+              ))}
             </select>
+
+
           </div>
 
-          <div className="action-buttons-wrapper">
-            <button className="recommendation-action-btn">ดูประวัติเพิ่มเติม</button>
-            <button className="recommendation-action-btn">ดูประวัติการตรวจย้อนหลัง</button>
-            <button className="recommendation-action-btn">แก้ไขข้อมูลการซักประวัติ</button>
-          </div>
         </div>
 
         {/* Assessment Status */}
         {record?.status && (
           <div className="recommendation-status">
             <div className="status-text">
-              อยู่ในเกณฑ์ : {record.status}
+              อยู่ในเกณฑ์ : {statusMap[record?.status?.split(" ")[0]] || record.status}
             </div>
+
 
             <div className="status-subtext">Assessment Status</div>
           </div>
@@ -307,31 +675,119 @@ const displayedFeatures = showFullTable ? topFeatures : topFeatures.slice(0, 5);
                 </thead>
                 <tbody>
                   {displayedFeatures.map((item, index) => {
+                    // ✅ แปลงชื่อ feature
                     const featureLabel = valueMap[item.feature]?.label || item.feature;
-                    const patientValue = valueMap[item.feature]?.values?.[item.value] ?? item.value;
-                    const standardValue = globalAverages[item.feature] !== undefined ? globalAverages[item.feature] : "--";
+
+                    // ✅ ใช้ real_value (ค่าเดิมที่แปลงกลับจาก scaler)
+                    const realValue = item.real_value;
+
+                    // ✅ แปลค่าผู้ป่วยด้วย valueMap ถ้ามี
+                    const patientValue =
+                      valueMap[item.feature]?.values?.[realValue] ?? realValue;
+
+                    // ✅ หาค่ามาตรฐานจาก globalAverages
+                    // ✅ ใช้ globalAverages ที่ดึงมาจาก /shap/normal มาแทนค่ามาตรฐาน
+                    let normalRaw = normalAverages[item.feature];
+
+                    // ✅ พยายาม parse เป็นตัวเลข (รองรับกรณีค่ามาตรฐานเป็น float จาก scaler แล้ว invert)
+                    if (normalRaw !== undefined && typeof normalRaw === 'string' && !isNaN(normalRaw)) {
+                      normalRaw = parseFloat(normalRaw);
+                    }
+
+                    // ✅ แปลงค่ามาตรฐานเป็นภาษาไทย ถ้ามีใน valueMap
+                    const standardValue =
+                      valueMap[item.feature]?.values?.[String(normalRaw)] ??
+                      valueMap[item.feature]?.values?.[normalRaw] ??
+                      normalRaw ?? "--";
+
+
+                    console.log("🧪 Feature Mapping Debug", {
+                      feature: item.feature,
+                      standardRaw: normalRaw,
+                      patientValue,
+                      valueMap: valueMap[item.feature]?.values,
+                      mappedStandardValue: valueMap[item.feature]?.values?.[String(normalRaw)],
+                    });
+
 
                     return (
                       <tr key={index}>
                         <td>{featureLabel}</td>
+                        <td><span className="badge">{patientValue}</span></td>
+                        <td><span className="badge-green">{standardValue}</span></td>
                         <td>
-                          <span className="badge">{patientValue}</span>
-                        </td>
-                        <td>
-                          <span className="badge-green">
-  {valueMap[item.feature]?.values?.[standardValue] ?? standardValue}
-</span>
+                          {(() => {
+                            const normalVal = normalAverages[item.feature];
+                            const globalFeature = mostGlobalFeatures.find(f => f.feature === item.feature);
+                            const globalVal = globalFeature?.real_value_original;
+                            const shap = item.shap;
+                            const status = record?.status;
+                            const statusName = statusMap[status?.split(" ")[0]] || status;
+
+                            const featureLabel = valueMap[item.feature]?.label || item.feature;
+                            const patientValue = valueMap[item.feature]?.values?.[realValue] ?? realValue;
+                            const standardValueText = valueMap[item.feature]?.values?.[String(normalVal)] ?? valueMap[item.feature]?.values?.[normalVal] ?? normalVal;
+
+                            const isStringStandard = typeof standardValueText === "string";
+                            let msg = "";
+
+                            // 🧠 1. เปรียบเทียบกับ global
+                            if (
+                              normalVal !== undefined &&
+                              globalVal !== undefined &&
+                              Number(normalVal) === Number(globalVal)
+                            ) {
+                              msg = <span style={{ color: "#FF0033" }}>ควรพิจารณาร่วมกับข้อมูลอื่น</span>;
+                            }
+
+                            // 🧠 2. คำแนะนำจาก shap
+                            let shapNote = "";
+                            if (shap > 0) {
+                              shapNote = <>ส่งผลให้เป็น <span style={{ color: "#007bff" }}>{statusName}</span></>;
+                            } else if (shap < 0) {
+                              shapNote = <>ส่งผลให้ไม่เป็น <span style={{ color: "#007bff" }}>{statusName}</span></>;
+                            } else {
+                              shapNote = <>ไม่ส่งผลต่อ <span style={{ color: "#007bff" }}>{statusName}</span></>;
+                            }
+
+                            // 🧠 3. คำแนะนำจากการเปรียบเทียบพฤติกรรม
+                            let behaviorNote = "";
+                            if (isStringStandard) {
+                              // → เป็นค่าข้อความ เช่น "บริโภค"
+                              if (patientValue === standardValueText) {
+                                behaviorNote = "ผู้ป่วยได้ปฏิบัติตามมาตรฐาน";
+                              } else {
+                                behaviorNote = "ผู้ป่วยไม่ได้ปฏิบัติตามมาตรฐาน";
+                              }
+                            } else {
+                              const numericPatient = Number(realValue);
+                              const numericStandard = Number(normalVal);
+
+                              if (numericPatient < numericStandard) {
+                                behaviorNote = `ควรบริโภค ${featureLabel} เพิ่มขึ้น`;
+                              } else if (numericPatient > numericStandard) {
+                                behaviorNote = `ควรบริโภค ${featureLabel} ลดลง`;
+                              } else {
+                                behaviorNote = `ผู้ป่วยปฏิบัติตามค่ามาตรฐานของเด็กปกติ`;
+                              }
+                            }
+
+                            return (
+                              <>
+                                {behaviorNote} <br />
+                                {shapNote} <br />
+                                {msg && <span style={{ fontStyle: "italic", color: "#888" }}>{msg}</span>}
+                              </>
+                            );
+                          })()}
+
 
                         </td>
                       </tr>
                     );
                   })}
-
-
-
-                  {showFullTable && null}
-
                 </tbody>
+
               </table>
 
               {/* ปุ่ม toggle */}
@@ -347,39 +803,86 @@ const displayedFeatures = showFullTable ? topFeatures : topFeatures.slice(0, 5);
 
             {/* ตารางขวา (1/4) */}
             <div className="result-table-block right">
-              <table className="result-table">
+              <table className="result-table pro-table">
                 <thead>
                   <tr>
-                    <th>สาเหตุที่สนับสนุนให้เกิด</th>
+                    <th>
+                      📊 ปัจจัยที่มีผลต่อเกณฑ์{" "}
+                      <span>{statusMap[record?.status?.split(" ")[0]] || record?.status}</span>
+                    </th>
+
+                    <th>📌 ค่าที่พบบ่อยในกลุ่มนี้</th>
                   </tr>
                 </thead>
-                {Array.isArray(topFeatures) ? (
-                  (showFullTable ? topFeatures : topFeatures.slice(0, 5)).map((item, index) => (
-                    <tr key={index}>
-                      <td>
-                        <strong>{item.feature}</strong><br />
-                        ค่าผู้ป่วย: {item.value}<br />
-                        ค่ามาตรฐาน: {globalAverages[item.feature] || "--"}<br />
-                        shap: {item.shap.toFixed(3)}
-                      </td>
-                    </tr>
-                  ))
-                ) : (
-                  <tr>
-                    <td>ไม่พบข้อมูล SHAP</td>
+                <tbody>
+                  {/* 🔼 หัวข้อ Top 5 */}
+                  <tr className="section-header top-header">
+                    <td colSpan="2">🔼 Top 5 ปัจจัยที่มีผลมากที่สุด</td>
                   </tr>
-                )}
+                  {topGlobalFeatures.map((item, index) => {
+                    const featureName = valueMap[item.feature]?.label || item.feature;
+                    const modeVal = item.mode_in_IQR ?? "--";
+                    const translatedMode =
+                      valueMap[item.feature]?.values?.[String(modeVal)] ??
+                      valueMap[item.feature]?.values?.[modeVal] ??
+                      modeVal;
 
+                    return (
+                      <tr key={`top-${index}`} className="top-row">
+                        <td><span className="arrow-up">↑</span> {featureName}</td>
+                        <td><span className="value-badge">{translatedMode}</span></td>
+                      </tr>
+                    );
+                  })}
+
+                  {/* 🔽 หัวข้อ Bottom 5 */}
+                  <tr className="section-header bottom-header">
+                    <td colSpan="2">🔽 Bottom 5 ปัจจัยที่มีผลน้อยที่สุด</td>
+                  </tr>
+                  {bottomGlobalFeatures.map((item, index) => {
+                    const featureName = valueMap[item.feature]?.label || item.feature;
+                    const modeVal = item.mode_in_IQR ?? "--";
+                    const translatedMode =
+                      valueMap[item.feature]?.values?.[String(modeVal)] ??
+                      valueMap[item.feature]?.values?.[modeVal] ??
+                      modeVal;
+
+
+                    return (
+                      <tr key={`bottom-${index}`} className="bottom-row">
+                        <td><span className="arrow-down">↓</span> {featureName}</td>
+                        <td><span className="value-badge">{translatedMode}</span></td>
+                      </tr>
+                    );
+                  })}
+                </tbody>
               </table>
+
+
               <div className="recommendation-feedback-section">
-                <div className="feedback-title">ข้อเสนอแนะ / บันทึกเพิ่มเติม</div>
+                <div className="feedback-title">📌 ข้อเสนอแนะสำหรับผู้ปกครอง</div>
                 <textarea
                   className="feedback-textarea"
-                  placeholder="พิมพ์ข้อเสนอแนะหรือบันทึกเพิ่มเติมที่นี่..."
-                  rows="5"
-                ></textarea>
-                <button className="feedback-submit-btn">บันทึกข้อเสนอแนะ</button>
+                  value={publicNote}
+                  onChange={(e) => setPublicNote(e.target.value)}
+                  placeholder="ข้อเสนอแนะที่ผู้ปกครองควรทราบ..."
+                  rows="3"
+                />
+
+                <div className="feedback-title">🔒 บันทึกส่วนตัวสำหรับหมอ</div>
+                <textarea
+                  className="feedback-textarea"
+                  value={privateNote}
+                  onChange={(e) => setPrivateNote(e.target.value)}
+                  placeholder="บันทึกเฉพาะแพทย์ เช่น รายละเอียดการประเมิน..."
+                  rows="3"
+                />
+
+                <button className="feedback-submit-btn" onClick={handleSaveNotes}>
+                  💾 บันทึกข้อเสนอแนะ
+                </button>
               </div>
+
 
             </div>
 
@@ -389,7 +892,7 @@ const displayedFeatures = showFullTable ? topFeatures : topFeatures.slice(0, 5);
 
       </div> {/* end .recommendation-page */}
       <Footer />
-    </div>
+    </div >
   );
 }
 

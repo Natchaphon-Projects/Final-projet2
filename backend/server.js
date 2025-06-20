@@ -22,6 +22,7 @@ db.connect((err) => {
     console.error("❌ Database connection failed:", err);
   } else {
     console.log("✅ Connected to MySQL database.");
+    db.query("SET time_zone = '+07:00'");
   }
 });
 
@@ -160,7 +161,7 @@ app.put("/patients/:id", (req, res) => {
     WHERE patient_id = ?
   `;
 
-   db.query(patientQuery, [
+  db.query(patientQuery, [
     childPrefix,
     name,
     lastName,
@@ -263,24 +264,31 @@ app.get("/parents/:hn", (req, res) => {
   });
 });
 
-// ✅ GET: รวมผล prediction (เรียงวันที่ได้)
 app.get("/predictions", (req, res) => {
   const order = req.query.order === "asc" ? "ASC" : "DESC";
   const query = `
-    SELECT 
+   SELECT 
       p.patient_id AS patientId,
       CONCAT(p.first_name_child, ' ', p.last_name_child) AS name,
+      p.gender,
+      p.age,
       pr.created_at AS date,
-      pr.Status_personal AS status
-    FROM patient p
-    JOIN prediction pr ON p.patient_id = pr.patient_id
+      pr.Status_personal AS status,
+      mr.public_note,
+      mr.note_updated_at
+    FROM prediction pr
+    JOIN patient p ON p.patient_id = pr.patient_id
+    LEFT JOIN medical_records mr 
+      ON mr.patient_id = pr.patient_id AND mr.created_at = pr.created_at
     ORDER BY pr.created_at ${order}
   `;
+
   db.query(query, (err, results) => {
     if (err) return res.status(500).send(err);
     res.json(results);
   });
 });
+
 
 // ✅ GET: ดึงข้อมูลแอดมินจาก HN
 app.get("/admins/:hn", (req, res) => {
@@ -326,35 +334,35 @@ app.post("/predictions/combined", (req, res) => {
     return res.status(400).json({ error: "Missing patient_id" });
   }
 
- // 🔍 หาโค้ดนี้ใน server.js
-const weight = data.Weight;
-const height = data.Height;
-const visit_date = new Date().toISOString().split("T")[0];
+  // 🔍 หาโค้ดนี้ใน server.js
+  const weight = data.Weight;
+  const height = data.Height;
+  const visit_date = new Date().toISOString().split("T")[0];
 
-// ✅ เพิ่มตัวแปรใหม่
-const foodAllergy = data.Food_allergy || null;
-const drugAllergy = data.Drug_allergy || null;
-const disease = data.congenital_disease || null;
+  // ✅ เพิ่มตัวแปรใหม่
+  const foodAllergy = data.Food_allergy || null;
+  const drugAllergy = data.Drug_allergy || null;
+  const disease = data.congenital_disease || null;
 
-// ❗ ลบจาก data ก่อนส่งเข้า prediction
-delete data.Weight;
-delete data.Height;
-delete data.Food_allergy;
-delete data.Drug_allergy;
-delete data.congenital_disease;
+  // ❗ ลบจาก data ก่อนส่งเข้า prediction
+  delete data.Weight;
+  delete data.Height;
+  delete data.Food_allergy;
+  delete data.Drug_allergy;
+  delete data.congenital_disease;
 
 
   // ✅ สร้าง query สำหรับ medical_records
- const insertMedical = `
+  const insertMedical = `
   INSERT INTO medical_records (patient_id, visit_date, weight, height, Food_allergy, Drug_allergy, congenital_disease, created_at)
   VALUES (?, ?, ?, ?, ?, ?, ?, NOW())
 `;
 
-db.query(insertMedical, [patientId, visit_date, weight, height, foodAllergy, drugAllergy, disease], (err1) => {
-  if (err1) {
-    console.error("❌ Insert medical_records failed:", err1);
-    return res.status(500).json({ error: "Insert medical_records failed" });
-  }
+  db.query(insertMedical, [patientId, visit_date, weight, height, foodAllergy, drugAllergy, disease], (err1) => {
+    if (err1) {
+      console.error("❌ Insert medical_records failed:", err1);
+      return res.status(500).json({ error: "Insert medical_records failed" });
+    }
 
 
     // ✅ เตรียมข้อมูลสำหรับ prediction
@@ -495,7 +503,7 @@ app.get("/parents", (req, res) => {
 
 // ✅ GET: รายชื่อผู้ปกครองพร้อมเด็กในความดูแล
 app.get("/parents-with-children", (req, res) => {
- const query = `
+  const query = `
     SELECT 
     pa.parent_id,
     CONCAT(pa.prefix_name_parent, ' ', pa.first_name_parent, ' ', pa.last_name_parent) AS parent_name,
@@ -523,51 +531,117 @@ app.get("/parents-with-children", (req, res) => {
 
 
 app.get("/patients/:id/records", (req, res) => {
-  const id = req.params.id;
-  const query = `
-    SELECT 
-      m.weight,
-      m.height,
-      m.Food_allergy AS Food_allergy,
-      m.Drug_allergy AS drug_allergy,
-      m.congenital_disease,
-      pt.hn_number,
-      p.Status_personal AS status
-    FROM medical_records m
-    JOIN (
-      SELECT * FROM prediction
-      WHERE patient_id = ?
-      ORDER BY created_at DESC
-      LIMIT 1
-    ) p ON m.patient_id = p.patient_id
-<<<<<<< Updated upstream
-<<<<<<< Updated upstream
-    JOIN patient pt ON pt.patient_id = m.patient_id
-=======
-     JOIN patient pt ON pt.patient_id = m.patient_id
->>>>>>> Stashed changes
-=======
-     JOIN patient pt ON pt.patient_id = m.patient_id
->>>>>>> Stashed changes
-    WHERE m.patient_id = ?
-    ORDER BY m.created_at DESC
-    LIMIT 1;
-  `;
+  const patientId = req.params.id;
+  const createdAt = req.query.created_at;
 
-  db.query(query, [id, id], (err, results) => {
+  const query = `
+  SELECT 
+    m.weight,
+    m.height,
+    m.Food_allergy AS Food_allergy,
+    m.Drug_allergy AS drug_allergy,
+    m.congenital_disease,
+    m.private_note,
+    m.public_note,
+    pt.hn_number,
+    m.created_at,
+    p.Status_personal AS status
+  FROM medical_records m
+  JOIN prediction p 
+    ON m.patient_id = p.patient_id 
+    AND m.created_at = p.created_at
+  JOIN patient pt ON pt.patient_id = m.patient_id
+  WHERE m.patient_id = ? AND m.created_at = ?
+  LIMIT 1;
+`;
+
+
+  db.query(query, [patientId, createdAt], (err, results) => {
     if (err) {
-      console.error("❌ Error fetching medical record:", err);
+      console.error("❌ Error fetching record by created_at:", err);
       return res.status(500).json({ error: "Database error" });
     }
 
     if (results.length > 0) {
       res.json(results[0]);
     } else {
-      res.status(404).json({ message: "No records found" });
+      res.status(404).json({ message: "ไม่พบข้อมูล record ที่ตรงกับ created_at นี้" });
     }
   });
 });
 
+
+
+
+// ✅ GET: ประวัติน้ำหนักและส่วนสูงย้อนหลัง
+// ✅ GET: ประวัติการตรวจย้อนหลังทั้งหมด (ใช้กับกราฟ)
+app.get("/patients/:id/records/history", (req, res) => {
+  const patientId = req.params.id;
+  const query = `
+    SELECT visit_date, weight, height
+    FROM medical_records
+    WHERE patient_id = ?
+    ORDER BY visit_date ASC
+  `;
+
+  db.query(query, [patientId], (err, results) => {
+    if (err) {
+      console.error("❌ Error fetching patient history:", err);
+      return res.status(500).json({ error: "Database error" });
+    }
+
+    res.status(200).json(results);
+  });
+});
+
+
+
+// ✅ GET: created_at ทั้งหมดของผู้ป่วย (ไว้ใช้ใน dropdown)
+app.get("/patients/:id/records/timestamps", (req, res) => {
+  const patientId = req.params.id;
+  const query = `
+    SELECT DISTINCT m.created_at
+    FROM medical_records m
+    JOIN prediction p ON m.patient_id = p.patient_id AND m.created_at = p.created_at
+    WHERE m.patient_id = ?
+    ORDER BY m.created_at DESC
+  `;
+
+  db.query(query, [patientId], (err, results) => {
+    if (err) {
+      console.error("❌ Error fetching timestamps:", err);
+      return res.status(500).json({ error: "Database error" });
+    }
+
+    const timestamps = results.map(row => row.created_at);
+    res.status(200).json(timestamps);
+  });
+});
+
+
+
+// ✅ PUT: บันทึก note ทั้งสองแบบ
+app.put("/patients/:id/records/note", (req, res) => {
+  const { id } = req.params;
+  const { created_at, private_note, public_note } = req.body;
+
+  const sql = `
+    UPDATE medical_records
+    SET 
+      private_note = ?, 
+      public_note = ?, 
+      note_updated_at = NOW()
+    WHERE patient_id = ? AND created_at = ?
+  `;
+
+  db.query(sql, [private_note, public_note, id, created_at], (err, result) => {
+    if (err) {
+      console.error("❌ Error updating notes:", err);
+      return res.status(500).json({ message: "Error updating notes" });
+    }
+    res.json({ message: "✅ Notes updated successfully" });
+  });
+});
 
 
 

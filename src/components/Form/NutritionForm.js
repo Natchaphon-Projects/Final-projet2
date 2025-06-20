@@ -13,7 +13,7 @@ const nutritionGroups = [
     groupNote: "หากมีการบริโภคให้ติ๊กถูกในช่องสี่เหลี่ยม ☐",
     questions: [
       { key: "Still_Breastfeeding", label: "ขณะนี้เด็กยังคงได้รับนมแม่อยู่", type: "checkbox" },
-      { key: "Received_Animal_Milk", label: "ได้รับนมที่ไม่ใช่นมแม่ เช่น นมวัว หรือนมแพะ ", type: "checkbox" },
+      { key: "Received_Animal_Milk", label: "ได้รับนมสัตว์ เช่น นมวัว หรือนมแพะ ", type: "checkbox" },
       { key: "Received_Yogurt", label: "ได้รับโยเกิร์ตหรืออาหารที่มีส่วนผสมของโยเกิร์ต", type: "checkbox" },
       { key: "Received_Dairy_Products", label: "ได้รับผลิตภัณฑ์จากนมหรือไม่", type: "checkbox" },
     ],
