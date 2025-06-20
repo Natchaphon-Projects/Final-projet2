@@ -10,24 +10,18 @@ const API_URL = "http://localhost:5000/patients";
 const ManageDepartment = () => {
   const [patients, setPatients] = useState([]);
   const [parents, setParents] = useState([]); // 🔥 รายชื่อผู้ปกครอง
-  const [relationship, setRelationship] = useState("");
-  const [customRelationship, setCustomRelationship] = useState("");
+
 
   const [searchTerm, setSearchTerm] = useState("");
   const [currentPage, setCurrentPage] = useState(1);
   const [editingPatient, setEditingPatient] = useState(null);
   const [showModal, setShowModal] = useState(false);
   const [birthDate, setBirthDate] = useState("");
-  const [parentPrefix, setParentPrefix] = useState("");
   const [parentRelations, setParentRelations] = useState([
   { parentId: "", relationship: "", customRelationship: "", parentPrefix: "" }
 ]);
 
-  const relationshipOptions = parentPrefix === "นาย"
-    ? ["พ่อ", "ปู่", "ตา", "อื่นๆ"]
-    : parentPrefix === "นาง" || parentPrefix === "นางสาว"
-      ? ["แม่", "ย่า", "ยาย", "อื่นๆ"]
-      : []; // ถ้ายังไม่เลือกผู้ปกครอง
+
 
   const [formData, setFormData] = useState({
     childPrefix: "",
@@ -177,9 +171,10 @@ const ManageDepartment = () => {
     birthDate: "",
     parentId: null
   });
-  setRelationship("");
-  setCustomRelationship("");
   setBirthDate("");
+  setParentRelations([
+  { parentId: "", relationship: "", customRelationship: "", parentPrefix: "" }
+]);
 };
 
   const handleAdd = () => {
@@ -192,29 +187,21 @@ const ManageDepartment = () => {
     setShowModal(true);
   };
 
-  const handleAddParentRelation = () => {
-  setParentRelations([...parentRelations, { parentId: '', relationship: '' }]);
-};
-
-const handleRemoveParentRelation = (index) => {
-  const updated = parentRelations.filter((_, i) => i !== index);
-  setParentRelations(updated);
-};
-
-const handleParentChange = (index, value) => {
-  const updated = [...parentRelations];
-  updated[index].parentId = value;
-  setParentRelations(updated);
-};
-
-const handleRelationshipChange = (index, value) => {
-  const updated = [...parentRelations];
-  updated[index].relationship = value;
-  setParentRelations(updated);
-};
-
   const handleEdit = (patient) => {
     console.log("DEBUG patient", patient);   // ✅ เพิ่มตรงนี้
+
+    // ✅ กรอง parent relations ทั้งหมดจาก patients
+  const allRelations = patients
+    .filter(p => p.hn_number === patient.hn_number && p.parent_id)
+    .map(p => {
+      const parent = parents.find(pa => pa.id === p.parent_id);
+      return {
+        parentId: p.parent_id,
+        relationship: p.relationship || "",
+        customRelationship: p.relationship === "อื่นๆ" ? p.relationship : "",
+        parentPrefix: parent?.prefix || "",
+      };
+    });
 
     const rawAge = formatAgeText(patient.age);
     const formattedDate = patient.birthDate ? new Date(patient.birthDate).toISOString().split("T")[0] : "";
@@ -229,10 +216,11 @@ const handleRelationshipChange = (index, value) => {
       age: rawAge,
       gender: patient.gender,
       birthDate: formattedDate,
-      parentId: patient.parent_id || null
+      parentId: null
     });
-    setRelationship(patient.relationship || "");
-    setCustomRelationship(patient.relationship === "อื่นๆ" ? patient.relationship_detail || "" : "");
+      setParentRelations(allRelations.length > 0 ? allRelations : [
+    { parentId: "", relationship: "", customRelationship: "", parentPrefix: "" }
+    ]);
     setShowModal(true);
   };
 
@@ -290,7 +278,7 @@ const handleRelationshipChange = (index, value) => {
       </div>
 
       <div className="table-title">
-        <h3>รายชื่อเด็ก <span>ทั้งหมด {filteredPatients.length} คน</span></h3>
+        <h3>รายชื่อเด็ก <span>ทั้งหมด {groupedPatients.length} คน</span></h3>
         <button className="add-btn" onClick={handleAdd}>
           <Plus /> เพิ่มเด็กใหม่
         </button>
@@ -315,12 +303,16 @@ const handleRelationshipChange = (index, value) => {
               <td>{formatAgeText(child.age)}</td>
               <td>{child.gender}</td>
               <td>
-                {child.parents.map((parent, idx) =>
-                  parent.name ? (
-                    <div key={idx}>
-                      {parent.name} ({parent.relationship || "-"})
-                    </div>
-                  ) : null
+                {child.parents && child.parents.length > 0 && child.parents.some(p => p.name) ? (
+                  child.parents.map((parent, idx) =>
+                    parent.name ? (
+                      <div key={idx}>
+                        {parent.name} ({parent.relationship || "-"})
+                      </div>
+                    ) : null
+                  )
+                ) : (
+                  <span style={{ color: "#999" }}>ตอนนี้ยังไม่มีผู้ปกครองดูแล</span>
                 )}
               </td>
               <td className="actions">
@@ -351,7 +343,7 @@ const handleRelationshipChange = (index, value) => {
               {editingPatient ? "✏️ แก้ไขข้อมูลเด็ก" : "➕ เพิ่มเด็กใหม่"}
             </h3>
 
-            <input className="form-input" disabled value={formData.hn} />
+            <input className="text-input" disabled value={formData.hn} />
 
             <div className="form-row" style={{ display: "flex", alignItems: "center", gap: "10px" }}>
   
@@ -434,13 +426,20 @@ const handleRelationshipChange = (index, value) => {
             </div>
 
           
-           <h4 style={{ marginTop: "10px" }}>ความสัมพันธ์กับผู้ปกครอง</h4>
+     
               {parentRelations.map((relation, index) => {
               
               const selectedParent = parents.find((p) => p.id === relation.parentId);
-  const relationshipOptions = ["พ่อ", "แม่", "ปู่", "ย่า", "ตา", "ยาย", "อื่นๆ"];
+              const parentPrefix = relation.parentPrefix || selectedParent?.prefix || "";
+              let relationshipOptions = [];
+
+              if (parentPrefix === "นาย") {
+                relationshipOptions = ["พ่อ", "ปู่", "ตา", "อื่นๆ"];
+              } else if (parentPrefix === "นาง" || parentPrefix === "นางสาว") {
+                relationshipOptions = ["แม่", "ย่า", "ยาย", "อื่นๆ"];
+              }
                 return (
-                  <div key={index} className="form-row" style={{ display: "flex", alignItems: "center", gap: "10px", marginBottom: "10px" }}>
+                  <div key={index} className="form-row" style={{ display: "flex", alignItems: "center" }}>
                     <select
                       className="form-input"
                       style={{ flex: "2" }}
@@ -479,7 +478,6 @@ const handleRelationshipChange = (index, value) => {
                         <option key={option} value={option}>{option}</option>
                       ))}
                     </select>
-
                     {relation.relationship === "อื่นๆ" && (
                       <input
                         className="text-input"
@@ -502,10 +500,10 @@ const handleRelationshipChange = (index, value) => {
                           updated.splice(index, 1);
                           setParentRelations(updated);
                         }}
-                        className="text-red-600 hover:text-red-800"
-                        style={{ fontSize: "20px", lineHeight: "1" }}
+                        className="icon delete"
+                        
                       >
-                        🗑️
+                        <Trash2 size={20} />
                       </button>
                     )}
                   </div>
@@ -525,7 +523,16 @@ const handleRelationshipChange = (index, value) => {
 
             <div className="button-group">
               <button className="confirm-btn" onClick={handleSave}>บันทึก</button>
-              <button className="cancel-btn" onClick={() => setShowModal(false)}>ยกเลิก</button>
+              <button
+                className="cancel-btn"
+                onClick={() => {
+                  resetForm();
+                  setEditingPatient(null);
+                  setShowModal(false);
+                }}
+              >
+                ยกเลิก
+              </button>
             </div>
           </div>
         </div>

@@ -145,19 +145,13 @@ app.put("/patients/:id", (req, res) => {
     age,
     gender,
     birthDate,
-    weight,
-    height,
-    allergies,
-    congenital_disease,
-    parent_id,
-    relationship // <<== เพิ่มมา
+    relationships // ✅ รับ array
   } = req.body;
 
   const patientQuery = `
     UPDATE patient
     SET prefix_name_child = ?, first_name_child = ?, last_name_child = ?,
-        birth_date = ?, gender = ?, age = ?,
-        weight = ?, height = ?, allergies = ?, congenital_disease = ?
+        birth_date = ?, gender = ?, age = ?
     WHERE patient_id = ?
   `;
 
@@ -168,25 +162,37 @@ app.put("/patients/:id", (req, res) => {
     birthDate,
     gender,
     age,
-    weight,
-    height,
-    allergies,
-    congenital_disease,
     req.params.id
   ], (err) => {
     if (err) return res.status(500).send(err);
 
-    // ✅ อัปเดต relationship
-    const relQuery = `
-      UPDATE relationship
-      SET parent_id = ?, relationship = ?
-      WHERE patient_id = ?
-    `;
+    // ✅ ลบ relationship เดิมก่อน
+    const deleteQuery = `DELETE FROM relationship WHERE patient_id = ?`;
+    db.query(deleteQuery, [req.params.id], (delErr) => {
+      if (delErr) return res.status(500).send(delErr);
 
-    db.query(relQuery, [parent_id, relationship, req.params.id], (err2) => {
-      if (err2) return res.status(500).send(err2);
+      if (!Array.isArray(relationships) || relationships.length === 0) {
+        return res.status(400).json({ message: "❌ ต้องระบุความสัมพันธ์อย่างน้อย 1 รายการ" });
+      }
 
-      res.json({ message: "✅ อัปเดตสำเร็จ" });
+      // ✅ เพิ่มความสัมพันธ์ใหม่ทั้งหมด
+      const insertQuery = `
+        INSERT INTO relationship (patient_id, parent_id, relationship, created_at)
+        VALUES ?
+      `;
+      const values = relationships.map(r => [
+        req.params.id,
+        r.parent_id,
+        r.relationship,
+        new Date()
+      ]);
+
+      console.log("🧾 Inserting relationships: ", values);
+      db.query(insertQuery, [values], (insErr) => {
+        if (insErr) return res.status(500).send(insErr);
+
+        res.json({ message: "✅ อัปเดตข้อมูลและความสัมพันธ์สำเร็จ" });
+      });
     });
   });
 });
@@ -441,49 +447,67 @@ app.post("/medical-records", (req, res) => {
   });
 });
 
-app.get("/children-by-parent/:hn", (req, res) => {
-  const hn = req.params.hn;
+// ✅ GET: รายชื่อผู้ปกครองพร้อมเด็กในความดูแล
+app.get("/parents-with-children", (req, res) => {
   const query = `
     SELECT 
-      p.patient_id,
-      p.hn_number AS hn,
-      p.prefix_name_child,
-      p.first_name_child,
-      p.last_name_child
-    FROM parent pa
-    JOIN relationship r ON pa.parent_id = r.parent_id
-    JOIN patient p ON r.patient_id = p.patient_id
-    WHERE pa.hn_number = ?
-  `;
-  db.query(query, [hn], (err, results) => {
+    pa.parent_id,
+    pa.hn_number,
+    CONCAT(pa.prefix_name_parent, ' ', pa.first_name_parent, ' ', pa.last_name_parent) AS parent_name,
+    pa.houseNo, pa.moo, pa.alley, pa.street, pa.subDistrict, pa.district, pa.province, pa.postalCode,
+    pa.phone_number,
+    GROUP_CONCAT(CONCAT(p.prefix_name_child, ' ', p.first_name_child, ' ', p.last_name_child) SEPARATOR ', ') AS children,
+    GROUP_CONCAT(r.relationship SEPARATOR ', ') AS relationships
+  FROM parent pa
+  LEFT JOIN relationship r ON pa.parent_id = r.parent_id
+  LEFT JOIN patient p ON r.patient_id = p.patient_id
+  GROUP BY pa.parent_id
+  ORDER BY pa.parent_id;
+`;
+
+  db.query(query, (err, results) => {
     if (err) {
       console.error("❌ SQL Error:", err);
-      return res.status(500).json({ message: "DB error" });
+      return res.status(500).json({ message: "DB Error" });
     }
     res.json(results);
   });
 });
 
-app.get("/patients/:id", (req, res) => {
+app.get("/patients/:id/records", (req, res) => {
   const id = req.params.id;
   const query = `
     SELECT 
-    patient_id,
-    hn_number AS hn,
-    prefix_name_child,
-    first_name_child,
-    last_name_child,
-    age,
-    gender
-  FROM patient
-  WHERE patient_id = ?
+      m.weight,
+      m.height,
+      m.Food_allergy AS Food_allergy,
+      m.Drug_allergy AS drug_allergy,
+      m.congenital_disease,
+      pt.hn_number,
+      p.Status_personal AS status
+    FROM medical_records m
+    JOIN (
+      SELECT * FROM prediction
+      WHERE patient_id = ?
+      ORDER BY created_at DESC
+      LIMIT 1
+    ) p ON m.patient_id = p.patient_id
+    JOIN patient pt ON pt.patient_id = m.patient_id
+    WHERE m.patient_id = ?
+    ORDER BY m.created_at DESC
+    LIMIT 1;
   `;
-  db.query(query, [id], (err, results) => {
-    if (err) return res.status(500).json({ message: "DB error" });
+
+  db.query(query, [id, id], (err, results) => {
+    if (err) {
+      console.error("❌ Error fetching medical record:", err);
+      return res.status(500).json({ error: "Database error" });
+    }
+
     if (results.length > 0) {
       res.json(results[0]);
     } else {
-      res.status(404).json({ message: "Not found" });
+      res.status(404).json({ message: "No records found" });
     }
   });
 });
@@ -531,46 +555,305 @@ app.get("/parents-with-children", (req, res) => {
 
 
 app.get("/patients/:id/records", (req, res) => {
-  const patientId = req.params.id;
-  const createdAt = req.query.created_at;
-
+  const id = req.params.id;
   const query = `
-  SELECT 
-    m.weight,
-    m.height,
-    m.Food_allergy AS Food_allergy,
-    m.Drug_allergy AS drug_allergy,
-    m.congenital_disease,
-    m.private_note,
-    m.public_note,
-    pt.hn_number,
-    m.created_at,
-    p.Status_personal AS status
-  FROM medical_records m
-  JOIN prediction p 
-    ON m.patient_id = p.patient_id 
-    AND m.created_at = p.created_at
-  JOIN patient pt ON pt.patient_id = m.patient_id
-  WHERE m.patient_id = ? AND m.created_at = ?
-  LIMIT 1;
-`;
+    SELECT 
+      m.weight,
+      m.height,
+      m.Food_allergy AS Food_allergy,
+      m.Drug_allergy AS drug_allergy,
+      m.congenital_disease,
+      pt.hn_number,
+      p.Status_personal AS status
+    FROM medical_records m
+    JOIN (
+      SELECT * FROM prediction
+      WHERE patient_id = ?
+      ORDER BY created_at DESC
+      LIMIT 1
+    ) p ON m.patient_id = p.patient_id
+    JOIN patient pt ON pt.patient_id = m.patient_id
+    WHERE m.patient_id = ?
+    ORDER BY m.created_at DESC
+    LIMIT 1;
+  `;
 
-
-  db.query(query, [patientId, createdAt], (err, results) => {
+  db.query(query, [id, id], (err, results) => {
     if (err) {
-      console.error("❌ Error fetching record by created_at:", err);
+      console.error("❌ Error fetching medical record:", err);
       return res.status(500).json({ error: "Database error" });
     }
 
     if (results.length > 0) {
       res.json(results[0]);
     } else {
-      res.status(404).json({ message: "ไม่พบข้อมูล record ที่ตรงกับ created_at นี้" });
+      res.status(404).json({ message: "No records found" });
     }
   });
 });
 
+app.post("/parents", (req, res) => {
+  const {
+    hn_number,
+    prefix,
+    name,
+    lastName,
+    phone,
+    houseNo,
+    moo,
+    alley,
+    street,
+    subDistrict,
+    district,
+    province,
+    postalCode
+  } = req.body;
 
+
+  // ✅ เพิ่มข้อมูลเข้า users ก่อน เพื่อให้ users_id ถูกเชื่อม
+  const insertUser = `
+    INSERT INTO users (hn_number, phone_number, role, created_at)
+    VALUES (?, ?, 'parent', NOW())
+  `;
+
+  db.query(insertUser, [hn_number, phone], (err1, result1) => {
+    if (err1) {
+      console.error("❌ Insert users error:", err1);
+      return res.status(500).json({ message: "เกิดข้อผิดพลาดขณะเพิ่ม users" });
+    }
+
+    const users_id = result1.insertId;
+
+    // ✅ เพิ่มข้อมูลผู้ปกครอง
+    const insertParent = `
+      INSERT INTO parent (
+        users_id, prefix_name_parent, first_name_parent, last_name_parent,
+        hn_number, phone_number, houseNo, moo, alley, street,
+        subDistrict, district, province, postalCode, created_at
+      ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, NOW())
+    `;
+
+    db.query(
+      insertParent,
+      [
+        users_id, prefix, name, lastName,
+        hn_number, phone, houseNo, moo, alley, street,
+        subDistrict, district, province, postalCode
+      ],
+      (err2, result2) => {
+        if (err2) {
+          console.error("❌ Insert parent error:", err2);
+          return res.status(500).json({ message: "เกิดข้อผิดพลาดขณะเพิ่ม parent" });
+        }
+
+        res.status(201).json({
+          message: "✅ เพิ่มข้อมูลผู้ปกครองสำเร็จ",
+          parent_id: result2.insertId,
+          hn_number
+        });
+      }
+    );
+  });
+});
+
+// ✅ DELETE: ลบข้อมูลผู้ปกครอง
+app.delete("/parents/:id", (req, res) => {
+  const parentId = req.params.id;
+
+  // 1. ลบความสัมพันธ์กับเด็กก่อน (ถ้ามี)
+  const deleteRelationshipQuery = `DELETE FROM relationship WHERE parent_id = ?`;
+
+  db.query(deleteRelationshipQuery, [parentId], (err1) => {
+    if (err1) {
+      console.error("❌ Delete relationship error:", err1);
+      return res.status(500).json({ message: "ลบความสัมพันธ์ล้มเหลว" });
+    }
+
+    // 2. ลบข้อมูลจากตาราง parent
+    const deleteParentQuery = `DELETE FROM parent WHERE parent_id = ?`;
+
+    db.query(deleteParentQuery, [parentId], (err2) => {
+      if (err2) {
+        console.error("❌ Delete parent error:", err2);
+        return res.status(500).json({ message: "ลบข้อมูลผู้ปกครองล้มเหลว" });
+      }
+
+      // 3. (เลือกได้) ลบจาก users ด้วยถ้าต้องการ
+      const deleteUserQuery = `
+        DELETE FROM users
+        WHERE users_id NOT IN (SELECT users_id FROM parent)
+          AND role = 'parent'
+      `;
+      db.query(deleteUserQuery, (err3) => {
+        if (err3) {
+          console.warn("⚠️ ไม่สามารถลบ users ที่เกี่ยวข้องได้:", err3);
+        }
+
+        res.json({ message: "✅ ลบข้อมูลผู้ปกครองสำเร็จ" });
+      });
+    });
+  });
+});
+
+// ✅ ดึงรายชื่อหมอทั้งหมด
+app.get("/doctors", (req, res) => {
+  const sql = `
+    SELECT 
+      d.doctor_id,
+      d.prefix_name_doctor,
+      d.first_name_doctor,
+      d.last_name_doctor,
+      d.work_time,
+      d.specialist,
+      d.work_day,
+      u.hn_number,
+      u.phone_number
+    FROM doctor d
+    JOIN users u ON d.users_id = u.users_id
+  `;
+  db.query(sql, (err, results) => {
+    if (err) return res.status(500).send("❌ ดึงข้อมูลผิดพลาด");
+    res.json(results);
+  });
+});
+
+
+
+app.post("/doctors", (req, res) => {
+  const {
+    hn_number,
+    prefix,
+    firstName,
+    lastName,
+    phone,
+    specialist,
+    workTime,
+    workDay
+  } = req.body;
+
+  // 1️⃣ เพิ่มข้อมูล users ก่อน
+  const insertUserQuery = `
+    INSERT INTO users (hn_number, phone_number, role, created_at)
+    VALUES (?, ?, 'doctor', NOW())
+  `;
+
+  db.query(insertUserQuery, [hn_number, phone], (err1, result1) => {
+    if (err1) {
+      console.error("❌ Insert users error:", err1);
+      return res.status(500).json({ message: "เพิ่ม users ไม่สำเร็จ" });
+    }
+
+    const users_id = result1.insertId;
+
+    // 2️⃣ เพิ่มข้อมูล doctor
+    const insertDoctorQuery = `
+      INSERT INTO doctor (
+        users_id,
+        hn_number, -- ✅ เพิ่มตรงนี้
+        prefix_name_doctor,
+        first_name_doctor,
+        last_name_doctor,
+        specialist,
+        work_time,
+        work_day,
+        created_at
+      )
+      VALUES (?, ?, ?, ?, ?, ?, ?, ?, NOW())
+    `;
+
+    db.query(insertDoctorQuery, [users_id, hn_number, prefix, firstName, lastName, specialist, workTime, workDay], (err2, result2) => {
+      if (err2) {
+        console.error("❌ Insert doctor error:", err2);
+        return res.status(500).json({ message: "เพิ่ม doctor ไม่สำเร็จ" });
+      }
+
+      res.status(201).json({ message: "✅ เพิ่มหมอสำเร็จ", doctor_id: result2.insertId });
+    });
+  });
+});
+
+
+app.delete("/doctors/:id", (req, res) => {
+  const doctorId = req.params.id;
+
+  // 🔍 หา users_id จาก doctor ก่อน
+  const findUserQuery = `SELECT users_id FROM doctor WHERE doctor_id = ?`;
+
+  db.query(findUserQuery, [doctorId], (err1, result1) => {
+    if (err1 || result1.length === 0) {
+      console.error("❌ Doctor ไม่พบหรือ error:", err1);
+      return res.status(404).json({ message: "ไม่พบ doctor" });
+    }
+
+    const users_id = result1[0].users_id;
+
+    // 1️⃣ ลบ doctor
+    const deleteDoctorQuery = `DELETE FROM doctor WHERE doctor_id = ?`;
+    db.query(deleteDoctorQuery, [doctorId], (err2) => {
+      if (err2) {
+        console.error("❌ ลบ doctor ล้มเหลว:", err2);
+        return res.status(500).json({ message: "ลบ doctor ล้มเหลว" });
+      }
+
+      // 2️⃣ ลบ users ที่เกี่ยวข้อง
+      const deleteUserQuery = `
+        DELETE FROM users
+        WHERE users_id = ? AND role = 'doctor'
+      `;
+      db.query(deleteUserQuery, [users_id], (err3) => {
+        if (err3) {
+          console.warn("⚠️ ลบ users ไม่ได้:", err3);
+          return res.status(500).json({ message: "ลบ users ไม่สำเร็จ" });
+        }
+
+        res.json({ message: "🗑️ ลบหมอสำเร็จ" });
+      });
+    });
+  });
+});
+
+// ✅ PUT: แก้ไขข้อมูลหมอ
+app.put("/doctors/:id", (req, res) => {
+  const doctorId = req.params.id;
+  const {
+    hn_number,
+    prefix,
+    firstName,
+    lastName,
+    phone,
+    specialist,
+    workDay,
+    workTime
+  } = req.body;
+
+  const updateDoctorQuery = `
+    UPDATE doctor d
+    JOIN users u ON d.users_id = u.users_id
+    SET 
+      d.prefix_name_doctor = ?,
+      d.first_name_doctor = ?,
+      d.last_name_doctor = ?,
+      d.specialist = ?,
+      d.work_day = ?,
+      d.work_time = ?,
+      u.hn_number = ?,
+      u.phone_number = ?
+    WHERE d.doctor_id = ?
+  `;
+
+  db.query(
+    updateDoctorQuery,
+    [prefix, firstName, lastName, specialist, workDay, workTime, hn_number, phone, doctorId],
+    (err, result) => {
+      if (err) {
+        console.error("❌ Update doctor error:", err);
+        return res.status(500).json({ message: "แก้ไขข้อมูล doctor ไม่สำเร็จ" });
+      }
+
+      res.json({ message: "✅ แก้ไขข้อมูลหมอสำเร็จ" });
+    }
+  );
+});
 
 
 // ✅ GET: ประวัติน้ำหนักและส่วนสูงย้อนหลัง

@@ -63,6 +63,12 @@ function ParentRiskSelection() {
       </div>
 
       {/* Card Grid */}
+      {children.length === 0 ? (
+        <div className="no-children-message">
+          ❗<br />
+          คุณไม่มีเด็กในการดูแล จึงไม่สามารถประเมินได้
+        </div>
+      ) : (
       <div className="children-grid">
         {children.map((child) => (
           <div
@@ -84,7 +90,7 @@ function ParentRiskSelection() {
           </div>
         ))}
       </div>
-
+     )}
       <Footer />
     </div>
   );
