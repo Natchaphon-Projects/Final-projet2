@@ -5,8 +5,6 @@ import "./ManageDepartment.css";
 import Header from "../components/layout/Header";
 import Footer from "../components/layout/Footer";
 
-const API_URL = "http://localhost:5000/parents-with-children";
-
 const formatPhoneNumber = (value) => {
   const digits = value.replace(/\D/g, "").slice(0, 10);
   if (digits.length >= 7) {
@@ -94,7 +92,7 @@ const ManageParentDepartment = () => {
 
     try {
       if (editingParent) {
-        await axios.put(`${API_URL}/${editingParent.id}`, payload);
+        await axios.put(`http://localhost:5000/parents/${editingParent.parent_id}`, payload);
       } else {
         await axios.post("http://localhost:5000/parents", payload);
       }
@@ -138,24 +136,24 @@ const ManageParentDepartment = () => {
   };
 
   const handleEdit = (parent) => {
-    setEditingParent(parent);
-    setFormData({
-      hn: parent.hn_number || "",       
-      prefix: parent.prefix || "",
-      name: parent.name || "",
-      lastName: parent.lastName || "",
-      phone: parent.phone || "",
-      houseNo: parent.houseNo || "",    
-      moo: parent.moo || "",
-      alley: parent.alley || "",
-      street: parent.street || "",
-      subDistrict: parent.subDistrict || "",
-      district: parent.district || "",
-      province: parent.province || "",
-      postalCode: parent.postalCode || ""
-    });
-    setShowModal(true);
-  };
+  setEditingParent(parent);
+  setFormData({
+    hn: parent.hn_number || "",
+    prefix: parent.prefix_name_parent || "",
+    name: parent.first_name_parent || "",
+    lastName: parent.last_name_parent || "",
+    phone: parent.phone_number || "",
+    houseNo: parent.houseNo || "",
+    moo: parent.moo || "",
+    alley: parent.alley || "",
+    street: parent.street || "",
+    subDistrict: parent.subDistrict || "",
+    district: parent.district || "",
+    province: parent.province || "",
+    postalCode: parent.postalCode || ""
+  });
+  setShowModal(true);
+};
 
   const handleDelete = async (id) => {
     if (window.confirm("❌ คุณแน่ใจหรือไม่ว่าต้องการลบข้อมูลผู้ปกครองนี้?")) {

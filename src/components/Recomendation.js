@@ -669,7 +669,7 @@ function Recomendation() {
                   <tr>
                     <th>ข้อมูล</th>
                     <th>พฤติกรรมของผู้ป่วย</th>
-                    <th>ค่ามาตรฐาน</th>
+                    <th>ค่ามาตรฐานของเด็กภาวะปกติ</th>
                     <th>คำแนะนำ</th>
                   </tr>
                 </thead>
@@ -807,7 +807,7 @@ function Recomendation() {
                 <thead>
                   <tr>
                     <th>
-                      📊 ปัจจัยที่มีผลต่อเกณฑ์{" "}
+                      📊 ค่ามาตรฐานของเด็กที่เป็นภาวะ {" "}
                       <span>{statusMap[record?.status?.split(" ")[0]] || record?.status}</span>
                     </th>
 
@@ -817,7 +817,9 @@ function Recomendation() {
                 <tbody>
                   {/* 🔼 หัวข้อ Top 5 */}
                   <tr className="section-header top-header">
-                    <td colSpan="2">🔼 Top 5 ปัจจัยที่มีผลมากที่สุด</td>
+                    <td colSpan="2">🔼 Top 5 พฤติกรรมเสี่ยงที่ส่งผลต่อเด็กที่มีภาวะ  
+                    <span> {statusMap[record?.status?.split(" ")[0]] || record?.status} </span>
+                     ทั้งหมด</td>
                   </tr>
                   {topGlobalFeatures.map((item, index) => {
                     const featureName = valueMap[item.feature]?.label || item.feature;

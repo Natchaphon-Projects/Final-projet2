@@ -451,19 +451,22 @@ app.post("/medical-records", (req, res) => {
 app.get("/parents-with-children", (req, res) => {
   const query = `
     SELECT 
-    pa.parent_id,
-    pa.hn_number,
-    CONCAT(pa.prefix_name_parent, ' ', pa.first_name_parent, ' ', pa.last_name_parent) AS parent_name,
-    pa.houseNo, pa.moo, pa.alley, pa.street, pa.subDistrict, pa.district, pa.province, pa.postalCode,
-    pa.phone_number,
-    GROUP_CONCAT(CONCAT(p.prefix_name_child, ' ', p.first_name_child, ' ', p.last_name_child) SEPARATOR ', ') AS children,
-    GROUP_CONCAT(r.relationship SEPARATOR ', ') AS relationships
-  FROM parent pa
-  LEFT JOIN relationship r ON pa.parent_id = r.parent_id
-  LEFT JOIN patient p ON r.patient_id = p.patient_id
-  GROUP BY pa.parent_id
-  ORDER BY pa.parent_id;
-`;
+      pa.parent_id,
+      pa.hn_number,
+      pa.prefix_name_parent,
+      pa.first_name_parent,
+      pa.last_name_parent,
+      CONCAT(pa.prefix_name_parent, ' ', pa.first_name_parent, ' ', pa.last_name_parent) AS parent_name,
+      pa.houseNo, pa.moo, pa.alley, pa.street, pa.subDistrict, pa.district, pa.province, pa.postalCode,
+      pa.phone_number,
+      GROUP_CONCAT(CONCAT(p.prefix_name_child, ' ', p.first_name_child, ' ', p.last_name_child) SEPARATOR ', ') AS children,
+      GROUP_CONCAT(r.relationship SEPARATOR ', ') AS relationships
+    FROM parent pa
+    LEFT JOIN relationship r ON pa.parent_id = r.parent_id
+    LEFT JOIN patient p ON r.patient_id = p.patient_id
+    GROUP BY pa.parent_id
+    ORDER BY pa.parent_id;
+  `;
 
   db.query(query, (err, results) => {
     if (err) {
@@ -926,7 +929,72 @@ app.put("/patients/:id/records/note", (req, res) => {
   });
 });
 
+app.put("/parents/:id", (req, res) => {
+  const parentId = req.params.id;
+  const {
+    hn_number,
+    prefix,
+    name,
+    lastName,
+    phone,
+    houseNo,
+    moo,
+    alley,
+    street,
+    subDistrict,
+    district,
+    province,
+    postalCode,
+  } = req.body;
 
+  const updateParentQuery = `
+    UPDATE parent p
+    JOIN users u ON p.users_id = u.users_id
+    SET
+      p.prefix_name_parent = ?,
+      p.first_name_parent = ?,
+      p.last_name_parent = ?,
+      p.hn_number = ?,
+      p.phone_number = ?,
+      p.houseNo = ?,
+      p.moo = ?,
+      p.alley = ?,
+      p.street = ?,
+      p.subDistrict = ?,
+      p.district = ?,
+      p.province = ?,
+      p.postalCode = ?,
+      u.hn_number = ?,
+      u.phone_number = ?
+    WHERE p.parent_id = ?
+  `;
+
+  db.query(updateParentQuery, [
+    prefix,
+    name,
+    lastName,
+    hn_number,
+    phone,
+    houseNo,
+    moo,
+    alley,
+    street,
+    subDistrict,
+    district,
+    province,
+    postalCode,
+    hn_number,
+    phone,
+    parentId
+  ], (err, result) => {
+    if (err) {
+      console.error("❌ Update parent error:", err);
+      return res.status(500).json({ message: "อัปเดตข้อมูลผู้ปกครองไม่สำเร็จ" });
+    }
+
+    res.status(200).json({ message: "✅ อัปเดตข้อมูลผู้ปกครองสำเร็จ" });
+  });
+});
 
 
 
