@@ -21,23 +21,22 @@
 
 /* --- Wrapper กล่อง 2 ฝั่ง (ซ้าย+ขวา) --- */
 .recommendation-patient-wrapper {
-    display: flex;
-    gap: 24px;
-    align-items: flex-start;
-    margin-bottom: 30px;
+  display: flex;
+  flex-wrap: wrap;
+  gap: 24px;
+  margin-bottom: 30px;
 }
 
 /* --- Patient Section --- */
 .recommendation-patient-section {
-    display: flex;
-    gap: 24px;
-    align-items: flex-start;
-    background: #c8f5da;
-    border-radius: 16px;
-    height: 358px;
-    padding: 24px 30px;
-    box-shadow: 0 4px 10px rgba(0,0,0,0.1);
- 
+  flex: 1 1 500px;
+  background: #c8f5da;
+  border-radius: 16px;
+  padding: 24px 30px;
+  box-shadow: 0 4px 10px rgba(0,0,0,0.1);
+  display: flex;
+  flex-wrap: wrap;
+  gap: 24px;
 }
 
 /* ซ้าย: Profile (รูป + ชื่อ + ปุ่ม) */
@@ -237,11 +236,13 @@
 
 /* Title */
 .result-header-row {
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-    margin-bottom: 16px;
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  margin-bottom: 16px;
+  gap: 20px;
 }
+
 
 .result-title {
     font-size: 24px;
@@ -484,3 +485,54 @@
   display: inline-block;
 }
 
+
+
+.allergy-card-group {
+  display: flex;
+  gap: 14px;
+  margin-left: auto;
+}
+
+.allergy-card {
+  background-color: #ffffff;
+  border-left: 6px solid #06b6d4;
+  border-radius: 12px;
+  padding: 14px 18px;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.06);
+  font-family: 'Prompt', sans-serif;
+  transition: transform 0.2s ease;
+  min-width: 140px;
+  min-height: 100px; /* เพิ่มความสูงเพื่อให้จัดกึ่งกลางแนวตั้งได้สวย */
+
+  /* ✅ ทำให้ทุกอย่างอยู่กลางทั้งแนวนอนและแนวตั้ง */
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  text-align: center;
+}
+
+
+.allergy-card.food {
+  border-left-color: #f97316; /* สีส้ม */
+}
+
+.allergy-card.drug {
+  border-left-color: #10b981; /* เขียว */
+}
+
+.allergy-card:hover {
+  transform: scale(1.03);
+}
+
+.allergy-label {
+  font-size: 13px;
+  color: #6b7280;
+}
+
+.allergy-value {
+  font-size: 20px;
+  font-weight: 700;
+  color: #0f172a;
+  margin-top: 4px;
+}

@@ -104,3 +104,66 @@
 }
 
 
+@media (max-width: 480px) {
+  .login-button {
+    font-size: 14px;
+    padding: 10px;
+  }
+
+  .login-card {
+    padding: 24px;
+    border-radius: 16px;
+  }
+
+  .hn-input {
+    font-size: 14px;
+    padding: 10px 14px;
+  }
+
+  .login-card h1 {
+    font-size: 20px;
+  }
+
+  .subtext {
+    font-size: 13px;
+  }
+
+  .icon-circle {
+    width: 50px;
+    height: 50px;
+  }
+
+  .icon {
+    font-size: 24px;
+  }
+}
+
+
+@media (max-width: 768px) {
+  .login-card {
+    padding: 32px;
+    max-width: 90%;
+  }
+
+  .login-button {
+    font-size: 15px;
+    padding: 11px;
+  }
+
+  .hn-input {
+    font-size: 15px;
+    padding: 11px 15px;
+  }
+
+  .login-card h1 {
+    font-size: 22px;
+  }
+
+  .subtext {
+    font-size: 13.5px;
+  }
+
+  .icon {
+    font-size: 26px;
+  }
+}

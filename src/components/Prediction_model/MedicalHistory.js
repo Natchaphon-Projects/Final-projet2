@@ -133,46 +133,54 @@ const MedicalHistory = () => {
         <div className="space-y-4">
           {medicalHistory.map((item) => (
             <div key={item.id} className={`mh-card ${item.isLatest ? "latest" : ""}`}>
-              <div className="mh-row">
-                <div><Calendar className="icon-inline" /> <b>วันที่:</b> {item.date}</div>
-                <div><Clock className="icon-inline" /> <b>เวลา:</b> {item.time}</div>
-                <div><Stethoscope className="icon-inline" /> <b>แพทย์:</b> {item.doctor}</div>
-                <div className={`status ${item.status === "ปกติ" ? "normal" : "alert"}`}>
-                  {item.status === "ปกติ" ? (
-                    <>
-                      <Smile className="icon-inline" /> ปกติ
-                    </>
-                  ) : (
-                    <>
-                      <Heart className="icon-inline pink" /> กรุณาพบแพทย์
-                    </>
-                  )}
+              <div className="mh-card-container">
+                <div className="mh-card-content">
+                  <div className="mh-row">
+                    <div><Calendar className="icon-inline" /> <b>วันที่:</b> {item.date}</div>
+                    <div><Clock className="icon-inline" /> <b>เวลา:</b> {item.time}</div>
+                    <div><Stethoscope className="icon-inline" /> <b>แพทย์:</b> {item.doctor}</div>
+                    <div className={`status ${item.status === "ปกติ" ? "normal" : "alert"}`}>
+                      {item.status === "ปกติ" ? (
+                        <>
+                          <Smile className="icon-inline" /> ปกติ
+                        </>
+                      ) : (
+                        <>
+                          <Heart className="icon-inline pink" /> กรุณาพบแพทย์
+                        </>
+                      )}
+                    </div>
+                  </div>
+                </div>
+
+                <div className="mh-card-button">
+                  <button
+                    className="recommend-button"
+                    onClick={() => {
+                      setSelectedNote({
+                        text: item.public_note?.trim() || "",
+                        updatedAt: item.note_updated_at
+                      });
+                      setSelectedCreatedAt(item.createdAt);
+                      setShowPopup(true);
+                    }}
+                  >
+                    📝 ดูคำแนะนำ
+                  </button>
                 </div>
               </div>
-              <button
-                className="note-button"
-                onClick={() => {
-                  setSelectedNote({
-                    text: item.public_note?.trim() || "",
-                    updatedAt: item.note_updated_at
-                  });
-                  setSelectedCreatedAt(item.createdAt);
 
-                  setShowPopup(true);
-                }}
-              >
-                📝 ดูคำแนะนำ
-              </button>
+
 
 
 
             </div>
           ))}
-        </div>
+      </div>
 
-      </main>
+    </main >
 
-      {showPopup && (
+      { showPopup && (
         <div className="popup-overlay">
           <div className="popup-box">
             <h2>📝 คำแนะนำจากแพทย์</h2>
@@ -188,10 +196,11 @@ const MedicalHistory = () => {
             <button className="close-btn" onClick={() => setShowPopup(false)}>ปิด</button>
           </div>
         </div>
-      )}
+      )
+}
 
 
-      <Footer />
+<Footer />
     </>
   );
 };

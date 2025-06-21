@@ -655,18 +655,17 @@ function Recomendation() {
           <div className="result-header-row">
             <div className="result-title">ผลการตรวจ :</div>
 
-            <div className="info-card">
-              <div className="label">แพ้อาหาร:</div>
-              <div className="value">{record?.Food_allergy || "--"}</div>
+            <div className="allergy-card-group">
+              <div className="allergy-card food">
+                <div className="allergy-label">แพ้อาหาร:</div>
+                <div className="allergy-value">{record?.Food_allergy || "ไม่มี"}</div>
+              </div>
+
+              <div className="allergy-card drug">
+                <div className="allergy-label">แพ้ยา:</div>
+                <div className="allergy-value">{record?.drug_allergy || "ไม่มี"}</div>
+              </div>
             </div>
-
-            <div className="info-card">
-              <div className="label">แพ้ยา:</div>
-              <div className="value">{record?.drug_allergy || "--"}</div>
-            </div>
-
-
-
           </div>
 
           {/* Wrapper → 2 ตาราง */}
