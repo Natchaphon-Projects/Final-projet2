@@ -447,31 +447,24 @@ app.post("/medical-records", (req, res) => {
   });
 });
 
-// ✅ GET: รายชื่อผู้ปกครองพร้อมเด็กในความดูแล
-app.get("/parents-with-children", (req, res) => {
+app.get("/children-by-parent/:hn", (req, res) => {
+  const hn = req.params.hn;
   const query = `
     SELECT 
-      pa.parent_id,
-      pa.hn_number,
-      pa.prefix_name_parent,
-      pa.first_name_parent,
-      pa.last_name_parent,
-      CONCAT(pa.prefix_name_parent, ' ', pa.first_name_parent, ' ', pa.last_name_parent) AS parent_name,
-      pa.houseNo, pa.moo, pa.alley, pa.street, pa.subDistrict, pa.district, pa.province, pa.postalCode,
-      pa.phone_number,
-      GROUP_CONCAT(CONCAT(p.prefix_name_child, ' ', p.first_name_child, ' ', p.last_name_child) SEPARATOR ', ') AS children,
-      GROUP_CONCAT(r.relationship SEPARATOR ', ') AS relationships
+      p.patient_id,
+      p.hn_number AS hn,
+      p.prefix_name_child,
+      p.first_name_child,
+      p.last_name_child
     FROM parent pa
-    LEFT JOIN relationship r ON pa.parent_id = r.parent_id
-    LEFT JOIN patient p ON r.patient_id = p.patient_id
-    GROUP BY pa.parent_id
-    ORDER BY pa.parent_id;
+    JOIN relationship r ON pa.parent_id = r.parent_id
+    JOIN patient p ON r.patient_id = p.patient_id
+    WHERE pa.hn_number = ?
   `;
-
-  db.query(query, (err, results) => {
+  db.query(query, [hn], (err, results) => {
     if (err) {
       console.error("❌ SQL Error:", err);
-      return res.status(500).json({ message: "DB Error" });
+      return res.status(500).json({ message: "DB error" });
     }
     res.json(results);
   });
