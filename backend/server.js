@@ -864,18 +864,16 @@ app.put("/doctors/:id", (req, res) => {
 app.get("/patients/:id/records/history", (req, res) => {
   const patientId = req.params.id;
   const query = `
-    SELECT visit_date, weight, height
+    SELECT created_at, weight, height
     FROM medical_records
     WHERE patient_id = ?
-    ORDER BY visit_date ASC
+    ORDER BY created_at ASC
   `;
-
   db.query(query, [patientId], (err, results) => {
     if (err) {
       console.error("❌ Error fetching patient history:", err);
       return res.status(500).json({ error: "Database error" });
     }
-
     res.status(200).json(results);
   });
 });

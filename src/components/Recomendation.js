@@ -9,6 +9,16 @@ import HeightChart from '../components/chart/HeightChart';
 import Sunglasscat from '../assets/cat-sunglass.jpg';
 import { useLocation } from "react-router-dom";
 import React, { useState, useEffect } from "react";
+import {
+  Activity,
+  Stethoscope,
+  ListChecks,
+  FileBarChart2,
+  TrendingUp,
+  TrendingDown
+} from "lucide-react";
+
+
 
 const valueMap = {
   // ✅ dropdown
@@ -224,26 +234,26 @@ function Recomendation() {
         .then((res) => {
           const historyData = res.data || [];
           console.log("📦 history data from API:", historyData);
-
           const weight = historyData
-            .filter(item => item.weight && item.visit_date)
+            .filter(item => item.weight && item.created_at)
             .map(item => {
               const parsedWeight = parseFloat(item.weight);
               return {
-                date: item.visit_date,
+                date: item.created_at,  // <== เปลี่ยนตรงนี้
                 weight: isNaN(parsedWeight) ? 0 : parsedWeight,
               };
             });
 
           const height = historyData
-            .filter(item => item.height && item.visit_date)
+            .filter(item => item.height && item.created_at)
             .map(item => {
               const parsedHeight = parseFloat(item.height);
               return {
-                date: item.visit_date,
+                date: item.created_at,  // <== เปลี่ยนตรงนี้
                 height: isNaN(parsedHeight) ? 0 : parsedHeight,
               };
             });
+
 
           console.log("📊 weight array:", weight);
           console.log("📏 height array:", height);
@@ -807,19 +817,55 @@ function Recomendation() {
                 <thead>
                   <tr>
                     <th>
-                      📊 ค่ามาตรฐานของเด็กที่เป็นภาวะ {" "}
-                      <span>{statusMap[record?.status?.split(" ")[0]] || record?.status}</span>
+                      <span
+                        style={{
+                          backgroundColor: "white",
+                          borderRadius: "50%",
+                          width: 23,
+                          height: 23,
+                          display: "inline-flex",
+                          alignItems: "center",
+                          justifyContent: "center",
+                          marginRight: 8,
+                          boxShadow: "0 2px 6px rgba(0,0,0,0.1)"
+                        }}
+                      >
+                        <Stethoscope size={16} color="#16a34a" />
+                      </span>
+                      ค่ามาตรฐานของเด็กที่เป็นภาวะ
+                      <span> {statusMap[record?.status?.split(" ")[0]] || record?.status}</span>
                     </th>
 
-                    <th>📌 ค่าที่พบบ่อยในกลุ่มนี้</th>
+                    <th>
+                      <span
+                        style={{
+                          backgroundColor: "white",
+                          borderRadius: "50%",
+                          width: 23,
+                          height: 23,
+                          display: "inline-flex",
+                          alignItems: "center",
+                          justifyContent: "center",
+                          marginRight: 8,
+                          boxShadow: "0 2px 6px rgba(0,0,0,0.1)"
+                        }}
+                      >
+                        <ListChecks size={16} color="#0ea5e9" />
+                      </span>
+                      ค่าที่พบบ่อยในกลุ่มนี้
+                    </th>
+
+
                   </tr>
                 </thead>
                 <tbody>
                   {/* 🔼 หัวข้อ Top 5 */}
                   <tr className="section-header top-header">
-                    <td colSpan="2">🔼 Top 5 พฤติกรรมเสี่ยงที่ส่งผลต่อเด็กที่มีภาวะ  
-                    <span> {statusMap[record?.status?.split(" ")[0]] || record?.status} </span>
-                     ทั้งหมด</td>
+                    <td colSpan="2">
+                      <TrendingUp size={16} style={{ marginRight: 6, verticalAlign: 'middle' }} />
+                      Top 5 พฤติกรรมเสี่ยงที่ส่งผลต่อเด็กที่มีภาวะ
+                      <span> {statusMap[record?.status?.split(" ")[0]] || record?.status} </span> ทั้งหมด
+                    </td>
                   </tr>
                   {topGlobalFeatures.map((item, index) => {
                     const featureName = valueMap[item.feature]?.label || item.feature;
@@ -839,7 +885,10 @@ function Recomendation() {
 
                   {/* 🔽 หัวข้อ Bottom 5 */}
                   <tr className="section-header bottom-header">
-                    <td colSpan="2">🔽 Bottom 5 ปัจจัยที่มีผลน้อยที่สุด</td>
+                    <td colSpan="2">
+                      <TrendingDown size={16} style={{ marginRight: 6, verticalAlign: 'middle' }} />
+                      Top 5 ปัจจัยที่มีผลน้อยที่สุด
+                    </td>
                   </tr>
                   {bottomGlobalFeatures.map((item, index) => {
                     const featureName = valueMap[item.feature]?.label || item.feature;
