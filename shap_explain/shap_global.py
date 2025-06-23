@@ -177,11 +177,13 @@ def explain_global(status: str):
         for i, name in enumerate(feature_names):
             shap_vals = shap_values_array[:, i]
             feature_vals = feature_values_array[:, i]
-
+            
+            print("feature_names=",feature_names)
             # ✅ คำนวณ Q1 และ Q3
             q1 = np.percentile(shap_vals, 25)
             q3 = np.percentile(shap_vals, 75)
-
+            print("q1=",q1)
+            print("q3=",q3)
             # ✅ เลือกเฉพาะค่าที่อยู่ใน IQR
             mask = (shap_vals >= q1) & (shap_vals <= q3)
             filtered_feature_vals = feature_vals[mask]

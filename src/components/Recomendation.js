@@ -51,34 +51,34 @@ const valueMap = {
   },
 
   // ✅ checkbox บริโภค
-  Still_Breastfeeding: { label: "ได้รับนมแม่", values: { 0: "ไม่ได้บริโภค", 1: "บริโภค" } },
-  Received_Yogurt: { label: "ได้รับโยเกิร์ต", values: { 0: "ไม่ได้บริโภค", 1: "บริโภค" } },
-  Received_Thin_Porridge: { label: "ได้รับโจ๊กหรือข้าวต้มเหลว", values: { 0: "ไม่ได้บริโภค", 1: "บริโภค" } },
-  Received_Grain_Based_Foods: { label: "ได้รับอาหารธัญพืช", values: { 0: "ไม่ได้บริโภค", 1: "บริโภค" } },
-  Received_Orange_Yellow_Foods: { label: "ได้รับผัก/ฟักทองสีส้มเหลือง", values: { 0: "ไม่ได้บริโภค", 1: "บริโภค" } },
-  Received_White_Root_Foods: { label: "ได้รับมันเทศ/หัวเผือก", values: { 0: "ไม่ได้บริโภค", 1: "บริโภค" } },
-  Received_Dark_Green_Leafy_Veggies: { label: "ได้รับผักใบเขียวเข้ม", values: { 0: "ไม่ได้บริโภค", 1: "บริโภค" } },
-  Received_Ripe_Mangoes_Papayas: { label: "ได้รับมะม่วง/มะละกอสุก", values: { 0: "ไม่ได้บริโภค", 1: "บริโภค" } },
-  Received_Other_Fruits_Vegetables: { label: "ได้รับผลไม้/ผักอื่นๆ", values: { 0: "ไม่ได้บริโภค", 1: "บริโภค" } },
-  Received_Meat: { label: "ได้รับเนื้อสัตว์", values: { 0: "ไม่ได้บริโภค", 1: "บริโภค" } },
-  Received_Eggs: { label: "ได้รับไข่", values: { 0: "ไม่ได้บริโภค", 1: "บริโภค" } },
-  Received_Fish_Shellfish_Seafood: { label: "ได้รับอาหารทะเล", values: { 0: "ไม่ได้บริโภค", 1: "บริโภค" } },
-  Received_Legumes_Nuts_Foods: { label: "ได้รับถั่ว", values: { 0: "ไม่ได้บริโภค", 1: "บริโภค" } },
-  Received_Oil_Fats_Butter: { label: "ได้รับน้ำมัน/เนย", values: { 0: "ไม่ได้บริโภค", 1: "บริโภค" } },
-  Received_Sugary_Foods: { label: "ได้รับของหวาน", values: { 0: "ไม่ได้บริโภค", 1: "บริโภค" } },
-  Received_Chilies_Spices_Herbs: { label: "ได้รับเครื่องเทศ/สมุนไพร", values: { 0: "ไม่ได้บริโภค", 1: "บริโภค" } },
-  Received_Grubs_Snails_Insects: { label: "ได้รับแมลง/หอยทาก", values: { 0: "ไม่ได้บริโภค", 1: "บริโภค" } },
-  Received_Other_Solid_Semi_Solid_Food: { label: "ได้รับอาหารอื่นๆ", values: { 0: "ไม่ได้บริโภค", 1: "บริโภค" } },
-  Received_Salt: { label: "ได้รับเกลือ", values: { 0: "ไม่ได้บริโภค", 1: "บริโภค" } },
-  Received_Animal_Milk: { label: "ได้รับนมสัตว์", values: { 0: "ไม่ได้บริโภค", 1: "บริโภค" } },
-  Received_Dairy_Products: { label: "ได้รับผลิตภัณฑ์นม", values: { 0: "ไม่ได้บริโภค", 1: "บริโภค" } },
+  Still_Breastfeeding: { label: "บริโภคนมแม่", values: { 0: "ไม่ได้บริโภค", 1: "บริโภค" } },
+  Received_Yogurt: { label: "บริโภคโยเกิร์ต", values: { 0: "ไม่ได้บริโภค", 1: "บริโภค" } },
+  Received_Thin_Porridge: { label: "บริโภคข้าวต้มเหลว", values: { 0: "ไม่ได้บริโภค", 1: "บริโภค" } },
+  Received_Grain_Based_Foods: { label: "บริโภคอาหารธัญพืช", values: { 0: "ไม่ได้บริโภค", 1: "บริโภค" } },
+  Received_Orange_Yellow_Foods: { label: "บริโภคผักเนื้อสีส้ม/เหลืองเข้ม", values: { 0: "ไม่ได้บริโภค", 1: "บริโภค" } },
+  Received_White_Root_Foods: { label: "บริโภคอาหารประเภทหัวที่มีแป้งและเนื้อสีขาว", values: { 0: "ไม่ได้บริโภค", 1: "บริโภค" } },
+  Received_Dark_Green_Leafy_Veggies: { label: "บริโภคผักใบเขียวเข้ม", values: { 0: "ไม่ได้บริโภค", 1: "บริโภค" } },
+  Received_Ripe_Mangoes_Papayas: { label: "บริโภคมะม่วง/มะละกอสุก", values: { 0: "ไม่ได้บริโภค", 1: "บริโภค" } },
+  Received_Other_Fruits_Vegetables: { label: "บริโภคผลไม้/ผักอื่นๆ", values: { 0: "ไม่ได้บริโภค", 1: "บริโภค" } },
+  Received_Meat: { label: "บริโภคเนื้อสัตว์", values: { 0: "ไม่ได้บริโภค", 1: "บริโภค" } },
+  Received_Eggs: { label: "บริโภคอาหารที่มีส่วนผสมของไข่", values: { 0: "ไม่ได้บริโภค", 1: "บริโภค" } },
+  Received_Fish_Shellfish_Seafood: { label: "บริโภคอาหารทะเล", values: { 0: "ไม่ได้บริโภค", 1: "บริโภค" } },
+  Received_Legumes_Nuts_Foods: { label: "บริโภคถั่ว", values: { 0: "ไม่ได้บริโภค", 1: "บริโภค" } },
+  Received_Oil_Fats_Butter: { label: "บริโภคน้ำมัน/เนย", values: { 0: "ไม่ได้บริโภค", 1: "บริโภค" } },
+  Received_Sugary_Foods: { label: "บริโภคของหวาน", values: { 0: "ไม่ได้บริโภค", 1: "บริโภค" } },
+  Received_Chilies_Spices_Herbs: { label: "บริโภคเครื่องเทศ/สมุนไพร", values: { 0: "ไม่ได้บริโภค", 1: "บริโภค" } },
+  Received_Grubs_Snails_Insects: { label: "บริโภคแมลง/หอยทาก", values: { 0: "ไม่ได้บริโภค", 1: "บริโภค" } },
+  Received_Other_Solid_Semi_Solid_Food: { label: "บริโภคอาหารอื่นๆ", values: { 0: "ไม่ได้บริโภค", 1: "บริโภค" } },
+  Received_Salt: { label: "บริโภคอาหารที่มีเกลือผสม", values: { 0: "ไม่ได้บริโภค", 1: "บริโภค" } },
+  Received_Animal_Milk: { label: "บริโภคนมสัตว์", values: { 0: "ไม่ได้บริโภค", 1: "บริโภค" } },
+  Received_Dairy_Products: { label: "บริโภคผลิตภัณฑ์ที่ทำจากนม", values: { 0: "ไม่ได้บริโภค", 1: "บริโภค" } },
   Given_Anything_to_Drink_in_First_6_Months: { label: "ดื่มของเหลวใน 6 เดือนแรก", values: { 0: "ไม่ได้บริโภค", 1: "บริโภค" } },
-  Received_Plain_Water: { label: "ได้รับน้ำเปล่า", values: { 0: "ไม่ได้บริโภค", 1: "บริโภค" } },
-  Received_Juice_or_Juice_Drinks: { label: "ได้รับน้ำผลไม้", values: { 0: "ไม่ได้บริโภค", 1: "บริโภค" } },
-  Received_Tea: { label: "ได้รับชา/คาเฟอีน", values: { 0: "ไม่ได้บริโภค", 1: "บริโภค" } },
-  Received_Other_Liquids: { label: "ได้รับน้ำอื่นๆ เช่น น้ำอัดลม", values: { 0: "ไม่ได้บริโภค", 1: "บริโภค" } },
-  Received_Vitamin_or_Mineral_Supplements: { label: "ได้รับวิตามิน/แร่ธาตุ", values: { 0: "ไม่ได้บริโภค", 1: "บริโภค" } },
-  Vitamin_A_Intake_First_8_Weeks: { label: "ได้รับวิตามินเอใน 8 สัปดาห์แรก", values: { 0: "ไม่ได้บริโภค", 1: "บริโภค" } },
+  Received_Plain_Water: { label: "บริโภคน้ำเปล่า", values: { 0: "ไม่ได้บริโภค", 1: "บริโภค" } },
+  Received_Juice_or_Juice_Drinks: { label: "บริโภคน้ำผลไม้", values: { 0: "ไม่ได้บริโภค", 1: "บริโภค" } },
+  Received_Tea: { label: "บริโภคชา/คาเฟอีน", values: { 0: "ไม่ได้บริโภค", 1: "บริโภค" } },
+  Received_Other_Liquids: { label: "บริโภคเครื่องดื่มอื่นๆ เช่น น้ำอัดลม", values: { 0: "ไม่ได้บริโภค", 1: "บริโภค" } },
+  Received_Vitamin_or_Mineral_Supplements: { label: "บริโภควิตามิน/แร่ธาตุ", values: { 0: "ไม่ได้บริโภค", 1: "บริโภค" } },
+  Vitamin_A_Intake_First_8_Weeks: { label: "บริโภควิตามินเอใน 8 สัปดาห์แรก", values: { 0: "ไม่ได้บริโภค", 1: "บริโภค" } },
 
   // ✅ สุขอนามัย
   Sanitary_Disposal: { label: "ถ่ายอุจจาระถูกสุขลักษณะ", values: { 0: "ไม่ถูกสุขลักษณะ", 1: "ถูกสุขลักษณะ" } },
@@ -88,10 +88,10 @@ const valueMap = {
   Mom_wash_hand_before_or_after_feeding_the_child: { label: "แม่ล้างมือก่อน/หลังให้อาหารเด็ก", values: { 0: "ไม่ล้างมือ", 1: "ล้างมือ" } },
 
   // ✅ number
-  Infant_Formula_Intake_Count_Yesterday: { label: "จำนวนครั้งการบริโภคนมผง" },
-  Breastfeeding_Count_DayandNight: { label: "จำนวนครั้งให้นมทั้งวันและคืน" },
-  Received_Animal_Milk_Count: { label: "จำนวนครั้งดื่มนมสัตว์" },
-  Received_Yogurt_Count: { label: "จำนวนครั้งบริโภคโยเกิร์ต" }
+  Infant_Formula_Intake_Count_Yesterday: { label: "จำนวนครั้งการบริโภคนมผงภายใน 1 วัน" },
+  Breastfeeding_Count_DayandNight: { label: "จำนวนการบริโภคนมภายใน 1 วัน" },
+  Received_Animal_Milk_Count: { label: "จำนวนครั้งที่ดื่มนมสัตว์ภายใน 1 วัน" },
+  Received_Yogurt_Count: { label: "จำนวนครั้งบริโภคโยเกิร์ตภายใน 1 วัน" }
 };
 
 function normalizeTimestamp(ts) {
@@ -164,10 +164,26 @@ function Recomendation() {
 
     axios.get(`http://localhost:8000/shap/global/most/${record.status}`)
       .then(res => {
-        const features = res.data.top_features || [];
-        setMostGlobalFeatures(features);
+        const features = res.data?.top_features || [];
+
+        setMostGlobalFeatures(features); // ✅ ยังเก็บไว้ใช้สำหรับตารางซ้าย
+
+        // ✅ แยก top5 และ bottom5 ตามค่า max_shap
+        const sortedDesc = [...features].sort((a, b) => b.max_shap - a.max_shap);
+        const top5 = sortedDesc.slice(0, 5);
+
+        const sortedAsc = [...features].sort((a, b) => a.max_shap - b.max_shap);
+        const bottom5 = sortedAsc.slice(0, 5);
+
+        setTopGlobalFeatures(top5);
+        setBottomGlobalFeatures(bottom5);
       })
-      .catch(() => console.log("⚠️ ดึง SHAP global most ไม่สำเร็จ"));
+      .catch(() => {
+        console.log("⚠️ ดึง SHAP global most ไม่สำเร็จ");
+        setMostGlobalFeatures([]);
+        setTopGlobalFeatures([]);
+        setBottomGlobalFeatures([]);
+      });
   }, [record]);
 
   useEffect(() => {
@@ -200,33 +216,32 @@ function Recomendation() {
         params: { created_at: shapTime }
       })
         .then(res => {
-          const sorted = res.data.top_features.sort((a, b) => Math.abs(b.shap) - Math.abs(a.shap));
+          const sorted = res.data.top_features.sort((a, b) => b.shap - a.shap);
           setTopFeatures(sorted);
         })
         .catch(() => setTopFeatures([]));
     }
   }, [id, shapTime]);
 
-  // 👉 ดึง SHAP global จาก status ของ record
-  useEffect(() => {
-    if (!record || !record.status) return;
+  // // 👉 ดึง SHAP global จาก status ของ record
+  // useEffect(() => {
+  //   if (!record || !record.status) return;
+  //   axios.get(`http://localhost:8000/shap/global/${record.status}`)
+  //     .then(res => {
+  //       const all = res.data.summary_by_feature || [];
 
-    axios.get(`http://localhost:8000/shap/global/${record.status}`)
-      .then(res => {
-        const all = res.data.summary_by_feature || [];
+  //       const sorted = [...all].sort((a, b) => b.mean_shap_at_mode - a.mean_shap_at_mode);
+  //       const top5 = sorted.slice(0, 5);
 
-        const sorted = [...all].sort((a, b) => b.mean_shap_at_mode - a.mean_shap_at_mode);
-        const top5 = sorted.slice(0, 5);
+  //       const bottom5 = [...all]
+  //         .sort((a, b) => a.mean_shap_at_mode - b.mean_shap_at_mode)
+  //         .slice(0, 5);
 
-        const bottom5 = [...all]
-          .sort((a, b) => a.mean_shap_at_mode - b.mean_shap_at_mode)
-          .slice(0, 5);
-
-        setTopGlobalFeatures(top5);
-        setBottomGlobalFeatures(bottom5);
-      })
-      .catch(() => console.log("⚠️ ดึง SHAP global ไม่สำเร็จ"));
-  }, [record]);
+  //       setTopGlobalFeatures(top5);
+  //       setBottomGlobalFeatures(bottom5);
+  //     })
+  //     .catch(() => console.log("⚠️ ดึง SHAP global ไม่สำเร็จ"));
+  // }, [record]);
 
   useEffect(() => {
     if (id) {
@@ -375,7 +390,7 @@ function Recomendation() {
           });
         })
         .then((res) => {
-          const sorted = res.data.top_features.sort((a, b) => Math.abs(b.shap) - Math.abs(a.shap));
+          const sorted = res.data.top_features.sort((a, b) => b.shap - a.shap);
           setTopFeatures(sorted);
         })
         .catch((err) => {
@@ -831,7 +846,7 @@ function Recomendation() {
                       >
                         <Stethoscope size={16} color="#16a34a" />
                       </span>
-                      ค่ามาตรฐานของเด็กที่เป็นภาวะ
+                      ปัจจัยเสี่ยงของเด็กที่เป็นภาวะ
                       <span> {statusMap[record?.status?.split(" ")[0]] || record?.status}</span>
                     </th>
 
@@ -851,7 +866,7 @@ function Recomendation() {
                       >
                         <ListChecks size={16} color="#0ea5e9" />
                       </span>
-                      ค่าที่พบบ่อยในกลุ่มนี้
+                      ค่าของข้อมูล
                     </th>
 
 
@@ -863,12 +878,12 @@ function Recomendation() {
                     <td colSpan="2">
                       <TrendingUp size={16} style={{ marginRight: 6, verticalAlign: 'middle' }} />
                       Top 5 พฤติกรรมเสี่ยงที่ส่งผลต่อเด็กที่มีภาวะ
-                      <span> {statusMap[record?.status?.split(" ")[0]] || record?.status} </span> ทั้งหมด
+                      <span> {statusMap[record?.status?.split(" ")[0]] || record?.status} </span>
                     </td>
                   </tr>
                   {topGlobalFeatures.map((item, index) => {
                     const featureName = valueMap[item.feature]?.label || item.feature;
-                    const modeVal = item.mode_in_IQR ?? "--";
+                    const modeVal = item.real_value_original ?? item.real_value ?? "--";
                     const translatedMode =
                       valueMap[item.feature]?.values?.[String(modeVal)] ??
                       valueMap[item.feature]?.values?.[modeVal] ??
@@ -886,17 +901,17 @@ function Recomendation() {
                   <tr className="section-header bottom-header">
                     <td colSpan="2">
                       <TrendingDown size={16} style={{ marginRight: 6, verticalAlign: 'middle' }} />
-                      Top 5 ปัจจัยที่มีผลน้อยที่สุด
+                      Top 5 ปัจจัยที่ป้องกันไม่ให้เป็นภาวะ
+                      <span> {statusMap[record?.status?.split(" ")[0]] || record?.status} </span>
                     </td>
                   </tr>
                   {bottomGlobalFeatures.map((item, index) => {
                     const featureName = valueMap[item.feature]?.label || item.feature;
-                    const modeVal = item.mode_in_IQR ?? "--";
+                    const modeVal = item.real_value_original ?? item.real_value ?? "--";
                     const translatedMode =
                       valueMap[item.feature]?.values?.[String(modeVal)] ??
                       valueMap[item.feature]?.values?.[modeVal] ??
                       modeVal;
-
 
                     return (
                       <tr key={`bottom-${index}`} className="bottom-row">
