@@ -189,7 +189,7 @@ useEffect(() => {
     <h3 style={{ color: "#0ea5e9" }}>
       {childData.prefix_name_child} {childData.first_name_child} {childData.last_name_child}
     </h3>
-    <p>HN: {childData.hn}</p>
+    <p>HN: {childData.hn_number}</p>
   </div>
 )}
 
