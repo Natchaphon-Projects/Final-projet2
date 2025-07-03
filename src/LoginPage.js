@@ -182,7 +182,7 @@ function LoginPage() {
           <div className="demo-info">
             <p><strong>ตัวอย่างหมายเลข HN ที่ใช้งานได้:</strong></p>
             <ul>
-              <li>ผู้ปกครอง: <strong>1001</strong> หรือ 0911111111</li>
+              <li>ผู้ปกครอง: <strong>1001</strong> หรือ <strong>0911111111</strong></li>
               <li>หมอ: <strong>9002</strong> (ใช้ HN login เท่านั้น)</li>
               <li>แอดมิน: <strong>9001</strong> (ใช้ email login เท่านั้น)</li>
             </ul>
