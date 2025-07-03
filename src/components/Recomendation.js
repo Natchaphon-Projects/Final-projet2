@@ -523,8 +523,53 @@ function Recomendation() {
       });
   };
 
-  // ✅ ใช้ topFeatures โดยตรง
-  const displayedFeatures = showFullTable ? topFeatures : topFeatures.slice(0, 14);
+  const isEqual = (a, b) => {
+    if (a === b) return true;
+
+    // แปลงให้เป็น float แล้วเทียบ (เช่น 3 กับ "3.0")
+    const numA = parseFloat(a);
+    const numB = parseFloat(b);
+    return !isNaN(numA) && !isNaN(numB) && Math.abs(numA - numB) < 0.0001;
+  };
+
+  const nonCompliant = topFeatures.filter((item) => {
+    const realValue = item.real_value;
+    const normalVal = normalAverages[item.feature];
+
+    if (normalVal === undefined || normalVal === null) return true; // ถ้าไม่มีค่ามาตรฐาน → ถือว่าไม่ปฏิบัติตามไว้ก่อน
+
+    const valueMapEntry = valueMap[item.feature];
+    const patientValue = valueMapEntry?.values?.[realValue] ?? realValue;
+    const standardValue = (
+      valueMapEntry?.values?.[String(normalVal)] ??
+      valueMapEntry?.values?.[normalVal] ??
+      normalVal
+    );
+
+    return !isEqual(patientValue, standardValue);
+  });
+
+  const compliant = topFeatures.filter((item) => {
+    const realValue = item.real_value;
+    const normalVal = normalAverages[item.feature];
+
+    if (normalVal === undefined || normalVal === null) return false;
+
+    const valueMapEntry = valueMap[item.feature];
+    const patientValue = valueMapEntry?.values?.[realValue] ?? realValue;
+    const standardValue = (
+      valueMapEntry?.values?.[String(normalVal)] ??
+      valueMapEntry?.values?.[normalVal] ??
+      normalVal
+    );
+
+    return isEqual(patientValue, standardValue);
+  });
+
+  // ✅ แสดงเฉพาะ 13 รายการแรกของ "ไม่ได้ปฏิบัติตาม"
+  const displayedFeatures = showFullTable
+    ? [...nonCompliant, ...compliant]
+    : nonCompliant.slice(0, 13);
 
 
   console.log("🧩 topFeatures:", topFeatures);
@@ -753,8 +798,13 @@ function Recomendation() {
                             const standardValueText = valueMap[item.feature]?.values?.[String(normalVal)] ?? valueMap[item.feature]?.values?.[normalVal] ?? normalVal;
 
                             const isStringStandard = typeof standardValueText === "string";
-                            let msg = "";
 
+                            // ✅ ถ้าค่าผู้ป่วย = ค่ามาตรฐาน → แสดงข้อความเดียว
+                            if (patientValue === standardValueText) {
+                              return <span>ผู้ป่วยได้ปฏิบัติตามมาตรฐาน</span>;
+                            }
+
+                            let msg = "";
                             // 🧠 1. เปรียบเทียบกับ global
                             if (
                               normalVal !== undefined &&
@@ -776,6 +826,7 @@ function Recomendation() {
 
                             // 🧠 3. คำแนะนำจากการเปรียบเทียบพฤติกรรม
                             let behaviorNote = "";
+                            let recomendation = "";
                             if (isStringStandard) {
                               // → เป็นค่าข้อความ เช่น "บริโภค"
                               if (patientValue === standardValueText) {
@@ -788,17 +839,20 @@ function Recomendation() {
                               const numericStandard = Number(normalVal);
 
                               if (numericPatient < numericStandard) {
-                                behaviorNote = `ควรบริโภค ${featureLabel} เพิ่มขึ้น`;
+                                recomendation = `ควรบริโภค ${featureLabel} เพิ่มขึ้น`;
+                                behaviorNote = `ผู้ป่วยไม่ได้ปฏิบัติตามค่ามาตรฐาน`;
                               } else if (numericPatient > numericStandard) {
-                                behaviorNote = `ควรบริโภค ${featureLabel} ลดลง`;
+                                recomendation = `ควรบริโภค ${featureLabel} ลดลง`;
+                                behaviorNote = `ผู้ป่วยไม่ได้ปฏิบัติตามค่ามาตรฐาน`;
                               } else {
-                                behaviorNote = `ผู้ป่วยปฏิบัติตามค่ามาตรฐานของเด็กปกติ`;
+                                behaviorNote = `ผู้ป่วยปฏิบัติตามค่ามาตรฐาน`;
                               }
                             }
 
                             return (
                               <>
                                 {behaviorNote} <br />
+                                {recomendation} <br />
                                 {shapNote} <br />
                                 {msg && <span style={{ fontStyle: "italic", color: "#888" }}>{msg}</span>}
                               </>
