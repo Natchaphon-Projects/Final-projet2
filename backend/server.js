@@ -239,18 +239,38 @@ app.post("/patients/:id/records", (req, res) => {
 
 // ✅ POST: Login ตรวจสอบ HN
 app.post("/login", (req, res) => {
-  const { hnNumber } = req.body;
-  const query = `SELECT role FROM users WHERE hn_number = ?`;
-  db.query(query, [hnNumber], (err, results) => {
-    if (err) return res.status(500).json({ success: false, message: "Database error" });
-    if (results.length > 0) {
-      const { role } = results[0];
-      res.json({ success: true, role });
-    } else {
-      res.status(401).json({ success: false, message: "HN ไม่ถูกต้อง" });
+  const { identity } = req.body; // อาจเป็น hn หรือ phone
+
+  const sql = `
+    SELECT u.role, u.hn_number
+    FROM users u
+    LEFT JOIN parent p ON u.users_id = p.users_id
+    WHERE u.hn_number = ? OR p.phone_number = ?
+  `;
+
+  db.query(sql, [identity, identity], (err, results) => {
+    if (err) {
+      console.error("❌ SQL Error:", err);
+      return res.status(500).json({ message: "Database error" });
     }
+
+    if (results.length === 0) {
+      return res.status(401).json({ message: "ไม่พบข้อมูล HN หรือเบอร์โทร" });
+    }
+
+    const { role, hn_number } = results[0];
+
+    // ✅ ห้าม admin ใช้วิธีนี้
+    if (role === "admin") {
+      return res.status(403).json({ message: "admin ต้องใช้ email/password เท่านั้น" });
+    }
+
+    return res.status(200).json({ role, hn_number });
   });
 });
+
+
+
 
 // ✅ GET: ข้อมูลผู้ปกครอง
 app.get("/parents/:hn", (req, res) => {
@@ -526,6 +546,7 @@ app.get("/parents-with-children", (req, res) => {
   const query = `
     SELECT 
     pa.parent_id,
+    pa.hn_number,
     CONCAT(pa.prefix_name_parent, ' ', pa.first_name_parent, ' ', pa.last_name_parent) AS parent_name,
     pa.houseNo, pa.moo, pa.alley, pa.street, pa.subDistrict, pa.district, pa.province, pa.postalCode,
     pa.phone_number,
@@ -691,7 +712,7 @@ app.delete("/parents/:id", (req, res) => {
   });
 });
 
-// ✅ ดึงรายชื่อหมอทั้งหมด
+// ✅ ดึงรายชื่อหมอทั้งหมด (เพิ่ม work_day)
 app.get("/doctors", (req, res) => {
   const sql = `
     SELECT 
@@ -699,14 +720,15 @@ app.get("/doctors", (req, res) => {
       d.prefix_name_doctor,
       d.first_name_doctor,
       d.last_name_doctor,
+      d.work_day,
       d.work_time,
       d.specialist,
-      d.work_day,
       u.hn_number,
       u.phone_number
     FROM doctor d
     JOIN users u ON d.users_id = u.users_id
   `;
+
   db.query(sql, (err, results) => {
     if (err) return res.status(500).send("❌ ดึงข้อมูลผิดพลาด");
     res.json(results);
@@ -989,8 +1011,96 @@ app.put("/parents/:id", (req, res) => {
 
 
 
+app.get("/patients/:id", (req, res) => {
+  const patientId = req.params.id;
+
+  const query = `
+    SELECT 
+      p.patient_id AS id,
+      p.hn_number,
+      p.prefix_name_child,
+      p.first_name_child,
+      p.last_name_child,
+      p.birth_date,
+      p.age,
+      p.gender,
+      pa.parent_id,
+      pa.prefix_name_parent,
+      pa.first_name_parent,
+      pa.last_name_parent,
+      r.relationship
+    FROM patient p
+    LEFT JOIN relationship r ON p.patient_id = r.patient_id
+    LEFT JOIN parent pa ON r.parent_id = pa.parent_id
+    WHERE p.patient_id = ?
+  `;
+
+  db.query(query, [patientId], (err, results) => {
+    if (err) {
+      console.error("❌ SQL Error:", err);
+      return res.status(500).json({ message: "Database error" });
+    }
+
+    if (results.length === 0) {
+      return res.status(404).json({ message: "ไม่พบข้อมูลเด็ก" });
+    }
+
+    const result = results[0];
+    result.full_name = `${result.prefix_name_child} ${result.first_name_child} ${result.last_name_child}`;
+    result.parent_name = `${result.prefix_name_parent} ${result.first_name_parent} ${result.last_name_parent}`;
+
+    res.json(result);
+  });
+});
+
+app.get("/users-hn", (req, res) => {
+  const email = req.query.email;
+  const query = `SELECT hn_number FROM users WHERE hn_number = ?`; // email = hn สำหรับ admin
+
+  db.query(query, [email], (err, results) => {
+    if (err || results.length === 0) {
+      return res.status(404).json({ message: "ไม่พบผู้ใช้" });
+    }
+    res.json(results[0]);
+  });
+});
+
+
+app.post("/login-auth", (req, res) => {
+  const { identity, password } = req.body;
+
+  const query = `
+    SELECT a.*, u.hn_number 
+    FROM admins a
+    JOIN users u ON a.users_id = u.users_id
+    WHERE (a.email = ? OR a.username = ?) AND a.password = ?
+  `;
+
+  db.query(query, [identity, identity, password], (err, results) => {
+    if (err) {
+      console.error("❌ SQL error:", err);
+      return res.status(500).json({ message: "Server error" });
+    }
+
+    if (results.length === 0) {
+      return res.status(401).json({ message: "ไม่พบผู้ใช้หรือรหัสผ่านไม่ถูกต้อง" });
+    }
+
+    const admin = results[0];
+    return res.status(200).json({
+      token: "mocked-admin-token", // ✅ แทนด้วย token จริงถ้ามี
+      role: "admin",
+      hn_number: admin.hn_number
+    });
+  });
+});
+
+
+
 // ✅ Start server
 app.listen(port, () => {
   console.log(`🚀 Server is running on http://localhost:${port}`);
 });
+
+
 

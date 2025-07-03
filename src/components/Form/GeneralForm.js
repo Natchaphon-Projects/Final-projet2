@@ -278,7 +278,7 @@ function GeneralForm() {
           {childData && (
             <div style={{ textAlign: "center", marginBottom: "1rem" }}>
               <h3>แบบฟอร์มของ: {childData.prefix_name_child} {childData.first_name_child} {childData.last_name_child}</h3>
-              <p>HN: {childData.hn}</p>
+              <p>HN: {childData.hn_number}</p>
             </div>
           )}
 

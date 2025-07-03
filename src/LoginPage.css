@@ -167,3 +167,25 @@
     font-size: 26px;
   }
 }
+
+
+.password-wrapper {
+  position: relative;
+  width: 100%;
+}
+
+.password-wrapper input.hn-input {
+  padding-right: 44px; /* ระยะเผื่อไอคอนด้านขวา */
+  margin-bottom: 20px;
+}
+
+.toggle-password-icon {
+  position: absolute;
+  right: 16px;
+  top: 50%;
+  transform: translateY(-90%);
+  cursor: pointer;
+  color: #6b7280;
+  font-size: 18px;
+  pointer-events: all;
+}
