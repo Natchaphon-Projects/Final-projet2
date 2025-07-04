@@ -124,6 +124,8 @@ function Recomendation() {
   const patient = location.state?.patient;
   const { id } = useParams();
   const [record, setRecord] = useState(null);
+  const [shouldIncrease, setShouldIncrease] = useState([]);
+  const [shouldDecrease, setShouldDecrease] = useState([]);
   const [timestamps, setTimestamps] = useState([]);
   const [mostGlobalFeatures, setMostGlobalFeatures] = useState([]);
 
@@ -242,6 +244,32 @@ function Recomendation() {
   //     })
   //     .catch(() => console.log("⚠️ ดึง SHAP global ไม่สำเร็จ"));
   // }, [record]);
+
+  const handleCheckboxChange = (label, type) => {
+    if (type === "increase") {
+      setShouldIncrease((prev) => {
+        const updated = prev.includes(label)
+          ? prev.filter((f) => f !== label)
+          : [...prev, label];
+        updatePublicNoteText(updated, shouldDecrease);
+        return updated;
+      });
+    } else if (type === "decrease") {
+      setShouldDecrease((prev) => {
+        const updated = prev.includes(label)
+          ? prev.filter((f) => f !== label)
+          : [...prev, label];
+        updatePublicNoteText(shouldIncrease, updated);
+        return updated;
+      });
+    }
+  };
+
+  const updatePublicNoteText = (inc, dec) => {
+    const text = `โปรดปฏิบัติตาม:\n- ควรเพิ่ม: ${inc.join(", ") || "-"}\n- ควรลด: ${dec.join(", ") || "-"}`;
+    setPublicNote(text);
+  };
+
 
   useEffect(() => {
     if (id) {
@@ -596,6 +624,8 @@ function Recomendation() {
         {/* Patient Info + Graph */}
         <div className="recommendation-patient-wrapper">
 
+
+
           {/* ซ้าย: Patient Section */}
           <div className="recommendation-patient-section">
 
@@ -668,63 +698,63 @@ function Recomendation() {
         </div>
 
         {/* Action Buttons */}
-        {/* ✅ Dropdown ด้านซ้าย */}
 
-        <div className="recommendation-action-buttons">
-          <div className="dropdown-wrapper">
-            <select
-              className="recommendation-dropdown"
-              value={shapTime || ""}
-              onChange={(e) => setShapTime(e.target.value)}
-            >
-              <option value="">-- เลือกวันที่และเวลา --</option>
-
-              {sortedTimestamps.map((ts, idx) => (
-                <option
-                  key={idx}
-                  value={ts}
-                  style={{
-                    backgroundColor: shapTime === ts ? "#d1fae5" : "white", // ✅ เขียวอ่อนถ้าเลือกอยู่
-                  }}
-                >
-                  {new Date(ts).toLocaleString("th-TH")}
-                </option>
-              ))}
-            </select>
-
-
-          </div>
-
-        </div>
-
-        {/* Assessment Status */}
-        {record?.status && (
-          <div className="recommendation-status">
-            <div className="status-text">
-              อยู่ในเกณฑ์ : {statusMap[record?.status?.split(" ")[0]] || record.status}
-            </div>
-
-          </div>
-        )}
 
         {/* ผลการตรวจ Section */}
         <div className="recommendation-result-section">
-
           <div className="result-header-row">
-            <div className="result-title">ผลการตรวจ :</div>
-
-            <div className="allergy-card-group">
-              <div className="allergy-card food">
-                <div className="allergy-label">แพ้อาหาร:</div>
-                <div className="allergy-value">{record?.Food_allergy || "ไม่มี"}</div>
-              </div>
-
-              <div className="allergy-card drug">
-                <div className="allergy-label">แพ้ยา:</div>
-                <div className="allergy-value">{record?.drug_allergy || "ไม่มี"}</div>
+            <div className="result-left">
+              <div className="result-title">ผลการตรวจ :</div>
+              <div className="dropdown-wrapper-inline">
+                <select
+                  className="recommendation-dropdown"
+                  value={shapTime || ""}
+                  onChange={(e) => setShapTime(e.target.value)}
+                >
+                  <option value="">-- เลือกวันที่และเวลา --</option>
+                  {sortedTimestamps.map((ts, idx) => (
+                    <option key={idx} value={ts}>
+                      {new Date(ts).toLocaleString("th-TH")}
+                    </option>
+                  ))}
+                </select>
               </div>
             </div>
           </div>
+
+          <div className="result-table-wrapper">
+            <div className="result-table-block left">
+
+              {/* ✅ ย้ายผลลัพธ์มาไว้ใน block นี้ */}
+              <div className="recommendation-status" style={{ marginBottom: "20px" }}>
+                <div className="status-text">
+                  อยู่ในเกณฑ์ : {statusMap[record?.status?.split(" ")[0]] || record?.status}
+                </div>
+              </div>
+
+              {/* ✅ ตารางซ้าย */}
+              {/* ตารางซ้ายของคุณอยู่ตรงนี้ต่อเลย */}
+            </div>
+
+            <div className="result-table-block right">
+              {/* ✅ แพ้อาหาร/แพ้ยา */}
+              <div className="allergy-card-group">
+                <div className="allergy-card food">
+                  <div className="allergy-label">แพ้อาหาร:</div>
+                  <div className="allergy-value">{record?.Food_allergy || "ไม่มี"}</div>
+                </div>
+
+                <div className="allergy-card drug">
+                  <div className="allergy-label">แพ้ยา:</div>
+                  <div className="allergy-value">{record?.drug_allergy || "ไม่มี"}</div>
+                </div>
+              </div>
+
+              {/* ตารางฝั่งขวาอยู่ต่อจากนี้ */}
+            </div>
+          </div>
+
+
 
           {/* Wrapper → 2 ตาราง */}
           <div className="result-table-wrapper">
@@ -779,7 +809,78 @@ function Recomendation() {
 
                     return (
                       <tr key={index}>
-                        <td>{featureLabel}</td>
+                        <td style={{ textAlign: "center", verticalAlign: "middle", padding: "12px" }}>
+                          <div style={{
+                            display: "flex",
+                            flexDirection: "column",
+                            alignItems: "center",
+                            gap: "6px",
+                            fontFamily: "'Prompt', sans-serif"
+                          }}>
+                            {/* ชื่อฟีเจอร์ */}
+                            <div style={{
+                              fontWeight: 600,
+                              fontSize: "14.5px",
+                              color: "#333",
+                              marginBottom: "4px"
+                            }}>
+                              {featureLabel}
+                            </div>
+
+                            {/* Checkbox แนวนอน */}
+                            <div style={{
+                              display: "flex",
+                              gap: "14px",
+                              justifyContent: "center"
+                            }}>
+                              {/* ปุ่มติ๊กแบบกลมๆ ชิด label */}
+                              <label style={{
+                                display: "flex",
+                                alignItems: "center",
+                                gap: "6px",
+                                fontSize: "13.5px",
+                                color: "#444",
+                                cursor: "pointer"
+                              }}>
+                                <input
+                                  type="checkbox"
+                                  checked={shouldIncrease.includes(featureLabel)}
+                                  onChange={() => handleCheckboxChange(featureLabel, "increase")}
+                                  style={{
+                                    width: "16px",
+                                    height: "16px",
+                                    accentColor: "#22c55e", // เขียวแบบ Tailwind
+                                    cursor: "pointer"
+                                  }}
+                                />
+                                ควรเพิ่ม
+                              </label>
+
+                              <label style={{
+                                display: "flex",
+                                alignItems: "center",
+                                gap: "6px",
+                                fontSize: "13.5px",
+                                color: "#444",
+                                cursor: "pointer"
+                              }}>
+                                <input
+                                  type="checkbox"
+                                  checked={shouldDecrease.includes(featureLabel)}
+                                  onChange={() => handleCheckboxChange(featureLabel, "decrease")}
+                                  style={{
+                                    width: "16px",
+                                    height: "16px",
+                                    accentColor: "#f43f5e", // แดงแบบ Tailwind
+                                    cursor: "pointer"
+                                  }}
+                                />
+                                ควรลด
+                              </label>
+                            </div>
+                          </div>
+                        </td>
+
                         <td><span className="badge">{patientValue}</span></td>
                         <td><span className="badge-green">{standardValue}</span></td>
                         <td>
