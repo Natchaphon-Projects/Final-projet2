@@ -377,6 +377,14 @@ function Recomendation() {
         })
 
         .catch((err) => console.error("❌ โหลดข้อมูล record ไม่สำเร็จ:", err));
+
+      axios.get(`http://localhost:5000/patients/${id}/records/notes`, {
+        params: { created_at: formatted }
+      }).then((res) => {
+        setPrivateNote(res.data.private_note || "");
+        setPublicNote(res.data.public_note || "");
+      })
+      .catch((err) => console.error("❌ โหลดข้อมูล note ไม่สำเร็จ:", err));
     }
   }, [id, createdAt]);
 
@@ -493,17 +501,17 @@ function Recomendation() {
 
         {/* CSS Animation */}
         <style>{`
-          @keyframes zoomIn {
-            0% {
-              transform: scale(0.9);
-              opacity: 0;
+            @keyframes zoomIn {
+              0% {
+                transform: scale(0.9);
+                opacity: 0;
+              }
+              100% {
+                transform: scale(1);
+                opacity: 1;
+              }
             }
-            100% {
-              transform: scale(1);
-              opacity: 1;
-            }
-          }
-        `}</style>
+          `}</style>
       </div>
     );
   }
@@ -524,11 +532,11 @@ function Recomendation() {
     setIsDropdownOpen(false);
   };
 
-  const handleSaveNotes = () => {
+  const handleSavePublicNote = () => {
     if (!id || !shapTime) return;  // ✅ ต้องมีเวลาที่ตรงกับใน DB
     setIsSaving(true);
 
-    axios.put(`http://localhost:5000/patients/${id}/records/note`, {
+    axios.put(`http://localhost:5000/patients/${id}/records/public_note`, {
       created_at: shapTime,  // ✅ ใช้เวลาที่ตรงกับ DB
       private_note: privateNote,
       public_note: publicNote
@@ -539,10 +547,30 @@ function Recomendation() {
           params: { created_at: shapTime }
         });
       })
-      .then((res) => {
-        setPrivateNote(res.data.private_note || "");
-        setPublicNote(res.data.public_note || "");
+      .catch(() => {
+        alert("❌ เกิดข้อผิดพลาดในการบันทึก");
       })
+      .finally(() => {
+        setIsSaving(false);
+      });
+  };
+
+  const handleSavePrivateNote = () => {
+    if (!id || !shapTime) return;  // ✅ ต้องมีเวลาที่ตรงกับใน DB
+    setIsSaving(true);
+
+    axios.put(`http://localhost:5000/patients/${id}/records/private_note`, {
+      created_at: shapTime,  // ✅ ใช้เวลาที่ตรงกับ DB
+      private_note: privateNote,
+      public_note: publicNote
+    })
+      .then(() => {
+        alert("✅ บันทึกสำเร็จแล้ว");
+        return axios.get(`http://localhost:5000/patients/${id}/records`, {
+          params: { created_at: shapTime }
+        });
+      })
+
       .catch(() => {
         alert("❌ เกิดข้อผิดพลาดในการบันทึก");
       })
@@ -597,7 +625,7 @@ function Recomendation() {
   // ✅ แสดงเฉพาะ 13 รายการแรกของ "ไม่ได้ปฏิบัติตาม"
   const displayedFeatures = showFullTable
     ? [...nonCompliant, ...compliant]
-    : nonCompliant.slice(0, 13);
+    : nonCompliant.slice(0, 7);
 
 
   console.log("🧩 topFeatures:", topFeatures);
@@ -732,6 +760,24 @@ function Recomendation() {
                 </div>
               </div>
 
+              {/* ✅ ย้าย feedback section มาที่นี่ */}
+              <div className="recommendation-feedback-section">
+                <div className="feedback-title">📌 ข้อเสนอแนะสำหรับผู้ปกครอง</div>
+                <textarea
+                  className="feedback-textarea"
+                  value={publicNote}
+                  onChange={(e) => setPublicNote(e.target.value)}
+                  placeholder="ข้อเสนอแนะที่ผู้ปกครองควรทราบ..."
+                  rows="3"
+                />
+
+                <button className="feedback-submit-btn" onClick={handleSavePublicNote}>
+                  💾 บันทึกข้อเสนอแนะ
+                </button>
+
+
+              </div>
+
               {/* ✅ ตารางซ้าย */}
               {/* ตารางซ้ายของคุณอยู่ตรงนี้ต่อเลย */}
             </div>
@@ -750,6 +796,20 @@ function Recomendation() {
                 </div>
               </div>
 
+              <div className="recommendation-feedback-section">
+                <div className="feedback-title">🔒 บันทึกส่วนตัวสำหรับหมอ</div>
+                <textarea
+                  className="feedback-textarea"
+                  value={privateNote}
+                  onChange={(e) => setPrivateNote(e.target.value)}
+                  placeholder="บันทึกเฉพาะแพทย์ เช่น รายละเอียดการประเมิน..."
+                  rows="3"
+                />
+
+                <button className="feedback-submit-btn" onClick={handleSavePrivateNote}>
+                  💾 บันทึกข้อเสนอแนะ
+                </button>
+              </div>
               {/* ตารางฝั่งขวาอยู่ต่อจากนี้ */}
             </div>
           </div>
@@ -1075,32 +1135,6 @@ function Recomendation() {
                   })}
                 </tbody>
               </table>
-
-
-              <div className="recommendation-feedback-section">
-                <div className="feedback-title">📌 ข้อเสนอแนะสำหรับผู้ปกครอง</div>
-                <textarea
-                  className="feedback-textarea"
-                  value={publicNote}
-                  onChange={(e) => setPublicNote(e.target.value)}
-                  placeholder="ข้อเสนอแนะที่ผู้ปกครองควรทราบ..."
-                  rows="3"
-                />
-
-                <div className="feedback-title">🔒 บันทึกส่วนตัวสำหรับหมอ</div>
-                <textarea
-                  className="feedback-textarea"
-                  value={privateNote}
-                  onChange={(e) => setPrivateNote(e.target.value)}
-                  placeholder="บันทึกเฉพาะแพทย์ เช่น รายละเอียดการประเมิน..."
-                  rows="3"
-                />
-
-                <button className="feedback-submit-btn" onClick={handleSaveNotes}>
-                  💾 บันทึกข้อเสนอแนะ
-                </button>
-              </div>
-
 
             </div>
 

@@ -568,47 +568,6 @@ app.get("/parents-with-children", (req, res) => {
   });
 });
 
-
-
-
-app.get("/patients/:id/records", (req, res) => {
-  const id = req.params.id;
-  const query = `
-    SELECT 
-      m.weight,
-      m.height,
-      m.Food_allergy AS Food_allergy,
-      m.Drug_allergy AS drug_allergy,
-      m.congenital_disease,
-      pt.hn_number,
-      p.Status_personal AS status
-    FROM medical_records m
-    JOIN (
-      SELECT * FROM prediction
-      WHERE patient_id = ?
-      ORDER BY created_at DESC
-      LIMIT 1
-    ) p ON m.patient_id = p.patient_id
-    JOIN patient pt ON pt.patient_id = m.patient_id
-    WHERE m.patient_id = ?
-    ORDER BY m.created_at DESC
-    LIMIT 1;
-  `;
-
-  db.query(query, [id, id], (err, results) => {
-    if (err) {
-      console.error("❌ Error fetching medical record:", err);
-      return res.status(500).json({ error: "Database error" });
-    }
-
-    if (results.length > 0) {
-      res.json(results[0]);
-    } else {
-      res.status(404).json({ message: "No records found" });
-    }
-  });
-});
-
 app.post("/parents", (req, res) => {
   const {
     hn_number,
@@ -920,20 +879,41 @@ app.get("/patients/:id/records/timestamps", (req, res) => {
 
 
 // ✅ PUT: บันทึก note ทั้งสองแบบ
-app.put("/patients/:id/records/note", (req, res) => {
+app.put("/patients/:id/records/public_note", (req, res) => {
   const { id } = req.params;
-  const { created_at, private_note, public_note } = req.body;
+  const { created_at, public_note } = req.body;
 
   const sql = `
     UPDATE medical_records
     SET 
-      private_note = ?, 
       public_note = ?, 
       note_updated_at = NOW()
     WHERE patient_id = ? AND created_at = ?
   `;
 
-  db.query(sql, [private_note, public_note, id, created_at], (err, result) => {
+  db.query(sql, [public_note, id, created_at], (err, result) => {
+    if (err) {
+      console.error("❌ Error updating notes:", err);
+      return res.status(500).json({ message: "Error updating notes" });
+    }
+    res.json({ message: "✅ Notes updated successfully" });
+  });
+});
+
+
+app.put("/patients/:id/records/private_note", (req, res) => {
+  const { id } = req.params;
+  const { created_at, private_note} = req.body;
+
+  const sql = `
+    UPDATE medical_records
+    SET 
+      private_note = ?, 
+      note_updated_at = NOW()
+    WHERE patient_id = ? AND created_at = ?
+  `;
+
+  db.query(sql, [private_note, id, created_at], (err, result) => {
     if (err) {
       console.error("❌ Error updating notes:", err);
       return res.status(500).json({ message: "Error updating notes" });
@@ -1095,6 +1075,34 @@ app.post("/login-auth", (req, res) => {
   });
 });
 
+// ✅ GET: ดึง private_note และ public_note จาก medical_records
+app.get("/patients/:id/records/notes", (req, res) => {
+  const { id } = req.params;
+  const { created_at } = req.query;
+
+  if (!created_at) {
+    return res.status(400).json({ message: "กรุณาระบุ created_at" });
+  }
+
+  const sql = `
+    SELECT private_note, public_note 
+    FROM medical_records 
+    WHERE patient_id = ? AND created_at = ?
+  `;
+
+  db.query(sql, [id, created_at], (err, results) => {
+    if (err) {
+      console.error("❌ Error fetching notes:", err);
+      return res.status(500).json({ message: "Database error" });
+    }
+
+    if (results.length > 0) {
+      res.json(results[0]);
+    } else {
+      res.status(404).json({ message: "ไม่พบข้อมูล" });
+    }
+  });
+});
 
 
 // ✅ Start server
