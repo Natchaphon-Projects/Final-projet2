@@ -704,8 +704,6 @@ function Recomendation() {
               อยู่ในเกณฑ์ : {statusMap[record?.status?.split(" ")[0]] || record.status}
             </div>
 
-
-            <div className="status-subtext">Assessment Status</div>
           </div>
         )}
 
