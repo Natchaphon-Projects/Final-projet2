@@ -27,6 +27,8 @@ import PatientHistory from "./components/PatientHistory";
 import PredictionModel from "./components/Prediction_model/PredictionModel"; // ✅ เพิ่มตรงนี้
 import ParentRiskSelection from "./components/ParentRiskSelection"; // ✅ ต้อง import ตรงนี้
 import MedicalHistory from "./components/Prediction_model/MedicalHistory";
+import RegisterParent from "./RegisterParent";
+
 
 import './styles.css';
 
@@ -41,6 +43,7 @@ function App() {
         <Route path="/login" element={<LoginPage />} />
         <Route path="/otp-login" element={<OTPLogin />} />
         <Route path="/enter-otp" element={<EnterOTP />} />
+        <Route path="/register" element={<RegisterParent />} />
 
         {/* Parent Routes */}
         <Route path="/parent-dashboard" element={<ParentDashboard />} />
@@ -53,6 +56,7 @@ function App() {
         <Route path="/pre" element={<PredictionModel />} /> {/* ✅ เพิ่ม route ไปยังหน้าผลประเมิน */}
         <Route path="/prediction-result" element={<PredictionModel />} />
         <Route path="/medical-history" element={<MedicalHistory />} />
+        
 
 
         {/* Doctor Routes */}

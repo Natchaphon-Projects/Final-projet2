@@ -23,6 +23,10 @@ const ManageParentDepartment = () => {
   const [currentPage, setCurrentPage] = useState(1);
   const [editingParent, setEditingParent] = useState(null);
   const [showModal, setShowModal] = useState(false);
+  const [pendingRegisters, setPendingRegisters] = useState([]);
+  const [showApprovalModal, setShowApprovalModal] = useState(false);
+  const [selectedRegister, setSelectedRegister] = useState(null);
+
 
   const [formData, setFormData] = useState({
     hn: "",
@@ -107,6 +111,19 @@ const ManageParentDepartment = () => {
     }
   };
 
+  const handleRejectRegister = async (reg) => {
+    if (!window.confirm("❌ คุณแน่ใจหรือไม่ว่าต้องการปฏิเสธคำขอนี้?")) return;
+    try {
+      await axios.post(`http://localhost:5000/reject-register/${reg.register_id}`);
+      alert("❌ ปฏิเสธคำขอแล้ว");
+      loadPendingRegisters();
+    } catch (err) {
+      console.error("ปฏิเสธไม่สำเร็จ", err);
+      alert("เกิดข้อผิดพลาด");
+    }
+  };
+
+
   const resetForm = () => {
     setFormData({
       hn: "",
@@ -136,24 +153,24 @@ const ManageParentDepartment = () => {
   };
 
   const handleEdit = (parent) => {
-  setEditingParent(parent);
-  setFormData({
-    hn: parent.hn_number || "",
-    prefix: parent.prefix_name_parent || "",
-    name: parent.first_name_parent || "",
-    lastName: parent.last_name_parent || "",
-    phone: parent.phone_number || "",
-    houseNo: parent.houseNo || "",
-    moo: parent.moo || "",
-    alley: parent.alley || "",
-    street: parent.street || "",
-    subDistrict: parent.subDistrict || "",
-    district: parent.district || "",
-    province: parent.province || "",
-    postalCode: parent.postalCode || ""
-  });
-  setShowModal(true);
-};
+    setEditingParent(parent);
+    setFormData({
+      hn: parent.hn_number || "",
+      prefix: parent.prefix_name_parent || "",
+      name: parent.first_name_parent || "",
+      lastName: parent.last_name_parent || "",
+      phone: parent.phone_number || "",
+      houseNo: parent.houseNo || "",
+      moo: parent.moo || "",
+      alley: parent.alley || "",
+      street: parent.street || "",
+      subDistrict: parent.subDistrict || "",
+      district: parent.district || "",
+      province: parent.province || "",
+      postalCode: parent.postalCode || ""
+    });
+    setShowModal(true);
+  };
 
   const handleDelete = async (id) => {
     if (window.confirm("❌ คุณแน่ใจหรือไม่ว่าต้องการลบข้อมูลผู้ปกครองนี้?")) {
@@ -166,6 +183,38 @@ const ManageParentDepartment = () => {
   const filteredParents = parents.filter((p) =>
     p.parent_name?.includes(searchTerm) || p.phone_number?.includes(searchTerm) || p.parent_address?.includes(searchTerm)
   );
+
+  useEffect(() => {
+    loadParents();
+    loadPendingRegisters(); // 🆕 เพิ่มบรรทัดนี้
+  }, []);
+
+  const loadPendingRegisters = async () => {
+    try {
+      const res = await axios.get("http://localhost:5000/registers?status=pending");
+      setPendingRegisters(res.data);
+    } catch (err) {
+      console.error("โหลดข้อมูล register ผิดพลาด", err);
+    }
+  };
+
+
+  const handleApproveRegister = async (reg) => {
+    try {
+      const res = await axios.post(`http://localhost:5000/approve-register/${reg.register_id}`, {
+        admin_id: 1 // หรือเปลี่ยนตาม admin ที่ login
+      });
+      alert("✅ อนุมัติสำเร็จ");
+      alert(`✅ อนุมัติสำเร็จ\nบัญชีผู้ปกครองสามารถเข้าสู่ระบบได้โดยใช้\nชื่อผู้ใช้: ${reg.phone_number}\n OTP: 123456`);
+      setShowApprovalModal(false);
+      loadParents();
+      loadPendingRegisters();
+    } catch (err) {
+      console.error("❌ อนุมัติไม่สำเร็จ", err);
+      alert("เกิดข้อผิดพลาด");
+    }
+  };
+
 
   const totalPages = Math.ceil(filteredParents.length / itemsPerPage);
   const startIndex = (currentPage - 1) * itemsPerPage;
@@ -193,10 +242,18 @@ const ManageParentDepartment = () => {
 
         <div className="table-title">
           <h3>รายชื่อผู้ปกครอง <span>ทั้งหมด {filteredParents.length} คน</span></h3>
+
+        </div>
+
+        <div className="button-right-group">
           <button className="add-btn" onClick={handleAdd}>
             <Plus /> เพิ่มผู้ปกครองใหม่
           </button>
+          <button className="add-btn" onClick={() => setShowApprovalModal(true)}>
+            📥 อนุมัติคำขอสมัคร
+          </button>
         </div>
+
 
         <table className="modern-table">
           <thead>
@@ -272,6 +329,7 @@ const ManageParentDepartment = () => {
               <h3 style={{ textAlign: "center" }}>
                 {editingParent ? "✏️ แก้ไขข้อมูลผู้ปกครอง" : "➕ เพิ่มผู้ปกครองใหม่"}
               </h3>
+              
 
               {/* ✅ แถวที่ 1: HN */}
 
@@ -399,6 +457,47 @@ const ManageParentDepartment = () => {
           </div>
         )}
       </div>
+{showApprovalModal && (
+                <div className="modal">
+                  <div className="modal-content scrollable-modal">
+                    <h3>📋 รายการผู้ปกครองที่รออนุมัติ</h3>
+
+                    {pendingRegisters.length === 0 ? (
+                      <p style={{ textAlign: "center", margin: "20px 0", color: "#888" }}>
+                        💤 ไม่มีรายการรออนุมัติ
+                      </p>
+                    ) : (
+                      <table className="modern-table small-table">
+                        <thead>
+                          <tr>
+                            <th>HN</th>
+                            <th>ชื่อ</th>
+                            <th>เบอร์โทร</th>
+                            <th>จัดการ</th>
+                          </tr>
+                        </thead>
+                        <tbody>
+                          {pendingRegisters.map((reg) => (
+                            <tr key={reg.register_id}>
+                              <td>{reg.hn_number}</td>
+                              <td>{reg.prefix_name_parent} {reg.first_name_parent} {reg.last_name_parent}</td>
+                              <td>{reg.phone_number?.replace(/^(\d{3})(\d{3})(\d+)/, "$1-$2-$3")}</td>
+                              <td>
+                                <button className="confirm-btn" onClick={() => handleApproveRegister(reg)}>✅ อนุมัติ</button>
+                                <button className="cancel-btn" onClick={() => handleRejectRegister(reg)}>❌ ปฏิเสธ</button>
+                              </td>
+                            </tr>
+                          ))}
+                        </tbody>
+                      </table>
+                    )}
+
+                    <div className="button-group">
+                      <button className="cancel-btn" onClick={() => setShowApprovalModal(false)}>ปิด</button>
+                    </div>
+                  </div>
+                </div>
+              )}
 
       <Footer />
     </div>

@@ -497,3 +497,11 @@
   color: #059669;
   font-size: 20px;
 }
+
+
+.button-right-group {
+  display: flex;
+  justify-content: flex-end;
+  gap: 1rem;
+  margin-bottom: 1rem;
+}
