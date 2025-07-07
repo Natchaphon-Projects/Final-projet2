@@ -61,20 +61,29 @@
   margin-bottom: 12px;
   flex-wrap: wrap;
   justify-content: space-between;
+  align-items: center;
+}
+
+/* ช่องชื่อและนามสกุลให้กว้างเท่ากัน */
+.input-field.name-field {
+  flex: 1;
+  min-width: 120px;
+}
+
+/* ช่องสั้น เช่น HN, Prefix, หมู่, รหัสไปรษณีย์ */
+.input-field.short {
+  flex: 0.3;
+  min-width: 80px;
 }
 
 .input-field {
   flex: 1;
-  min-width: 180px;
+  min-width: 100px;
   padding: 10px 14px;
   border: 1px solid #d1d5db;
   border-radius: 10px;
   font-size: 15px;
   background-color: #f9fafb;
-}
-
-.input-field.short {
-  flex: 0.4;
 }
 
 .register-button {
@@ -100,15 +109,48 @@
     flex-direction: column;
   }
 
-  .input-field {
+  .input-field,
+  .input-field.short,
+  .input-field.name-field {
     width: 100%;
-  }
-
-  .input-field.short {
-    width: 100%;
+    flex: none;
+    min-width: auto;
   }
 
   .register-card {
     padding: 24px;
   }
+}
+
+
+select.input-field {
+  appearance: none;
+  background-color: #f9fafb;
+  border: 1px solid #d1d5db;
+  border-radius: 10px;
+  padding: 10px 14px;
+  font-size: 15px;
+  min-width: 100px;
+  font-family: 'Sarabun', sans-serif;
+  background-image: url("data:image/svg+xml;charset=US-ASCII,%3Csvg%20xmlns='http://www.w3.org/2000/svg'%20viewBox='0%200%204%205'%3E%3Cpath%20fill='none'%20stroke='black'%20stroke-width='.6'%20d='M0%200l2%202%202-2'/%3E%3C/svg%3E");
+  background-repeat: no-repeat;
+  background-position: right 20px center;
+  background-position-y: 75%;
+  background-size: 12px;
+}
+
+
+.input-field.hn-field {
+  flex: 0.3;
+  min-width: 50px;
+}
+
+.input-field.prefix-field {
+  flex: 0.4;
+  min-width: 72px; /* ต่ำสุดที่ยังพอมอง "นางสาว" ได้ */
+}
+
+.input-field.name-field {
+  flex: 0.8;
+  min-width: 90px;
 }

@@ -268,7 +268,8 @@ app.post("/login", (req, res) => {
 
     if (status === "pending") {
       return res.status(403).json({
-        message: "บัญชีของคุณยังไม่ได้รับการอนุมัติ\nกรุณาไปยืนยันตัวตนที่ศูนย์ติดต่อเพื่อยืนยันตัวตน"
+        message: "บัญชีของคุณยังไม่ได้รับการอนุมัติ\nกรุณาไปยืนยันตัวตนที่ศูนย์ติดต่อเพื่อยืนยันตัวตน",
+        status: "pending" // ✅ เพิ่มตรงนี้ให้ React เช็คได้
       });
     }
 
@@ -914,7 +915,7 @@ app.put("/patients/:id/records/public_note", (req, res) => {
 
 app.put("/patients/:id/records/private_note", (req, res) => {
   const { id } = req.params;
-  const { created_at, private_note} = req.body;
+  const { created_at, private_note } = req.body;
 
   const sql = `
     UPDATE medical_records
@@ -1182,7 +1183,6 @@ app.get("/last-parent-hn", (req, res) => {
   });
 });
 
-
 app.post("/approve-register/:id", (req, res) => {
   const registerId = req.params.id;
   const adminId = req.body?.admin_id || 1;
@@ -1195,106 +1195,113 @@ app.post("/approve-register/:id", (req, res) => {
       console.error("❌ ดึงข้อมูล register ผิดพลาด:", err);
       return res.status(500).json({ message: "เกิดข้อผิดพลาดในการดึงข้อมูล" });
     }
+
     if (results.length === 0) {
-      console.warn("⚠️ ไม่พบข้อมูล register ที่ ID:", registerId);
       return res.status(404).json({ message: "ไม่พบข้อมูลผู้สมัคร" });
     }
 
     const reg = results[0];
-    const cleanedPhone = reg.phone_number.replace(/-/g, ""); // ✅ ลบขีดในเบอร์
 
-    console.log("✅ ข้อมูลผู้สมัคร:", reg);
+    if (reg.status !== "pending") {
+      return res.status(400).json({ message: "คำขอนี้ได้รับการอนุมัติหรือปฏิเสธไปแล้ว" });
+    }
 
-    // ✅ Insert into `parent`
-    const insertParent = `
-      INSERT INTO parent (
-        hn_number, prefix_name_parent, first_name_parent, last_name_parent,
-        phone_number, houseNo, moo, alley, street,
-        subDistrict, district, province, postalCode,
-        users_id
-      ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
+    const cleanedPhone = reg.phone_number.replace(/-/g, "");
+
+    // ✅ ตรวจสอบว่า hn_number มีอยู่แล้วหรือไม่
+    const checkHNQuery = `
+      SELECT hn_number FROM parent WHERE hn_number = ?
+      UNION
+      SELECT hn_number FROM users WHERE hn_number = ?
     `;
 
-    const parentData = [
-      reg.hn_number,
-      reg.prefix_name_parent,
-      reg.first_name_parent,
-      reg.last_name_parent,
-      cleanedPhone, // ✅ เบอร์แบบไม่มีขีด
-      reg.houseNo,
-      reg.moo,
-      reg.alley,
-      reg.street,
-      reg.subDistrict,
-      reg.district,
-      reg.province,
-      reg.postalCode,
-      null // ✅ users_id ยังไม่รู้ ให้เป็น null
-    ];
-
-    console.log("📥 กำลังบันทึก parent...");
-
-    db.query(insertParent, parentData, (err, parentResult) => {
+    db.query(checkHNQuery, [reg.hn_number, reg.hn_number], (err, hnResults) => {
       if (err) {
-        console.error("❌ Error inserting parent:", err);
-        return res.status(500).json({ message: "ไม่สามารถสร้างข้อมูลผู้ปกครอง" });
+        console.error("❌ Error checking duplicate HN:", err);
+        return res.status(500).json({ message: "เกิดข้อผิดพลาดในการตรวจสอบ HN ซ้ำ" });
       }
 
-      console.log("✅ parent inserted, parent_id:", parentResult.insertId);
+      if (hnResults.length > 0) {
+        return res.status(400).json({ message: `HN "${reg.hn_number}" มีอยู่ในระบบแล้ว` });
+      }
 
-      // ✅ Insert into `users`
-      const insertUser = `
-        INSERT INTO users (hn_number, phone_number, role)
-        VALUES (?, ?, 'parent')
+      // ✅ ดำเนินการ insert parent
+      const insertParent = `
+        INSERT INTO parent (
+          hn_number, prefix_name_parent, first_name_parent, last_name_parent,
+          phone_number, houseNo, moo, alley, street,
+          subDistrict, district, province, postalCode,
+          users_id
+        ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
       `;
 
-      console.log("📥 กำลังบันทึก users...");
+      const parentData = [
+        reg.hn_number,
+        reg.prefix_name_parent,
+        reg.first_name_parent,
+        reg.last_name_parent,
+        cleanedPhone,
+        reg.houseNo,
+        reg.moo,
+        reg.alley,
+        reg.street,
+        reg.subDistrict,
+        reg.district,
+        reg.province,
+        reg.postalCode,
+        null
+      ];
 
-      db.query(insertUser, [reg.hn_number, cleanedPhone], (err, userResult) => {
+      db.query(insertParent, parentData, (err, parentResult) => {
         if (err) {
-          console.error("❌ Error creating user:", err);
-          return res.status(500).json({ message: "ไม่สามารถสร้างบัญชีผู้ใช้" });
+          console.error("❌ Error inserting parent:", err);
+          return res.status(500).json({ message: "ไม่สามารถสร้างข้อมูลผู้ปกครอง" });
         }
 
-        console.log("✅ users inserted, users_id:", userResult.insertId);
-
-        // ✅ อัปเดต users_id ใน parent
-        const updateParent = `
-          UPDATE parent
-          SET users_id = ?
-          WHERE hn_number = ?
+        const insertUser = `
+          INSERT INTO users (hn_number, phone_number, role)
+          VALUES (?, ?, 'parent')
         `;
 
-        console.log("🔗 อัปเดต parent.users_id...");
-
-        db.query(updateParent, [userResult.insertId, reg.hn_number], (err) => {
+        db.query(insertUser, [reg.hn_number, cleanedPhone], (err, userResult) => {
           if (err) {
-            console.error("❌ Error updating parent.users_id:", err);
-            return res.status(500).json({ message: "อัปเดต users_id ล้มเหลว" });
+            console.error("❌ Error creating user:", err);
+            return res.status(500).json({ message: "ไม่สามารถสร้างบัญชีผู้ใช้" });
           }
 
-          console.log("✅ users_id อัปเดตใน parent สำเร็จ");
+          const updateParent = `
+            UPDATE parent
+            SET users_id = ?
+            WHERE hn_number = ?
+          `;
 
-          // ✅ อัปเดต status ใน register
-          const updateRegister = `UPDATE register SET status = 'accepted' WHERE register_id = ?`;
-
-          console.log("🔃 อัปเดต status ของ register...");
-
-          db.query(updateRegister, [registerId], (err) => {
+          db.query(updateParent, [userResult.insertId, reg.hn_number], (err) => {
             if (err) {
-              console.error("❌ Error updating register status:", err);
-              return res.status(500).json({ message: "อัปเดตสถานะล้มเหลว" });
+              console.error("❌ Error updating parent.users_id:", err);
+              return res.status(500).json({ message: "อัปเดต users_id ล้มเหลว" });
             }
 
-            console.log("✅ register อัปเดตเป็น accepted สำเร็จ");
+            const updateRegister = `UPDATE register SET status = 'accepted' WHERE register_id = ?`;
 
-            return res.status(200).json({ message: "อนุมัติสำเร็จ" });
+            db.query(updateRegister, [registerId], (err) => {
+              if (err) {
+                console.error("❌ Error updating register status:", err);
+                return res.status(500).json({ message: "อัปเดตสถานะล้มเหลว" });
+              }
+
+              return res.status(200).json({
+                message: "✅ อนุมัติสำเร็จ",
+                phone: cleanedPhone,
+                hn_number: reg.hn_number
+              });
+            });
           });
         });
       });
     });
   });
 });
+
 
 app.post("/reject-register/:id", (req, res) => {
   const registerId = req.params.id;
@@ -1307,6 +1314,24 @@ app.post("/reject-register/:id", (req, res) => {
       return res.status(500).json({ message: "เกิดข้อผิดพลาดในการลบ" });
     }
     res.status(200).json({ message: "ลบคำขอสมัครแล้ว" });
+  });
+});
+
+
+// POST /check-duplicate
+app.post("/check-duplicate", (req, res) => {
+  const { hn_number, phone } = req.body;
+  const query = `
+    SELECT * FROM register
+    WHERE hn_number = ? OR phone = ?
+  `;
+  db.query(query, [hn_number, phone], (err, results) => {
+    if (err) return res.status(500).json({ message: "Database error" });
+    if (results.length > 0) {
+      return res.json({ exists: true });
+    } else {
+      return res.json({ exists: false });
+    }
   });
 });
 

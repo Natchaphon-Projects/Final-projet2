@@ -505,3 +505,48 @@
   gap: 1rem;
   margin-bottom: 1rem;
 }
+
+
+.approval-card-list {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+  margin-top: 1rem;
+}
+
+.approval-card-horizontal {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  background-color: #f8f9fa;
+  border: 1px solid #ddd;
+  padding: 0.6rem 1rem;            /* ⬅️ ลดจาก 1rem */
+  border-radius: 8px;              /* ⬅️ ขอบมนเล็กลง */
+  box-shadow: 0 1px 3px rgba(0,0,0,0.06); /* เบาลง */
+  font-size: 15px;                 /* ⬅️ ตัวอักษรเล็กลง */
+  gap: 12px;
+  flex-wrap: wrap;
+  margin-bottom: 8px;              /* ช่องว่างแต่ละบล็อก */
+}
+
+
+.approval-card-info {
+  flex: 1;
+  min-width: 250px;
+}
+
+.approval-card-buttons {
+  display: flex;
+  gap: 10px;
+  flex-wrap: wrap;
+  justify-content: flex-end;
+}
+
+
+.approval-card-info p {
+  white-space: normal;     /* ✅ ยอมให้ตัดบรรทัด (แทน nowrap) */
+  overflow: visible;       /* ✅ แสดงข้อความครบ */
+  text-overflow: initial;
+  font-size: 16px;
+  font-weight: 500;
+}

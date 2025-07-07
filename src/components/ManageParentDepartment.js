@@ -26,6 +26,8 @@ const ManageParentDepartment = () => {
   const [pendingRegisters, setPendingRegisters] = useState([]);
   const [showApprovalModal, setShowApprovalModal] = useState(false);
   const [selectedRegister, setSelectedRegister] = useState(null);
+  const [selectedRegisterDetail, setSelectedRegisterDetail] = useState(null);
+
 
 
   const [formData, setFormData] = useState({
@@ -219,6 +221,8 @@ const ManageParentDepartment = () => {
   const totalPages = Math.ceil(filteredParents.length / itemsPerPage);
   const startIndex = (currentPage - 1) * itemsPerPage;
   const currentParents = filteredParents.slice(startIndex, startIndex + itemsPerPage);
+  const [selectedDetailItem, setSelectedDetailItem] = useState(null);
+
 
   return (
     <div className="dashboard-container">
@@ -329,7 +333,7 @@ const ManageParentDepartment = () => {
               <h3 style={{ textAlign: "center" }}>
                 {editingParent ? "✏️ แก้ไขข้อมูลผู้ปกครอง" : "➕ เพิ่มผู้ปกครองใหม่"}
               </h3>
-              
+
 
               {/* ✅ แถวที่ 1: HN */}
 
@@ -457,47 +461,81 @@ const ManageParentDepartment = () => {
           </div>
         )}
       </div>
-{showApprovalModal && (
-                <div className="modal">
-                  <div className="modal-content scrollable-modal">
-                    <h3>📋 รายการผู้ปกครองที่รออนุมัติ</h3>
+      {showApprovalModal && (
+        <div className="modal">
+          <div className="modal-content approval-modal">
+            <h3>📋 รายการผู้ปกครองที่รออนุมัติ</h3>
 
-                    {pendingRegisters.length === 0 ? (
-                      <p style={{ textAlign: "center", margin: "20px 0", color: "#888" }}>
-                        💤 ไม่มีรายการรออนุมัติ
+            {pendingRegisters.length === 0 ? (
+              <p className="no-pending-message">🛌 ไม่มีรายการรออนุมัติ</p>
+            ) : (
+              <div className="approval-card-list">
+                {pendingRegisters.map((pendingItem) => (
+                  <div key={pendingItem.register_id} className="approval-card-horizontal">
+                    <div className="approval-card-info">
+                      <p>
+                        <strong>HN:</strong> {pendingItem.hn_number} &nbsp;–&nbsp;
+                        <strong>ชื่อ:</strong> {pendingItem.prefix_name_parent} {pendingItem.first_name_parent} {pendingItem.last_name_parent} &nbsp;–&nbsp;
+                        <strong>เบอร์:</strong> {pendingItem.phone_number?.replace(/^(\d{3})(\d{3})(\d+)/, "$1-$2-$3")}
                       </p>
-                    ) : (
-                      <table className="modern-table small-table">
-                        <thead>
-                          <tr>
-                            <th>HN</th>
-                            <th>ชื่อ</th>
-                            <th>เบอร์โทร</th>
-                            <th>จัดการ</th>
-                          </tr>
-                        </thead>
-                        <tbody>
-                          {pendingRegisters.map((reg) => (
-                            <tr key={reg.register_id}>
-                              <td>{reg.hn_number}</td>
-                              <td>{reg.prefix_name_parent} {reg.first_name_parent} {reg.last_name_parent}</td>
-                              <td>{reg.phone_number?.replace(/^(\d{3})(\d{3})(\d+)/, "$1-$2-$3")}</td>
-                              <td>
-                                <button className="confirm-btn" onClick={() => handleApproveRegister(reg)}>✅ อนุมัติ</button>
-                                <button className="cancel-btn" onClick={() => handleRejectRegister(reg)}>❌ ปฏิเสธ</button>
-                              </td>
-                            </tr>
-                          ))}
-                        </tbody>
-                      </table>
-                    )}
-
-                    <div className="button-group">
-                      <button className="cancel-btn" onClick={() => setShowApprovalModal(false)}>ปิด</button>
                     </div>
+
+
+                    <div className="approval-card-buttons">
+                      <button className="detail-btn" onClick={() => setSelectedDetailItem(pendingItem)}>
+                        🔍 ดูรายละเอียด
+                      </button>
+                      <button className="confirm-btn" onClick={() => handleApproveRegister(pendingItem)}>
+                        ✅ อนุมัติ
+                      </button>
+                      <button className="cancel-btn" onClick={() => handleRejectRegister(pendingItem)}>
+                        ❌ ปฏิเสธ
+                      </button>
+                    </div>
+
+                    {selectedDetailItem && selectedDetailItem.register_id === pendingItem.register_id && (
+                      <div className="modal">
+                        <div className="modal-content detail-modal">
+                          <h3>📝 รายละเอียดคำขอ</h3>
+                          <div className="register-detail">
+                            <div className="approval-card-info">
+                              <p>
+                                <strong>HN:</strong> {pendingItem.hn_number} &nbsp;–&nbsp;
+                                <strong>ชื่อ:</strong> {pendingItem.prefix_name_parent} {pendingItem.first_name_parent} {pendingItem.last_name_parent} &nbsp;–&nbsp;
+                                <strong>เบอร์:</strong> {pendingItem.phone_number?.replace(/^(\d{3})(\d{3})(\d+)/, "$1-$2-$3")}
+                              </p>
+                            </div>
+
+                            <ul>
+                              <li>บ้านเลขที่: {selectedDetailItem.houseNo}</li>
+                              <li>หมู่: {selectedDetailItem.moo}</li>
+                              <li>ซอย: {selectedDetailItem.alley}</li>
+                              <li>ถนน: {selectedDetailItem.street}</li>
+                              <li>ตำบล: {selectedDetailItem.subDistrict}</li>
+                              <li>อำเภอ: {selectedDetailItem.district}</li>
+                              <li>จังหวัด: {selectedDetailItem.province}</li>
+                              <li>รหัสไปรษณีย์: {selectedDetailItem.postalCode}</li>
+                            </ul>
+                          </div>
+                          <div className="button-group">
+                            <button className="cancel-btn" onClick={() => setSelectedDetailItem(null)}>ปิด</button>
+                          </div>
+                        </div>
+                      </div>
+                    )}
                   </div>
-                </div>
-              )}
+                ))}
+              </div>
+            )}
+
+            <div className="button-group">
+              <button className="cancel-btn" onClick={() => setShowApprovalModal(false)}>ปิด</button>
+            </div>
+          </div>
+        </div>
+      )}
+
+
 
       <Footer />
     </div>
