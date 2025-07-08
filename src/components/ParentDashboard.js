@@ -143,9 +143,11 @@ function ParentDashboard() {
             </div>
             <FaChevronRight className="menu-arrow" />
           </div>
+
+
           <div
             className="menu-card"
-            onClick={() => navigate("/medical-history", { state: { hnNumber } })}
+            onClick={() => navigate("/history-risk-selection", { state: { hnNumber } })}
           >
             <div className="menu-left">
               <div className="menu-icon-box">

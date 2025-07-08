@@ -28,6 +28,7 @@ import PredictionModel from "./components/Prediction_model/PredictionModel"; // 
 import ParentRiskSelection from "./components/ParentRiskSelection"; // ✅ ต้อง import ตรงนี้
 import MedicalHistory from "./components/Prediction_model/MedicalHistory";
 import RegisterParent from "./RegisterParent";
+import HistoryRiskSelection from "./components/HistoryRiskSelection";
 
 
 import './styles.css';
@@ -56,6 +57,8 @@ function App() {
         <Route path="/pre" element={<PredictionModel />} /> {/* ✅ เพิ่ม route ไปยังหน้าผลประเมิน */}
         <Route path="/prediction-result" element={<PredictionModel />} />
         <Route path="/medical-history" element={<MedicalHistory />} />
+        <Route path="/history-risk-selection" element={<HistoryRiskSelection />} />
+
         
 
 
