@@ -134,7 +134,7 @@ select.input-field {
   font-family: 'Sarabun', sans-serif;
   background-image: url("data:image/svg+xml;charset=US-ASCII,%3Csvg%20xmlns='http://www.w3.org/2000/svg'%20viewBox='0%200%204%205'%3E%3Cpath%20fill='none'%20stroke='black'%20stroke-width='.6'%20d='M0%200l2%202%202-2'/%3E%3C/svg%3E");
   background-repeat: no-repeat;
-  background-position: right 20px center;
+  background-position: right 10px center;
   background-position-y: 75%;
   background-size: 12px;
 }
@@ -153,4 +153,54 @@ select.input-field {
 .input-field.name-field {
   flex: 0.8;
   min-width: 90px;
+}
+
+.input-with-star-register {
+  position: relative;
+  width: 100%;
+}
+
+.input-with-star-register .input-field {
+  width: 100%;
+  padding-right: 20px; /* กันไม่ให้ * ชนขอบ */
+}
+
+.required-star-register {
+  position: absolute;
+  right: 8px;
+  top: 40%;
+  transform: translateY(-50%);
+  color: red;
+  font-size: 20px;
+}
+
+.form-row-inline {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 10px;
+  margin-bottom: 20px;
+}
+
+.input-field {
+  padding: 12px;
+  border: 1px solid #ccc;
+  border-radius: 8px;
+  flex: 1;
+  min-width: 100px;
+}
+
+/* ขนาดเฉพาะช่อง */
+.hn-field {
+  flex: 0.8;
+  min-width: 80px;
+}
+
+.prefix-field {
+  flex: 0.8;
+  min-width: 100px;
+}
+
+.name-field {
+  flex: 1.2;
+  position: relative;
 }

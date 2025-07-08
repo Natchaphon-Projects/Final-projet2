@@ -64,10 +64,36 @@ function RegisterParent() {
   };
 
   const handleSubmit = async () => {
-    const requiredFields = ["firstName", "lastName", "phone"];
-    const missing = requiredFields.find((field) => !form[field]);
-    if (missing) {
-      alert("กรุณากรอกข้อมูลให้ครบถ้วน");
+    const requiredFields = [
+      "prefix",
+      "firstName",
+      "lastName",
+      "phone",
+      "houseNo",
+      "moo",
+      "subDistrict",
+      "district",
+      "province",
+      "postalCode"
+    ];
+
+    const missingFields = requiredFields.filter((field) => !form[field]);
+    if (missingFields.length > 0) {
+      const fieldNames = {
+        prefix: "คำนำหน้า",
+        firstName: "ชื่อ",
+        lastName: "นามสกุล",
+        phone: "เบอร์โทรศัพท์",
+        houseNo: "บ้านเลขที่",
+        moo: "หมู่",
+        subDistrict: "แขวง/ตำบล",
+        district: "เขต/อำเภอ",
+        province: "จังหวัด",
+        postalCode: "รหัสไปรษณีย์"
+      };
+
+      const missingLabels = missingFields.map((field) => fieldNames[field]).join(", ");
+      alert(`กรุณากรอกข้อมูล: ${missingLabels}`);
       return;
     }
 
@@ -95,12 +121,15 @@ function RegisterParent() {
         <p className="subtext">กรอกข้อมูลเพื่อใช้เข้าสู่ระบบและรับบริการ</p>
 
         <div className="form-row">
+          {/* HN */}
           <input
             value={form.hn_number}
             disabled
             placeholder="หมายเลข HN (อัตโนมัติ)"
             className="input-field hn-field"
           />
+
+          {/* คำนำหน้า */}
           <select
             name="prefix"
             onChange={handleChange}
@@ -112,98 +141,135 @@ function RegisterParent() {
             <option value="นาง">นาง</option>
             <option value="นางสาว">นางสาว</option>
           </select>
-          <input
-            name="firstName"
-            placeholder="ชื่อ*"
-            value={form.firstName}
-            onChange={handleChange}
-            className="input-field name-field"
-          />
-          <input
-            name="lastName"
-            placeholder="นามสกุล*"
-            value={form.lastName}
-            onChange={handleChange}
-            className="input-field name-field"
-          />
+
+          {/* ชื่อ */}
+          <div className="input-with-star-register name-field">
+            <input
+              name="firstName"
+              placeholder="ชื่อ"
+              value={form.firstName}
+              onChange={handleChange}
+              className="input-field"
+            />
+            {!form.firstName && <span className="required-star-register">*</span>}
+          </div>
+
+          {/* นามสกุล */}
+          <div className="input-with-star-register name-field">
+            <input
+              name="lastName"
+              placeholder="นามสกุล"
+              value={form.lastName}
+              onChange={handleChange}
+              className="input-field"
+            />
+            {!form.lastName && <span className="required-star-register">*</span>}
+          </div>
         </div>
 
 
-        <div className="form-row">
+        <div className="input-with-star-register">
           <input
             name="phone"
-            placeholder="เบอร์โทรศัพท์*"
+            placeholder="เบอร์โทรศัพท์"
             value={form.phone}
             onChange={handleChange}
             className="input-field"
           />
+          {/* แสดง * เฉพาะเมื่อยังไม่ได้กรอกข้อมูล */}
+          {!form.phone && <span className="required-star-register">*</span>}
         </div>
 
         <div className="form-section-title">ที่อยู่ (ไม่จำเป็นต้องกรอกทั้งหมด)</div>
 
         <div className="form-row">
-          <input
-            name="houseNo"
-            placeholder="บ้านเลขที่"
-            value={form.houseNo}
-            onChange={handleChange}
-            className="input-field"
-          />
-          <input
-            name="moo"
-            placeholder="หมู่"
-            value={form.moo}
-            onChange={handleChange}
-            className="input-field short"
-          />
-          <input
-            name="alley"
-            placeholder="ตรอก/ซอย"
-            value={form.alley}
-            onChange={handleChange}
-            className="input-field"
-          />
+          {/* นามสกุล */}
+          <div className="input-with-star-register name-field">
+            <input
+              name="houseNo"
+              placeholder="บ้านเลขที่"
+              value={form.houseNo}
+              onChange={handleChange}
+              className="input-field"
+            />
+            {!form.houseNo && <span className="required-star-register">*</span>}
+          </div>
+          <div className="input-with-star-register name-field">
+            <input
+              name="moo"
+              placeholder="หมู่"
+              value={form.moo}
+              onChange={handleChange}
+              className="input-field short"
+            />
+            {!form.moo && <span className="required-star-register">*</span>}
+          </div>
+          <div className="input-with-star-register name-field">
+            <input
+              name="alley"
+              placeholder="ตรอก/ซอย"
+              value={form.alley}
+              onChange={handleChange}
+              className="input-field"
+            />
+
+          </div>
         </div>
 
         <div className="form-row">
-          <input
-            name="street"
-            placeholder="ถนน"
-            value={form.street}
-            onChange={handleChange}
-            className="input-field"
-          />
-          <input
-            name="subDistrict"
-            placeholder="แขวง/ตำบล"
-            value={form.subDistrict}
-            onChange={handleChange}
-            className="input-field"
-          />
-          <input
-            name="district"
-            placeholder="เขต/อำเภอ"
-            value={form.district}
-            onChange={handleChange}
-            className="input-field"
-          />
+          <div className="input-with-star-register name-field">
+            <input
+              name="street"
+              placeholder="ถนน"
+              value={form.street}
+              onChange={handleChange}
+              className="input-field"
+            />
+
+          </div>
+          <div className="input-with-star-register name-field">
+            <input
+              name="subDistrict"
+              placeholder="แขวง/ตำบล"
+              value={form.subDistrict}
+              onChange={handleChange}
+              className="input-field"
+            />
+            {!form.subDistrict && <span className="required-star-register">*</span>}
+          </div>
+          <div className="input-with-star-register name-field">
+            <input
+              name="district"
+              placeholder="เขต/อำเภอ"
+              value={form.district}
+              onChange={handleChange}
+              className="input-field"
+            />
+            {!form.district && <span className="required-star-register">*</span>}
+          </div>
         </div>
 
         <div className="form-row">
-          <input
-            name="province"
-            placeholder="จังหวัด"
-            value={form.province}
-            onChange={handleChange}
-            className="input-field"
-          />
-          <input
-            name="postalCode"
-            placeholder="รหัสไปรษณีย์"
-            value={form.postalCode}
-            onChange={handleChange}
-            className="input-field short"
-          />
+          <div className="input-with-star-register name-field">
+            <input
+              name="province"
+              placeholder="จังหวัด"
+              value={form.province}
+              onChange={handleChange}
+              className="input-field"
+            />
+            {!form.province && <span className="required-star-register">*</span>}
+          </div>
+          <div className="input-with-star-register name-field">
+            <input
+              name="postalCode"
+              placeholder="รหัสไปรษณีย์"
+              value={form.postalCode}
+              onChange={handleChange}
+              className="input-field"
+            />
+            {!form.postalCode && <span className="required-star-register">*</span>}
+          </div>
         </div>
 
         <button
