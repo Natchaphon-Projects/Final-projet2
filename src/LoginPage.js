@@ -91,12 +91,21 @@ function LoginPage() {
         navigate("/admin-dashboard", { state: { hnNumber: hn_number, role } });
       }
     } catch (error) {
-      if (error.response?.status === 403 && error.response?.data?.status === "pending") {
-        alert("บัญชีของคุณยังไม่ได้รับการอนุมัติ\nกรุณาไปยืนยันตัวตนที่ศูนย์ติดต่อเพื่อยืนยันตัวตน");
+      if (error.response?.status === 403) {
+        const serverStatus = error.response?.data?.status;
+
+        if (serverStatus === "pending") {
+          alert("บัญชีของคุณยังไม่ได้รับการอนุมัติ\nกรุณาไปยืนยันตัวตนที่ศูนย์ติดต่อเพื่อยืนยันตัวตน");
+        } else if (serverStatus === "rejected") {
+          alert("❌ คำขอของคุณถูกปฏิเสธ\nกรุณาติดต่อเจ้าหน้าที่เพื่อขอข้อมูลเพิ่มเติม");
+        } else {
+          alert("ไม่สามารถเข้าสู่ระบบได้ กรุณาลองใหม่");
+        }
       } else {
         alert("ข้อมูลเข้าสู่ระบบไม่ถูกต้อง หรือเซิร์ฟเวอร์ไม่ตอบสนอง");
       }
     }
+
 
     setLoading(false);
   };

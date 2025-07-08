@@ -116,7 +116,7 @@ const ManageParentDepartment = () => {
   const handleRejectRegister = async (reg) => {
     if (!window.confirm("❌ คุณแน่ใจหรือไม่ว่าต้องการปฏิเสธคำขอนี้?")) return;
     try {
-      await axios.post(`http://localhost:5000/reject-register/${reg.register_id}`);
+      await axios.put(`http://localhost:5000/reject-register/${reg.register_id}`);
       alert("❌ ปฏิเสธคำขอแล้ว");
       loadPendingRegisters();
     } catch (err) {
@@ -208,7 +208,6 @@ const ManageParentDepartment = () => {
       });
       alert("✅ อนุมัติสำเร็จ");
       alert(`✅ อนุมัติสำเร็จ\nบัญชีผู้ปกครองสามารถเข้าสู่ระบบได้โดยใช้\nชื่อผู้ใช้: ${reg.phone_number}\n OTP: 123456`);
-      setShowApprovalModal(false);
       loadParents();
       loadPendingRegisters();
     } catch (err) {
