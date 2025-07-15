@@ -26,7 +26,7 @@ function AdminDashboard() {
   useEffect(() => {
     if (hnNumber) {
       axios
-        .get(`http://localhost:5000/admins/${hnNumber}`)
+        .get(`/api/admins/${hnNumber}`)
         .then((res) => setAdminInfo(res.data))
         .catch((err) => console.error("โหลดข้อมูลแอดมินไม่สำเร็จ", err));
     }

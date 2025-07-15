@@ -131,7 +131,7 @@ function Recomendation() {
 
   useEffect(() => {
     if (id) {
-      axios.get(`http://localhost:5000/patients/${id}/records/timestamps`)
+      axios.get(`/api/patients/${id}/records/timestamps`)
         .then(res => {
           setTimestamps(res.data); // เป็น array ของ created_at
         })
@@ -146,7 +146,7 @@ function Recomendation() {
       const latest = normalizeTimestamp(timestamps[0]);
       setShapTime(latest);
 
-      axios.get(`http://localhost:5000/patients/${id}/records`, {
+      axios.get(`/api/patients/${id}/records`, {
         params: { created_at: latest }
       })
         .then((res) => {
@@ -164,7 +164,7 @@ function Recomendation() {
   useEffect(() => {
     if (!record || !record.status) return;
 
-    axios.get(`http://localhost:8000/shap/global/most/${record.status}`)
+    axios.get(`/model/shap/global/most/${record.status}`)
       .then(res => {
         const features = res.data?.top_features || [];
 
@@ -214,7 +214,7 @@ function Recomendation() {
   const [normalAverages, setNormalAverages] = useState({});
   useEffect(() => {
     if (id && shapTime) {
-      axios.get(`http://localhost:8000/shap/local/${id}`, {
+      axios.get(`/model/shap/local/${id}`, {
         params: { created_at: shapTime }
       })
         .then(res => {
@@ -273,7 +273,7 @@ function Recomendation() {
 
   useEffect(() => {
     if (id) {
-      axios.get(`http://localhost:5000/patients/${id}/records/history`)
+      axios.get(`/api/patients/${id}/records/history`)
         .then((res) => {
           const historyData = res.data || [];
           console.log("📦 history data from API:", historyData);
@@ -310,7 +310,7 @@ function Recomendation() {
 
 
   useEffect(() => {
-    axios.get("http://localhost:8000/shap/only/normal")
+    axios.get("/model/shap/only/normal")
       .then(res => {
         const normalData = res.data?.top_features || [];
         const map = {};
@@ -350,50 +350,50 @@ function Recomendation() {
   ]);
 
 
-  useEffect(() => {
-    if (id && createdAt) {
-      // ➕ format datetime เป็น yyyy-MM-dd HH:mm:ss
-      const dateObj = new Date(createdAt);
-      const yyyy = dateObj.getFullYear();
-      const mm = String(dateObj.getMonth() + 1).padStart(2, '0');
-      const dd = String(dateObj.getDate()).padStart(2, '0');
-      const hh = String(dateObj.getHours()).padStart(2, '0');
-      const mi = String(dateObj.getMinutes()).padStart(2, '0');
-      const ss = String(dateObj.getSeconds()).padStart(2, '0');
-      const formatted = `${yyyy}-${mm}-${dd} ${hh}:${mi}:${ss}`;
+ useEffect(() => {
+  if (id && createdAt) {
+    const dateObj = new Date(createdAt);
+    const yyyy = dateObj.getFullYear();
+    const mm = String(dateObj.getMonth() + 1).padStart(2, '0');
+    const dd = String(dateObj.getDate()).padStart(2, '0');
+    const hh = String(dateObj.getHours()).padStart(2, '0');
+    const mi = String(dateObj.getMinutes()).padStart(2, '0');
+    const ss = String(dateObj.getSeconds()).padStart(2, '0');
+    const formatted = `${yyyy}-${mm}-${dd} ${hh}:${mi}:${ss}`;
 
-      console.log("📌 createdAt formatted:", formatted);
-      setShapTime(formatted);
+    console.log("📌 createdAt formatted:", formatted);
+    setShapTime(formatted);
 
-      // ✅ ใช้ created_at นี้ในการดึง record เฉพาะรอบ
-      axios.get(`http://localhost:5000/patients/${id}/records`, {
-        params: { created_at: formatted }
+    // ❌ อย่า return axios
+    axios.get(`/api/patients/${id}/records`, {
+      params: { created_at: formatted }
+    })
+      .then((res) => {
+        console.log("📦 record from created_at:", res.data);
+        setRecord(res.data);
+        setPrivateNote(res.data.private_note || "");
+        setPublicNote(res.data.public_note || "");
       })
-        .then((res) => {
-          console.log("📦 record from created_at:", res.data);
-          setRecord(res.data);
-          setPrivateNote(res.data.private_note || "");
-          setPublicNote(res.data.public_note || "");
-        })
+      .catch((err) => console.error("❌ โหลดข้อมูล record ไม่สำเร็จ:", err));
 
-        .catch((err) => console.error("❌ โหลดข้อมูล record ไม่สำเร็จ:", err));
-
-      axios.get(`http://localhost:5000/patients/${id}/records/notes`, {
-        params: { created_at: formatted }
-      }).then((res) => {
+    axios.get(`/api/patients/${id}/records/notes`, {
+      params: { created_at: formatted }
+    })
+      .then((res) => {
         setPrivateNote(res.data.private_note || "");
         setPublicNote(res.data.public_note || "");
       })
       .catch((err) => console.error("❌ โหลดข้อมูล note ไม่สำเร็จ:", err));
-    }
-  }, [id, createdAt]);
+  }
+}, [id, createdAt]);
+
 
   useEffect(() => {
     if (id && !createdAt && timestamps.length > 0) {
       const latest = normalizeTimestamp(timestamps[0]); // ล่าสุด
       setShapTime(latest);
 
-      axios.get(`http://localhost:5000/patients/${id}/records`, {
+      axios.get(`/api/patients/${id}/records`, {
         params: { created_at: latest }
       })
         .then((res) => {
@@ -414,16 +414,17 @@ function Recomendation() {
 
       const normalized = normalizeTimestamp(shapTime);
       // 🔁 โหลดข้อมูลผู้ป่วย ณ เวลานั้น
-      axios.get(`http://localhost:5000/patients/${id}/records`, {
+      axios.get(`/api/patients/${id}/records`, {
         params: { created_at: normalized }
       })
         .then((res) => {
           setRecord(res.data);
 
           // 🔁 โหลด SHAP local ใหม่
-          return axios.get(`http://localhost:8000/shap/local/${id}`, {
+          return axios.get(`/model/shap/local/${id}`, {
             params: { created_at: shapTime }
-          });
+          })
+
         })
         .then((res) => {
           const sorted = res.data.top_features.sort((a, b) => b.shap - a.shap);
@@ -536,14 +537,14 @@ function Recomendation() {
     if (!id || !shapTime) return;  // ✅ ต้องมีเวลาที่ตรงกับใน DB
     setIsSaving(true);
 
-    axios.put(`http://localhost:5000/patients/${id}/records/public_note`, {
+    axios.put(`/api/patients/${id}/records/public_note`, {
       created_at: shapTime,  // ✅ ใช้เวลาที่ตรงกับ DB
       private_note: privateNote,
       public_note: publicNote
     })
       .then(() => {
         alert("✅ บันทึกสำเร็จแล้ว");
-        return axios.get(`http://localhost:5000/patients/${id}/records`, {
+        return axios.get(`/api/patients/${id}/records`, {
           params: { created_at: shapTime }
         });
       })
@@ -559,14 +560,14 @@ function Recomendation() {
     if (!id || !shapTime) return;  // ✅ ต้องมีเวลาที่ตรงกับใน DB
     setIsSaving(true);
 
-    axios.put(`http://localhost:5000/patients/${id}/records/private_note`, {
+    axios.put(`/api/patients/${id}/records/private_note`, {
       created_at: shapTime,  // ✅ ใช้เวลาที่ตรงกับ DB
       private_note: privateNote,
       public_note: publicNote
     })
       .then(() => {
         alert("✅ บันทึกสำเร็จแล้ว");
-        return axios.get(`http://localhost:5000/patients/${id}/records`, {
+        return axios.get(`/api/patients/${id}/records`, {
           params: { created_at: shapTime }
         });
       })

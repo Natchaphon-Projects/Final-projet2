@@ -10,11 +10,7 @@ import AdminDashboard from "./components/AdminDashboard";
 import ManageDepartment from "./components/ManageDepartment";
 import ManageParentDepartment from "./components/ManageParentDepartment";
 import ManageDoctorDepartment from "./components/ManageDoctorDepartment";
-import EditPatient from "./components/EditPatient";
-import AddPatient from "./components/AddPatient";
 import ViewPatientResults from "./components/ViewPatientResults";
-import PatientAssessmentResult from "./components/PatientAssessmentResult";
-import PatientDetails from "./components/PatientDetails";
 import RiskAssessmentEdit from "./components/RiskAssessmentEdit";
 import RiskAssessment from "./components/RiskAssessment";
 import GroupedDataInput from "./components/GroupedDataInput";
@@ -23,7 +19,6 @@ import CaregiverForm from "./components/Form/CaregiverForm";
 import NutritionForm from "./components/Form/NutritionForm";
 import SanitationForm from "./components/Form/SanitationForm";
 import Recomendation from "./components/Recomendation";
-import PatientHistory from "./components/PatientHistory";
 import PredictionModel from "./components/Prediction_model/PredictionModel"; // ✅ เพิ่มตรงนี้
 import ParentRiskSelection from "./components/ParentRiskSelection"; // ✅ ต้อง import ตรงนี้
 import MedicalHistory from "./components/Prediction_model/MedicalHistory";
@@ -65,10 +60,7 @@ function App() {
         {/* Doctor Routes */}
         <Route path="/doctor-dashboard" element={<DoctorDashboard />} />
         <Route path="/view-results" element={<ViewPatientResults />} />
-        <Route path="/patient-details/:id" element={<PatientDetails />} />
         <Route path="/edit-assessment/:id" element={<RiskAssessmentEdit />} />
-        <Route path="/patient-history" element={<PatientHistory />} />
-        <Route path="/patient-assessment/:id" element={<PatientAssessmentResult />} />
         <Route path="/Recomendation/:id" element={<Recomendation />} />
 
         {/* Admin Routes */}
@@ -76,8 +68,6 @@ function App() {
         <Route path="/manage-department" element={<ManageDepartment />} />
         <Route path="/manage-parents" element={<ManageParentDepartment />} />
         <Route path="/manage-doctors" element={<ManageDoctorDepartment />} />
-        <Route path="/edit-patient/:id" element={<EditPatient />} />
-        <Route path="/add-patient" element={<AddPatient />} />
       </Routes>
     </Router>
   );

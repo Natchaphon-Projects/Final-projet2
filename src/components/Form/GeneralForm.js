@@ -106,7 +106,7 @@ function GeneralForm() {
   useEffect(() => {
     const childId = localStorage.getItem("childId");
     if (childId) {
-      axios.get(`http://localhost:5000/patients/${childId}`)
+      axios.get(`/api/patients/${childId}`)
         .then((res) => {
           setChildData(res.data);
           setPatientId(childId);

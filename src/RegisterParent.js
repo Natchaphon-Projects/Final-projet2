@@ -26,7 +26,7 @@ function RegisterParent() {
   useEffect(() => {
     const fetchLatestHN = async () => {
       try {
-        const res = await axios.get("http://localhost:5000/last-parent-hn");
+        const res = await axios.get("/api/last-parent-hn");
         const lastHN = res.data.last_hn || "00000";
         const newHN = (parseInt(lastHN) + 1).toString().padStart(5, "0");
         setForm((prev) => ({ ...prev, hn_number: newHN }));
@@ -100,7 +100,7 @@ function RegisterParent() {
     try {
       setLoading(true);
       const payload = { ...form, status: "pending" };
-      const res = await axios.post("http://localhost:5000/register", payload);
+      const res = await axios.post("/api/register", payload);
       alert(res.data.message || "ส่งคำขอสมัครเรียบร้อยแล้ว");
       navigate("/login");
     } catch (err) {

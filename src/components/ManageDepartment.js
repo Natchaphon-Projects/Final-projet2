@@ -5,7 +5,7 @@ import "./ManageDepartment.css";
 import Header from "../components/layout/Header";
 import Footer from "../components/layout/Footer";
 
-const API_URL = "http://localhost:5000/patients";
+const API_URL = "/api/patients";
 
 const ManageDepartment = () => {
   const [patients, setPatients] = useState([]);
@@ -51,7 +51,7 @@ const ManageDepartment = () => {
 
   const loadParents = async () => {
     try {
-      const res = await axios.get("http://localhost:5000/parents");
+      const res = await axios.get("/api/parents");
       setParents(res.data);
     } catch (err) {
       console.error("โหลดผู้ปกครองผิดพลาด", err);

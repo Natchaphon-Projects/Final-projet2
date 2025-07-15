@@ -23,7 +23,7 @@ from fastapi.middleware.cors import CORSMiddleware
 # ✅ ใส่ allow_origins ให้ตรง React
 app.add_middleware(
     CORSMiddleware,
-    allow_origins=["http://localhost:3000"],  # หรือ ["*"] ถ้าให้ทุก origin
+    allow_origins=["*"],
     allow_credentials=True,
     allow_methods=["*"],
     allow_headers=["*"],

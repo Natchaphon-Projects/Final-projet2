@@ -26,7 +26,7 @@ const MedicalHistory = () => {
     if (!patientId) return;
 
     // โหลดชื่อเด็ก (ทำครั้งเดียว)
-    axios.get(`http://localhost:5000/patients/${patientId}`)
+    axios.get(`/api/patients/${patientId}`)
       .then((res) => {
         const child = res.data;
         setChildName(`${child.prefix_name_child}${child.first_name_child} ${child.last_name_child}`);
@@ -34,7 +34,7 @@ const MedicalHistory = () => {
       .catch((err) => console.error("โหลดชื่อเด็กล้มเหลว", err));
 
     const fetchData = () => {
-      axios.get("http://localhost:5000/predictions?order=desc")
+      axios.get("/api/predictions?order=desc")
         .then((res) => {
           const all = res.data;
           const filtered = all.filter((item) => item.patientId?.toString() === patientId);

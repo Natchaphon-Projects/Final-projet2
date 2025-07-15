@@ -19,7 +19,7 @@ function LoginPage() {
 
   const checkRoleByHN = async (hn) => {
     try {
-      const res = await axios.post("http://localhost:5000/check-role", { hnNumber: hn });
+      const res = await axios.post("/api/check-role", { hnNumber: hn });
       return res.data.role;
     } catch {
       return null;
@@ -44,11 +44,12 @@ function LoginPage() {
           return;
         }
 
-        const response = await axios.post("http://localhost:5000/login", {
+        const response = await axios.post("/api/login", {
           identity: hnNumber.trim()
         });
 
         const { role, hn_number, status } = response.data;
+
 
         // 🔴 ถ้าสถานะยังเป็น pending
         if (status === "pending") {
@@ -76,10 +77,11 @@ function LoginPage() {
           return;
         }
 
-        const response = await axios.post("http://localhost:5000/login-auth", {
+        const response = await axios.post("/api/login-auth", {
           identity: emailOrUsername,
           password: password
         });
+
 
         const { token, role, hn_number } = response.data;
         localStorage.setItem("auth_token", token);

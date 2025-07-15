@@ -14,7 +14,7 @@ function OTPLogin() {
     }
 
     try {
-      const res = await axios.post("http://localhost:5000/login", { identity });
+      const res = await axios.post("/api/login", { identity });
       const { role, hn_number } = res.data;
 
       if (role === "admin") {

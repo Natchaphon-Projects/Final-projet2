@@ -219,7 +219,7 @@ function RiskAssessmentEdit() {
 
   const handleSubmit = async () => {
     try {
-      const response = await fetch("http://127.0.0.1:5000/prediction", {
+      const response = await fetch("/api/prediction", {
         method: "POST",
         headers: {
           "Content-Type": "application/json",

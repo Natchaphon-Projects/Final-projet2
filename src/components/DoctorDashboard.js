@@ -26,7 +26,7 @@ function DoctorDashboard() {
 
   useEffect(() => {
     if (hnNumber) {
-      axios.get(`http://localhost:5000/doctors/${hnNumber}`)
+      axios.get(`/api/doctors/${hnNumber}`)
         .then(res => setDoctorInfo(res.data))
         .catch(err => console.error("โหลดข้อมูลแพทย์ไม่สำเร็จ", err));
     } else {
@@ -42,7 +42,7 @@ function DoctorDashboard() {
       doctorInfo.last_name_doctor?.charAt(0)
     );
   };
-  
+
   return (
     <div className="dashboard-container">
       <Header />
@@ -50,11 +50,11 @@ function DoctorDashboard() {
       <main className="dashboard-main">
         <div className="user-info-header">
           <div className="profile-circle">
-  {getInitials()}
-  <div className="status-dot">
-    <div className="status-inner"></div>
-  </div>
-</div>
+            {getInitials()}
+            <div className="status-dot">
+              <div className="status-inner"></div>
+            </div>
+          </div>
 
           <div className="user-details">
             <p className="greeting1">ยินดีต้อนรับ🌟</p>
@@ -67,17 +67,17 @@ function DoctorDashboard() {
             <div className="underline1" />
           </div>
           <div className="user-date">
-    <p className="date-label">วันนี้</p>
-    <p className="date-value">
-      {new Date().toLocaleDateString("th-TH", {
-        year: "numeric",
-        month: "long",
-        day: "numeric",
-      })}
-    </p>
-  </div>
+            <p className="date-label">วันนี้</p>
+            <p className="date-value">
+              {new Date().toLocaleDateString("th-TH", {
+                year: "numeric",
+                month: "long",
+                day: "numeric",
+              })}
+            </p>
+          </div>
         </div>
-                
+
         <div className="results-section">
           <ViewPatientResults />
         </div>

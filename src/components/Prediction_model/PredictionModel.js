@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useState, useEffect, useCallback } from "react";
 import "./PredictionModel.css";
 import Header from "../layout/Header";
 import Footer from "../layout/Footer";
@@ -8,7 +8,6 @@ import axios from "axios";
 import { FaUserAlt } from "react-icons/fa"; // ใช้ไอคอน
 import { FaPhoneAlt, FaEnvelope } from "react-icons/fa";
 import { FaHeartbeat } from "react-icons/fa";
-import { useEffect } from "react"; // อย่าลืมเพิ่มถ้ายังไม่มี
 import { useNavigate } from "react-router-dom";
 import labelMappings from "../../model/label_mappings_True.json";
 
@@ -79,110 +78,92 @@ const reversePreprocessData = (data) => {
 
 function PredictionModel() {
   const [latestPrediction, setLatestPrediction] = useState(null);
-  const navigate = useNavigate();
   const [loading, setLoading] = useState(false);
-  useEffect(() => {
-    const data = localStorage.getItem("latestPredictionData");
-    if (data) {
-      const parsed = JSON.parse(data); // ✅ สร้างตัวแปร parsed ให้ถูกต้องก่อน
-      handlePredict(parsed); // ✅ เรียกแค่ครั้งเดียว
-    }
-  }, []);
+  const [hasPredicted, setHasPredicted] = useState(false);
+  const navigate = useNavigate();
 
-
-  const featureKeys = [
-    "Guardian", "Vitamin_A_Intake_First_8_Weeks", "Sanitary_Disposal",
-    "Mom_wash_hand_before_or_after_cleaning_children", "Mom_wash_hand_before_or_after_feeding_the_child",
-    "Child_wash_hand_before_or_after_eating_food", "Child_wash_hand_before_or_after_visiting_the_toilet",
-    "Last_Month_Weight_Check", "Weighed_Twice_Check_in_Last_3_Months",
-    "Given_Anything_to_Drink_in_First_6_Months", "Still_Breastfeeding",
-    "Is_Respondent_Biological_Mother", "Breastfeeding_Count_DayandNight",
-    "Received_Vitamin_or_Mineral_Supplements", "Received_Plain_Water",
-    "Infant_Formula_Intake_Count_Yesterday", "Received_Animal_Milk",
-    "Received_Animal_Milk_Count", "Received_Juice_or_Juice_Drinks",
-    "Received_Yogurt", "Received_Yogurt_Count", "Received_Thin_Porridge",
-    "Received_Tea", "Received_Other_Liquids", "Received_Grain_Based_Foods",
-    "Received_Orange_Yellow_Foods", "Received_White_Root_Foods",
-    "Received_Dark_Green_Leafy_Veggies", "Received_Ripe_Mangoes_Papayas",
-    "Received_Other_Fruits_Vegetables", "Received_Meat", "Received_Eggs",
-    "Received_Fish_Shellfish_Seafood", "Received_Legumes_Nuts_Foods",
-    "Received_Dairy_Products", "Received_Oil_Fats_Butter",
-    "Received_Sugary_Foods", "Received_Chilies_Spices_Herbs",
-    "Received_Grubs_Snails_Insects", "Received_Other_Solid_Semi_Solid_Food",
-    "Received_Salt", "Number_of_Times_Eaten_Solid_Food"
-  ];
-
-  const getRandomData = () => {
-    const data = {};
-    featureKeys.forEach((key) => {
-      data[key] = Math.floor(Math.random() * 3);
-    });
-    return data;
-  };
-
-  const handlePredict = async (customData = null) => {
+  const handlePredict = useCallback(async (customData = null) => {
     setLoading(true);
+
+    const featureKeys = [
+      "Guardian", "Vitamin_A_Intake_First_8_Weeks", "Sanitary_Disposal",
+      "Mom_wash_hand_before_or_after_cleaning_children", "Mom_wash_hand_before_or_after_feeding_the_child",
+      "Child_wash_hand_before_or_after_eating_food", "Child_wash_hand_before_or_after_visiting_the_toilet",
+      "Last_Month_Weight_Check", "Weighed_Twice_Check_in_Last_3_Months",
+      "Given_Anything_to_Drink_in_First_6_Months", "Still_Breastfeeding",
+      "Is_Respondent_Biological_Mother", "Breastfeeding_Count_DayandNight",
+      "Received_Vitamin_or_Mineral_Supplements", "Received_Plain_Water",
+      "Infant_Formula_Intake_Count_Yesterday", "Received_Animal_Milk",
+      "Received_Animal_Milk_Count", "Received_Juice_or_Juice_Drinks",
+      "Received_Yogurt", "Received_Yogurt_Count", "Received_Thin_Porridge",
+      "Received_Tea", "Received_Other_Liquids", "Received_Grain_Based_Foods",
+      "Received_Orange_Yellow_Foods", "Received_White_Root_Foods",
+      "Received_Dark_Green_Leafy_Veggies", "Received_Ripe_Mangoes_Papayas",
+      "Received_Other_Fruits_Vegetables", "Received_Meat", "Received_Eggs",
+      "Received_Fish_Shellfish_Seafood", "Received_Legumes_Nuts_Foods",
+      "Received_Dairy_Products", "Received_Oil_Fats_Butter",
+      "Received_Sugary_Foods", "Received_Chilies_Spices_Herbs",
+      "Received_Grubs_Snails_Insects", "Received_Other_Solid_Semi_Solid_Food",
+      "Received_Salt", "Number_of_Times_Eaten_Solid_Food"
+    ];
+
+    const getRandomData = () => {
+      const data = {};
+      featureKeys.forEach((key) => {
+        data[key] = Math.floor(Math.random() * 3);
+      });
+      return data;
+    };
+
     const inputData = customData || getRandomData();
+
     const extraMedicalData = {
       Weight: inputData.Weight || null,
       Height: inputData.Height || null,
-      Food_allergy: inputData.Food_allergies || "", // ✅ เปลี่ยนจาก Food_allergies เป็น Food_allergy
+      Food_allergy: inputData.Food_allergies || "",
       Drug_allergy: inputData.Drug_allergy || "",
-      congenital_disease: inputData.congenital_disease || ""
+      congenital_disease: inputData.congenital_disease || "",
     };
 
-
-
     const transformedData = preprocessWithLabelMappings(inputData);
-    // ✅ ลบ field ที่ไม่ควรส่งเข้า prediction
     delete transformedData.Weight;
     delete transformedData.Height;
     delete transformedData.Food_allergy;
     delete transformedData.Drug_allergy;
     delete transformedData.congenital_disease;
 
-    console.log("🔍 ข้อมูลที่ก่อน transformedData:", inputData);
     const filteredData = {};
     featureKeys.forEach((key) => {
       if (key in transformedData) {
         filteredData[key] = transformedData[key];
       }
     });
-    
-     // ✅ พิมพ์ข้อมูลที่จะส่งให้ backend
-    console.log("🔍 ข้อมูลที่ส่งไป predict:", filteredData);
 
     try {
       const response = await axios.post(
-        "http://localhost:8000/prediction",
+        "/model/prediction",
         JSON.stringify(filteredData),
         {
-          headers: {
-            "Content-Type": "application/json"
-          }
+          headers: { "Content-Type": "application/json" },
         }
       );
 
-
-
-      const result = response.data.prediction; // เช่น "Obesity", "SAM", ฯลฯ
+      const result = response.data.prediction;
       const now = new Date();
       const formattedDate = now.toLocaleDateString("th-TH");
       const formattedTime = now.toLocaleTimeString("th-TH", {
-        hour: "2-digit", minute: "2-digit"
+        hour: "2-digit",
+        minute: "2-digit",
       });
 
-      // ✅ เก็บผลลัพธ์เข้า SQL ด้วย
       const patientId = localStorage.getItem("childId");
-      await axios.post("http://localhost:5000/predictions/combined", {
+      await axios.post("/api/predictions/combined", {
         patient_id: patientId,
         ...reversePreprocessData(filteredData),
         ...extraMedicalData,
-        Status_personal: result
+        Status_personal: result,
       });
 
-
-      // ✅ แสดงผลบนหน้าเว็บ
       setLatestPrediction({
         status: result === "Normal" ? "ปกติ" : "กรุณาพบแพทย์",
         date: formattedDate,
@@ -195,7 +176,22 @@ function PredictionModel() {
     }
 
     setLoading(false);
-  };
+  }, []);
+
+
+
+  // ✅ useEffect ต้องอยู่ที่นี่ ไม่ใช่ใน handlePredict
+  useEffect(() => {
+    if (!hasPredicted) {
+      const data = localStorage.getItem("latestPredictionData");
+      if (data) {
+        handlePredict(JSON.parse(data));
+        setHasPredicted(true);
+      }
+    }
+  }, [hasPredicted, handlePredict]);
+
+
 
 
 

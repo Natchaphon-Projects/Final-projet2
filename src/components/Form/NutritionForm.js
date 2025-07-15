@@ -231,7 +231,7 @@ function NutritionForm() {
 
 
 
-    axios.post("http://localhost:5000/predictions", dataToSend)
+    axios.post("/api/predictions", dataToSend)
       .then(() => {
         alert("✅ บันทึกข้อมูลเรียบร้อยแล้ว");
       })
@@ -263,7 +263,7 @@ function NutritionForm() {
   useEffect(() => {
     const childId = localStorage.getItem("childId");
     if (childId) {
-      axios.get(`http://localhost:5000/patients/${childId}`)
+      axios.get(`/api/patients/${childId}`)
         .then((res) => {
           setChildData(res.data);
           setPatientId(childId);

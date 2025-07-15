@@ -34,7 +34,7 @@ function ParentDashboard() {
   useEffect(() => {
     if (hnNumber) {
       axios
-        .get(`http://localhost:5000/parents/${hnNumber}`)
+        .get(`/api/parents/${hnNumber}`)
         .then((res) => setParentData(res.data))
         .catch((err) => console.error("ไม่สามารถโหลดข้อมูลผู้ปกครองได้", err));
     }

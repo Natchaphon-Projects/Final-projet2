@@ -14,10 +14,11 @@ function ViewPatientResults() {
   // ดึงข้อมูลจาก backend พร้อม order
   useEffect(() => {
     axios
-      .get(`http://localhost:5000/predictions?order=${sortOrder}`)
+      .get(`/api/predictions?order=${sortOrder}`)
       .then((res) => setPatients(res.data))
       .catch((err) => console.error("โหลดข้อมูลไม่สำเร็จ", err));
   }, [sortOrder]);
+
 
 
 

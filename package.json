@@ -14,7 +14,9 @@
     "buffer": "^6.0.3",
     "chart.js": "^4.4.9",
     "chartjs-plugin-datalabels": "^2.2.0",
+    "express": "^5.1.0",
     "file-saver": "^2.0.5",
+    "http-proxy-middleware": "^3.0.5",
     "lucide-react": "^0.511.0",
     "plotly.js": "^2.35.3",
     "plotly.js-basic-dist": "^2.35.3",
@@ -60,5 +62,10 @@
   },
   "devDependencies": {
     "@babel/plugin-proposal-private-property-in-object": "^7.21.11"
-  }
+  },
+  "description": "This project was bootstrapped with [Create React App](https://github.com/facebook/create-react-app).",
+  "main": "index.js",
+  "keywords": [],
+  "author": "",
+  "license": "ISC"
 }

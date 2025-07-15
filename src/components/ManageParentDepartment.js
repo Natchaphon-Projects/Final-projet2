@@ -54,7 +54,7 @@ const ManageParentDepartment = () => {
 
   const loadParents = async () => {
     try {
-      const res = await axios.get("http://localhost:5000/parents-with-children");
+      const res = await axios.get("/api/parents-with-children");
       setParents(res.data);
     } catch (err) {
       console.error("โหลดข้อมูลผู้ปกครองผิดพลาด", err);
@@ -98,9 +98,9 @@ const ManageParentDepartment = () => {
 
     try {
       if (editingParent) {
-        await axios.put(`http://localhost:5000/parents/${editingParent.parent_id}`, payload);
+        await axios.put(`/api/parents/${editingParent.parent_id}`, payload);
       } else {
-        await axios.post("http://localhost:5000/parents", payload);
+        await axios.post("/api/parents", payload);
       }
       alert("บันทึกข้อมูลผู้ปกครองสำเร็จ");
       setShowModal(false);
@@ -116,7 +116,7 @@ const ManageParentDepartment = () => {
   const handleRejectRegister = async (reg) => {
     if (!window.confirm("❌ คุณแน่ใจหรือไม่ว่าต้องการปฏิเสธคำขอนี้?")) return;
     try {
-      await axios.put(`http://localhost:5000/reject-register/${reg.register_id}`);
+      await axios.put(`/api/reject-register/${reg.register_id}`);
       alert("❌ ปฏิเสธคำขอแล้ว");
       loadPendingRegisters();
     } catch (err) {
@@ -176,7 +176,7 @@ const ManageParentDepartment = () => {
 
   const handleDelete = async (id) => {
     if (window.confirm("❌ คุณแน่ใจหรือไม่ว่าต้องการลบข้อมูลผู้ปกครองนี้?")) {
-      await axios.delete(`http://localhost:5000/parents/${id}`);
+      await axios.delete(`/api/parents/${id}`);
       alert("ลบข้อมูลสำเร็จ");
       loadParents();
     }
@@ -193,7 +193,7 @@ const ManageParentDepartment = () => {
 
   const loadPendingRegisters = async () => {
     try {
-      const res = await axios.get("http://localhost:5000/registers?status=pending");
+      const res = await axios.get("/api/registers?status=pending");
       setPendingRegisters(res.data);
     } catch (err) {
       console.error("โหลดข้อมูล register ผิดพลาด", err);
@@ -203,7 +203,7 @@ const ManageParentDepartment = () => {
 
   const handleApproveRegister = async (reg) => {
     try {
-      const res = await axios.post(`http://localhost:5000/approve-register/${reg.register_id}`, {
+      const res = await axios.post(`/api/approve-register/${reg.register_id}`, {
         admin_id: 1 // หรือเปลี่ยนตาม admin ที่ login
       });
       alert("✅ อนุมัติสำเร็จ");

@@ -16,7 +16,7 @@ function HistoryRiskSelection() {
   useEffect(() => {
     if (hnNumber) {
       axios
-        .get(`http://localhost:5000/children-by-parent/${hnNumber}`)
+        .get(`/api/children-by-parent/${hnNumber}`)
         .then((res) => {
           console.log("🎯 เด็กที่โหลดได้:", res.data);
           setChildren(res.data);

@@ -16,7 +16,7 @@ function ParentRiskSelection() {
   useEffect(() => {
     if (hnNumber) {
       axios
-        .get(`http://localhost:5000/children-by-parent/${hnNumber}`)
+        .get(`/api/children-by-parent/${hnNumber}`)
         .then((res) => {
           console.log("🎯 เด็กที่โหลดได้:", res.data);
           setChildren(res.data);
@@ -29,28 +29,28 @@ function ParentRiskSelection() {
 
   const handleChildSelect = (child) => {
 
-  localStorage.removeItem("generalFormData");
-  localStorage.removeItem("caregiverFormData");
-  localStorage.removeItem("nutritionFormData");
-  localStorage.removeItem("sanitationFormData");
+    localStorage.removeItem("generalFormData");
+    localStorage.removeItem("caregiverFormData");
+    localStorage.removeItem("nutritionFormData");
+    localStorage.removeItem("sanitationFormData");
 
-  localStorage.removeItem("generalProgress");
-  localStorage.removeItem("caregiverProgress");
-  localStorage.removeItem("nutritionProgress");
-  localStorage.removeItem("sanitationProgress");
+    localStorage.removeItem("generalProgress");
+    localStorage.removeItem("caregiverProgress");
+    localStorage.removeItem("nutritionProgress");
+    localStorage.removeItem("sanitationProgress");
 
-  localStorage.removeItem("generalCompletedGroups");
-  localStorage.removeItem("caregiverCompletedGroups");
-  localStorage.removeItem("nutritionCompletedGroups");
-  localStorage.removeItem("sanitationCompletedGroups");
+    localStorage.removeItem("generalCompletedGroups");
+    localStorage.removeItem("caregiverCompletedGroups");
+    localStorage.removeItem("nutritionCompletedGroups");
+    localStorage.removeItem("sanitationCompletedGroups");
 
 
-  localStorage.setItem("childHn", child.hn);
-  localStorage.setItem("childId", child.patient_id);
+    localStorage.setItem("childHn", child.hn);
+    localStorage.setItem("childId", child.patient_id);
 
-  // ⏩ ไปหน้าถัดไป
-  navigate("/parent-risk-assessment");
-};
+    // ⏩ ไปหน้าถัดไป
+    navigate("/parent-risk-assessment");
+  };
 
 
   return (
@@ -59,7 +59,7 @@ function ParentRiskSelection() {
 
       {/* Title */}
       <div className="children-section-title">
-       เลือกเด็กที่ต้องการประเมิน
+        เลือกเด็กที่ต้องการประเมิน
       </div>
 
       {/* Card Grid */}
@@ -69,28 +69,28 @@ function ParentRiskSelection() {
           คุณไม่มีเด็กในการดูแล จึงไม่สามารถประเมินได้
         </div>
       ) : (
-      <div className="children-grid">
-        {children.map((child) => (
-          <div
-            className="child-card"
-            key={child.patient_id}
-            onClick={() => handleChildSelect(child)}
-          >
-            <img
-              src={child.image_url || hamster}
-              alt="Child Avatar"
-              className="child-avatar"
-            />
-            <div className="child-name">
-              {`${child.prefix_name_child} ${child.first_name_child} ${child.last_name_child}`}
+        <div className="children-grid">
+          {children.map((child) => (
+            <div
+              className="child-card"
+              key={child.patient_id}
+              onClick={() => handleChildSelect(child)}
+            >
+              <img
+                src={child.image_url || hamster}
+                alt="Child Avatar"
+                className="child-avatar"
+              />
+              <div className="child-name">
+                {`${child.prefix_name_child} ${child.first_name_child} ${child.last_name_child}`}
+              </div>
+              <div className="child-hn-badge">
+                HN {child.hn}
+              </div>
             </div>
-            <div className="child-hn-badge">
-              HN {child.hn}
-            </div>
-          </div>
-        ))}
-      </div>
-     )}
+          ))}
+        </div>
+      )}
       <Footer />
     </div>
   );

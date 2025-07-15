@@ -28,7 +28,7 @@ const ManageDoctorDepartment = () => {
 
   const loadDoctors = async () => {
     try {
-      const res = await axios.get("http://localhost:5000/doctors");
+      const res = await axios.get("/api/doctors");
       setDoctors(res.data);
     } catch (err) {
       console.error("โหลดข้อมูลหมอผิดพลาด", err);
@@ -113,9 +113,9 @@ const ManageDoctorDepartment = () => {
 
     try {
       if (editingDoctor) {
-        await axios.put(`http://localhost:5000/doctors/${editingDoctor.doctor_id}`, payload);
+        await axios.put(`/api/doctors/${editingDoctor.doctor_id}`, payload);
       } else {
-        await axios.post("http://localhost:5000/doctors", payload);
+        await axios.post("/api/doctors", payload);
       }
       alert("บันทึกข้อมูลหมอสำเร็จ");
       setShowModal(false);
@@ -147,7 +147,7 @@ const ManageDoctorDepartment = () => {
 
   const handleDelete = async (id) => {
     if (window.confirm("❌ คุณแน่ใจหรือไม่ว่าต้องการลบข้อมูลหมอคนนี้?")) {
-      await axios.delete(`http://localhost:5000/doctors/${id}`);
+      await axios.delete(`/api/doctors/${id}`);
       alert("ลบข้อมูลสำเร็จ");
       loadDoctors();
     }
