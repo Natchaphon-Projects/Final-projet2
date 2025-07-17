@@ -921,7 +921,7 @@ const updatePublicNoteText = (incKeys, decKeys) => {
               <table className="result-table">
                 <thead>
                   <tr>
-                    <th>คำแนะนำ</th>
+                    <th>ข้อมูล</th>
                     <th>พฤติกรรมของผู้ป่วย</th>
                     <th>ค่ามาตรฐานของเด็กภาวะปกติ</th>
                   </tr>
