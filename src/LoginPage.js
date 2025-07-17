@@ -1,5 +1,5 @@
-import React, { useState } from "react";
-import { useNavigate } from "react-router-dom";
+import React, { useState, useEffect } from "react";
+import { useNavigate, useLocation } from "react-router-dom";
 import axios from "axios";
 import "./LoginPage.css";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
@@ -13,6 +13,17 @@ function LoginPage() {
   const [phoneNumber, setPhoneNumber] = useState("");
   const [password, setPassword] = useState("");
   const [loginMode, setLoginMode] = useState("hn"); // 'hn' หรือ 'email'
+
+  const location = useLocation();
+
+  useEffect(() => {
+    const params = new URLSearchParams(location.search);
+    const mode = params.get("mode");
+    if (mode === "admin") {
+      setLoginMode("email");
+    }
+  }, [location.search]);
+
   const [loading, setLoading] = useState(false);
   const navigate = useNavigate();
   const [showPassword, setShowPassword] = useState(false);
@@ -39,7 +50,7 @@ function LoginPage() {
     try {
       if (loginMode === "hn") {
         if (!hnNumber.trim()) {
-          alert("กรุณากรอกหมายเลข HN หรือเบอร์โทรศัพท์");
+          alert("กรุณากรอกหมายเลข User ID หรือเบอร์โทรศัพท์");
           setLoading(false);
           return;
         }
@@ -66,7 +77,7 @@ function LoginPage() {
         }
 
 
-        alert("ส่งรหัส OTP แล้ว: 123456 (เพื่อการทดสอบ)");
+        alert("ส่งรหัส OTP แล้ว: 123456 ");
         localStorage.setItem("hnNumber", hn_number); // ✅ ใช้ hn ที่ backend ส่งกลับมา
         localStorage.setItem("role", role);
         navigate("/enter-otp", { state: { hnNumber: hn_number, role } });
@@ -121,7 +132,7 @@ function LoginPage() {
         <h1>เข้าสู่ระบบ</h1>
         <p className="subtext">
           {loginMode === "hn" ? (
-            "กรอกหมายเลข HN เพื่อเข้าสู่ระบบ"
+            "กรอกหมายเลข User ID เพื่อเข้าสู่ระบบ"
           ) : (
             <>
               เข้าสู่ระบบด้วยอีเมลหรือชื่อผู้ใช้และรหัสผ่าน
@@ -139,7 +150,7 @@ function LoginPage() {
           <input
             type="text"
             className="hn-input"
-            placeholder="กรอกหมายเลข HN หรือเบอร์โทรศัพท์"
+            placeholder="กรอกหมายเลข User ID หรือเบอร์โทรศัพท์"
             value={hnNumber}
             onChange={(e) => setHnNumber(e.target.value)}
             onKeyDown={(e) => e.key === "Enter" && handleLogin()}
@@ -185,7 +196,7 @@ function LoginPage() {
         >
           {loginMode === "hn"
             ? "ล็อกอินด้วยอีเมล/ชื่อผู้ใช้ (สำหรับแอดมิน)"
-            : "ล็อกอินด้วยหมายเลข HN"}
+            : "ล็อกอินด้วยหมายเลข User ID"}
 
         </button>
         <button
@@ -214,7 +225,7 @@ function LoginPage() {
             <p><strong>ตัวอย่างหมายเลข HN ที่ใช้งานได้:</strong></p>
             <ul>
               <li>ผู้ปกครอง: <strong>1001</strong> หรือ <strong>0911111111</strong></li>
-              <li>หมอ: <strong>9002</strong> (ใช้ HN login เท่านั้น)</li>
+              <li>หมอ: <strong>9002</strong> (ใช้ User ID login เท่านั้น)</li>
               <li>แอดมิน: <strong>9001</strong> (ใช้ email login เท่านั้น)</li>
             </ul>
           </div>

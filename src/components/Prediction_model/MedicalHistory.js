@@ -17,6 +17,8 @@ const MedicalHistory = () => {
   const [selectedNote, setSelectedNote] = useState("");
   const [showPopup, setShowPopup] = useState(false);
   const [selectedCreatedAt, setSelectedCreatedAt] = useState("");
+  const [selectedDoctor, setSelectedDoctor] = useState("");
+
 
 
   const normalCount = medicalHistory.filter((r) => r.status === "ปกติ").length;
@@ -43,7 +45,10 @@ const MedicalHistory = () => {
             createdAt: item.date, // <-- raw datetime จริงจาก MySQL
             date: new Date(item.date).toLocaleDateString("th-TH"),
             time: new Date(item.date).toLocaleTimeString("th-TH", { hour: "2-digit", minute: "2-digit" }),
-            doctor: "หมอยังไม่ระบุ",
+            doctor: item.prefix_name_doctor || item.first_name_doctor
+              ? `${item.prefix_name_doctor || ""}${item.first_name_doctor || ""} ${item.last_name_doctor || ""}`.trim()
+              : "หมอยังไม่ระบุ",
+
             status: item.status === "Normal" ? "ปกติ" : "กรุณาพบแพทย์",
             public_note: item.public_note || "",
             note_updated_at: item.note_updated_at || item.date, // ✅ ต้องระบุแบบนี้
@@ -162,6 +167,7 @@ const MedicalHistory = () => {
                         updatedAt: item.note_updated_at
                       });
                       setSelectedCreatedAt(item.createdAt);
+                      setSelectedDoctor(item.doctor);
                       setShowPopup(true);
                     }}
                   >
@@ -176,14 +182,15 @@ const MedicalHistory = () => {
 
             </div>
           ))}
-      </div>
+        </div>
 
-    </main >
+      </main >
 
-      { showPopup && (
+      {showPopup && (
         <div className="popup-overlay">
           <div className="popup-box">
             <h2>📝 คำแนะนำจากแพทย์</h2>
+            <p><b>แพทย์ผู้ออกคำแนะนำ:</b> {selectedDoctor}</p>
             <p className="note-date">
               📅 วันที่: {new Date(selectedNote.updatedAt || selectedCreatedAt).toLocaleDateString("th-TH")} ⏰ เวลา: {new Date(selectedNote.updatedAt || selectedCreatedAt).toLocaleTimeString("th-TH", { hour: "2-digit", minute: "2-digit" })}
             </p>
@@ -197,10 +204,10 @@ const MedicalHistory = () => {
           </div>
         </div>
       )
-}
+      }
 
 
-<Footer />
+      <Footer />
     </>
   );
 };

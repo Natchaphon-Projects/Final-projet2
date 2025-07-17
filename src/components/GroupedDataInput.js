@@ -164,18 +164,23 @@ function Groupdatainput() {
   ];
 
   const getProgressStatus = (progress) => {
-    if (progress === 100)
-      return {
-        icon: <img src={doneIcon} alt="done" style={{ width: "24px", height: "24px" }} />,
-        text: "เสร็จสิ้น",
-      };
-    if (progress > 0)
-      return {
-        icon: <img src={clockwiseIcon} alt="loading" style={{ width: "24px", height: "24px" }} />,
-        text: "กำลังกรอกข้อมูล",
-      };
-    return { icon: "❌", text: "ยังไม่เริ่ม" };
+  if (progress === 100)
+    return {
+      icon: <img src={doneIcon} alt="done" style={{ width: "24px", height: "24px" }} />,
+      text: <span style={{ color: "green" }}>เสร็จสิ้น</span>,
+    };
+  if (progress > 0)
+    return {
+      icon: <img src={clockwiseIcon} alt="loading" style={{ width: "24px", height: "24px" }} />,
+      text: <span style={{ color: "yellow" }}>กำลังกรอกข้อมูล</span>,
+    };
+  return {
+    icon: <span style={{ fontSize: "24px" }}>❌</span>,
+    text: <span style={{ color: "red" }}>ยังไม่เริ่ม</span>,
   };
+};
+
+
 
   return (
     <div className="dashboard-container">
@@ -223,9 +228,9 @@ function Groupdatainput() {
             return (
               <div className="group-card animate-fade-in" key={index}>
                 <div className="card-header">
-                  <div className="emoji">{group.emoji}</div>
+                  <div className="emoji">{icon}</div>
                   <div className="status-container">
-                    <span className="status-icon">{icon}</span>
+                    
                     <span className="status-text">{text}</span>
                   </div>
                 </div>

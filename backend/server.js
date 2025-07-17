@@ -46,23 +46,30 @@ app.get("/doctors/:hn", (req, res) => {
 });
 
 app.get("/patients", (req, res) => {
-  const query = `
-    SELECT 
-      p.patient_id AS id,
-      p.hn_number,
-      p.prefix_name_child AS childPrefix,
-      p.birth_date AS birthDate,
-      CONCAT(p.first_name_child, ' ', p.last_name_child) AS name,
-      p.age,
-      p.gender,
-      pa.parent_id AS parent_id,
-      CONCAT(pa.prefix_name_parent, ' ', pa.first_name_parent, ' ', pa.last_name_parent) AS parent,
-      r.relationship
-    FROM patient p
-    LEFT JOIN relationship r ON p.patient_id = r.patient_id
-    LEFT JOIN parent pa ON r.parent_id = pa.parent_id
-    ORDER BY p.hn_number 
-  `;
+  // เพิ่ม doctor ที่ให้คำแนะนำ
+const query = `
+  SELECT 
+    p.patient_id AS patientId,
+    CONCAT(p.first_name_child, ' ', p.last_name_child) AS name,
+    p.gender,
+    p.age,
+    pr.created_at AS date,
+    pr.Status_personal AS status,
+    mr.public_note,
+    mr.note_updated_at,
+    d.prefix_name_doctor,
+    d.first_name_doctor,
+    d.last_name_doctor
+  FROM prediction pr
+  JOIN patient p ON p.patient_id = pr.patient_id
+  LEFT JOIN medical_records mr 
+    ON mr.patient_id = pr.patient_id AND mr.created_at = pr.created_at
+  LEFT JOIN doctor d 
+    ON mr.doctor_id = d.doctor_id
+  ORDER BY pr.created_at ${order}
+`;
+
+
 
   db.query(query, (err, results) => {
     if (err) {
@@ -564,19 +571,29 @@ app.get("/parents", (req, res) => {
 app.get("/parents-with-children", (req, res) => {
   const query = `
     SELECT 
-    pa.parent_id,
-    pa.hn_number,
-    CONCAT(pa.prefix_name_parent, ' ', pa.first_name_parent, ' ', pa.last_name_parent) AS parent_name,
-    pa.houseNo, pa.moo, pa.alley, pa.street, pa.subDistrict, pa.district, pa.province, pa.postalCode,
-    pa.phone_number,
-    GROUP_CONCAT(CONCAT(p.prefix_name_child, ' ', p.first_name_child, ' ', p.last_name_child) SEPARATOR ', ') AS children,
-    GROUP_CONCAT(r.relationship SEPARATOR ', ') AS relationships
-  FROM parent pa
-  LEFT JOIN relationship r ON pa.parent_id = r.parent_id
-  LEFT JOIN patient p ON r.patient_id = p.patient_id
-  GROUP BY pa.parent_id
-  ORDER BY pa.parent_id;
-`;
+      pa.parent_id,
+      pa.hn_number,
+      pa.prefix_name_parent,
+      pa.first_name_parent,
+      pa.last_name_parent,
+      CONCAT(pa.prefix_name_parent, ' ', pa.first_name_parent, ' ', pa.last_name_parent) AS parent_name,
+      pa.houseNo,
+      pa.moo,
+      pa.alley,
+      pa.street,
+      pa.subDistrict,
+      pa.district,
+      pa.province,
+      pa.postalCode,
+      pa.phone_number,
+      GROUP_CONCAT(CONCAT(p.prefix_name_child, ' ', p.first_name_child, ' ', p.last_name_child) SEPARATOR ', ') AS children,
+      GROUP_CONCAT(r.relationship SEPARATOR ', ') AS relationships
+    FROM parent pa
+    LEFT JOIN relationship r ON pa.parent_id = r.parent_id
+    LEFT JOIN patient p ON r.patient_id = p.patient_id
+    GROUP BY pa.parent_id
+    ORDER BY pa.parent_id;
+  `;
 
   db.query(query, (err, results) => {
     if (err) {

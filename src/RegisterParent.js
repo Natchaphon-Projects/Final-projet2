@@ -125,7 +125,7 @@ function RegisterParent() {
           <input
             value={form.hn_number}
             disabled
-            placeholder="หมายเลข HN (อัตโนมัติ)"
+            placeholder="หมายเลข User ID (อัตโนมัติ)"
             className="input-field hn-field"
           />
 

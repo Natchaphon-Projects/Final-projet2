@@ -69,8 +69,6 @@ const ManageParentDepartment = () => {
       !formData.phone ||
       !formData.houseNo ||
       !formData.moo ||
-      !formData.alley ||
-      !formData.street ||
       !formData.subDistrict ||
       !formData.district ||
       !formData.province ||
@@ -261,7 +259,7 @@ const ManageParentDepartment = () => {
         <table className="modern-table">
           <thead>
             <tr>
-              <th>HN</th>
+              <th>User ID</th>
               <th>ชื่อผู้ปกครอง</th>
               <th>เบอร์โทร</th>
               <th>เด็กในความดูแล</th>
@@ -473,7 +471,7 @@ const ManageParentDepartment = () => {
                   <div key={pendingItem.register_id} className="approval-card-horizontal">
                     <div className="approval-card-info">
                       <p>
-                        <strong>HN:</strong> {pendingItem.hn_number} &nbsp;–&nbsp;
+                        <strong>User ID:</strong> {pendingItem.hn_number} &nbsp;–&nbsp;
                         <strong>ชื่อ:</strong> {pendingItem.prefix_name_parent} {pendingItem.first_name_parent} {pendingItem.last_name_parent} &nbsp;–&nbsp;
                         <strong>เบอร์:</strong> {pendingItem.phone_number?.replace(/^(\d{3})(\d{3})(\d+)/, "$1-$2-$3")}
                       </p>
@@ -495,26 +493,23 @@ const ManageParentDepartment = () => {
                     {selectedDetailItem && selectedDetailItem.register_id === pendingItem.register_id && (
                       <div className="modal">
                         <div className="modal-content detail-modal">
-                          <h3>📝 รายละเอียดคำขอ</h3>
-                          <div className="register-detail">
-                            <div className="approval-card-info">
-                              <p>
-                                <strong>HN:</strong> {pendingItem.hn_number} &nbsp;–&nbsp;
-                                <strong>ชื่อ:</strong> {pendingItem.prefix_name_parent} {pendingItem.first_name_parent} {pendingItem.last_name_parent} &nbsp;–&nbsp;
-                                <strong>เบอร์:</strong> {pendingItem.phone_number?.replace(/^(\d{3})(\d{3})(\d+)/, "$1-$2-$3")}
-                              </p>
-                            </div>
+                          <h3 className="modal-title">📝 รายละเอียดคำขอ</h3>
 
-                            <ul>
-                              <li>บ้านเลขที่: {selectedDetailItem.houseNo}</li>
-                              <li>หมู่: {selectedDetailItem.moo}</li>
-                              <li>ซอย: {selectedDetailItem.alley}</li>
-                              <li>ถนน: {selectedDetailItem.street}</li>
-                              <li>ตำบล: {selectedDetailItem.subDistrict}</li>
-                              <li>อำเภอ: {selectedDetailItem.district}</li>
-                              <li>จังหวัด: {selectedDetailItem.province}</li>
-                              <li>รหัสไปรษณีย์: {selectedDetailItem.postalCode}</li>
-                            </ul>
+                          <div className="register-detail-box">
+                            <div className="address-detail-grid">
+                              <div><span>User ID:</span> {pendingItem.hn_number}</div>
+                              <div><span>ชื่อ:</span> {pendingItem.prefix_name_parent} {pendingItem.first_name_parent} {pendingItem.last_name_parent}</div>
+                              <div><span>เบอร์:</span> {pendingItem.phone_number?.replace(/^(\d{3})(\d{3})(\d+)/, "$1-$2-$3")}</div>
+
+                              <div><span>บ้านเลขที่:</span> {selectedDetailItem.houseNo}</div>
+                              <div><span>หมู่:</span> {selectedDetailItem.moo}</div>
+                              <div><span>ซอย:</span> {selectedDetailItem.alley}</div>
+                              <div><span>ถนน:</span> {selectedDetailItem.street}</div>
+                              <div><span>ตำบล:</span> {selectedDetailItem.subDistrict}</div>
+                              <div><span>อำเภอ:</span> {selectedDetailItem.district}</div>
+                              <div><span>จังหวัด:</span> {selectedDetailItem.province}</div>
+                              <div><span>รหัสไปรษณีย์:</span> {selectedDetailItem.postalCode}</div>
+                            </div>
                           </div>
                           <div className="button-group">
                             <button className="cancel-btn" onClick={() => setSelectedDetailItem(null)}>ปิด</button>

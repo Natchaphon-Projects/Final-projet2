@@ -122,10 +122,10 @@ function Recomendation() {
   const location = useLocation();
   const createdAt = location.state?.createdAt;
   const patient = location.state?.patient;
+  const [doctorName, setDoctorName] = useState("");
   const { id } = useParams();
   const [record, setRecord] = useState(null);
-  const [shouldIncrease, setShouldIncrease] = useState([]);
-  const [shouldDecrease, setShouldDecrease] = useState([]);
+  const [suggestionMap, setSuggestionMap] = useState({});
   const [timestamps, setTimestamps] = useState([]);
   const [mostGlobalFeatures, setMostGlobalFeatures] = useState([]);
 
@@ -154,7 +154,12 @@ function Recomendation() {
           setRecord(res.data);
           setPrivateNote(res.data.private_note || "");
           setPublicNote(res.data.public_note || "");
+
+          const doctorNameFromRecord = res.data.doctor_name || "ไม่ทราบชื่อหมอ";
+          setDoctorName(doctorNameFromRecord);  // เก็บชื่อหมอใน state
+
         })
+
         .catch((err) => {
           console.error("❌ โหลด record ล่าสุดไม่สำเร็จ:", err);
         });
@@ -245,24 +250,94 @@ function Recomendation() {
   //     .catch(() => console.log("⚠️ ดึง SHAP global ไม่สำเร็จ"));
   // }, [record]);
 
-  const handleCheckboxChange = (label, type) => {
-    if (type === "increase") {
-      setShouldIncrease((prev) => {
-        const updated = prev.includes(label)
-          ? prev.filter((f) => f !== label)
-          : [...prev, label];
-        updatePublicNoteText(updated, shouldDecrease);
-        return updated;
-      });
-    } else if (type === "decrease") {
-      setShouldDecrease((prev) => {
-        const updated = prev.includes(label)
-          ? prev.filter((f) => f !== label)
-          : [...prev, label];
-        updatePublicNoteText(shouldIncrease, updated);
-        return updated;
-      });
+  const categoryMap = {
+    Still_Breastfeeding: "บริโภค",
+    Received_Yogurt: "บริโภค",
+    Received_Thin_Porridge: "บริโภค",
+    Received_Grain_Based_Foods: "บริโภค",
+    Received_Orange_Yellow_Foods: "บริโภค",
+    Received_White_Root_Foods: "บริโภค",
+    Received_Dark_Green_Leafy_Veggies: "บริโภค",
+    Received_Ripe_Mangoes_Papayas: "บริโภค",
+    Received_Other_Fruits_Vegetables: "บริโภค",
+    Received_Meat: "บริโภค",
+    Received_Eggs: "บริโภค",
+    Received_Fish_Shellfish_Seafood: "บริโภค",
+    Received_Legumes_Nuts_Foods: "บริโภค",
+    Received_Oil_Fats_Butter: "บริโภค",
+    Received_Sugary_Foods: "บริโภค",
+    Received_Chilies_Spices_Herbs: "บริโภค",
+    Received_Grubs_Snails_Insects: "บริโภค",
+    Received_Other_Solid_Semi_Solid_Food: "บริโภค",
+    Received_Salt: "บริโภค",
+    Received_Animal_Milk: "บริโภค",
+    Received_Dairy_Products: "บริโภค",
+    Received_Plain_Water: "บริโภค",
+    Received_Juice_or_Juice_Drinks: "บริโภค",
+    Received_Tea: "บริโภค",
+    Received_Other_Liquids: "บริโภค",
+    Given_Anything_to_Drink_in_First_6_Months: "บริโภค",
+    Received_Vitamin_or_Mineral_Supplements: "บริโภค",
+    Vitamin_A_Intake_First_8_Weeks: "บริโภค",
+    Sanitary_Disposal: "ถูกสุขลักษณะ",
+    Child_wash_hand_before_or_after_eating_food: "ล้างมือ",
+    Child_wash_hand_before_or_after_visiting_the_toilet: "ล้างมือ",
+    Mom_wash_hand_before_or_after_cleaning_children: "ล้างมือ",
+    Mom_wash_hand_before_or_after_feeding_the_child: "ล้างมือ",
+  };
+
+  const numericSuggestionFeatures = new Set([
+    "Number_of_Times_Eaten_Solid_Food",
+    "Infant_Formula_Intake_Count_Yesterday",
+    "Breastfeeding_Count_DayandNight",
+    "Received_Animal_Milk_Count",
+    "Received_Yogurt_Count"
+  ]);
+
+  const getSuggestionLabel = (feature, type = "increase") => {
+    if (numericSuggestionFeatures.has(feature)) {
+      return type === "increase" ? "ควรเพิ่ม" : "ควรลด";
     }
+
+    const category = categoryMap[feature];
+    if (!category) {
+      return type === "increase" ? "ควรปรับพฤติกรรม" : "ไม่ควรทำ";
+    }
+
+    if (category === "ถูกสุขลักษณะ") {
+      return type === "increase" ? "ควรปฏิบัติ" : "ไม่ควรปฏิบัติ";
+    }
+
+    return type === "increase" ? `ควร${category}` : `ไม่ควร${category}`;
+  };
+
+
+  const unitMap = {
+    Number_of_Times_Eaten_Solid_Food: "มื้อ",
+    Infant_Formula_Intake_Count_Yesterday: "ครั้ง",
+    Breastfeeding_Count_DayandNight: "ครั้ง",
+    Received_Animal_Milk_Count: "ครั้ง",
+    Received_Yogurt_Count: "ครั้ง"
+  };
+
+  const formatWithUnit = (feature, value) => {
+    const unit = unitMap[feature];
+    if (unit && !isNaN(value)) {
+      return `${value} ${unit}`;
+    }
+    return value;
+  };
+
+
+  const handleRadioChange = (label, value) => {
+    setSuggestionMap(prev => {
+      const updated = { ...prev, [label]: value };
+      const increaseList = Object.keys(updated).filter(k => updated[k] === "increase");
+      const decreaseList = Object.keys(updated).filter(k => updated[k] === "decrease");
+
+      updatePublicNoteText(increaseList, decreaseList);
+      return updated;
+    });
   };
 
   const updatePublicNoteText = (inc, dec) => {
@@ -350,42 +425,42 @@ function Recomendation() {
   ]);
 
 
- useEffect(() => {
-  if (id && createdAt) {
-    const dateObj = new Date(createdAt);
-    const yyyy = dateObj.getFullYear();
-    const mm = String(dateObj.getMonth() + 1).padStart(2, '0');
-    const dd = String(dateObj.getDate()).padStart(2, '0');
-    const hh = String(dateObj.getHours()).padStart(2, '0');
-    const mi = String(dateObj.getMinutes()).padStart(2, '0');
-    const ss = String(dateObj.getSeconds()).padStart(2, '0');
-    const formatted = `${yyyy}-${mm}-${dd} ${hh}:${mi}:${ss}`;
+  useEffect(() => {
+    if (id && createdAt) {
+      const dateObj = new Date(createdAt);
+      const yyyy = dateObj.getFullYear();
+      const mm = String(dateObj.getMonth() + 1).padStart(2, '0');
+      const dd = String(dateObj.getDate()).padStart(2, '0');
+      const hh = String(dateObj.getHours()).padStart(2, '0');
+      const mi = String(dateObj.getMinutes()).padStart(2, '0');
+      const ss = String(dateObj.getSeconds()).padStart(2, '0');
+      const formatted = `${yyyy}-${mm}-${dd} ${hh}:${mi}:${ss}`;
 
-    console.log("📌 createdAt formatted:", formatted);
-    setShapTime(formatted);
+      console.log("📌 createdAt formatted:", formatted);
+      setShapTime(formatted);
 
-    // ❌ อย่า return axios
-    axios.get(`/api/patients/${id}/records`, {
-      params: { created_at: formatted }
-    })
-      .then((res) => {
-        console.log("📦 record from created_at:", res.data);
-        setRecord(res.data);
-        setPrivateNote(res.data.private_note || "");
-        setPublicNote(res.data.public_note || "");
+      // ❌ อย่า return axios
+      axios.get(`/api/patients/${id}/records`, {
+        params: { created_at: formatted }
       })
-      .catch((err) => console.error("❌ โหลดข้อมูล record ไม่สำเร็จ:", err));
+        .then((res) => {
+          console.log("📦 record from created_at:", res.data);
+          setRecord(res.data);
+          setPrivateNote(res.data.private_note || "");
+          setPublicNote(res.data.public_note || "");
+        })
+        .catch((err) => console.error("❌ โหลดข้อมูล record ไม่สำเร็จ:", err));
 
-    axios.get(`/api/patients/${id}/records/notes`, {
-      params: { created_at: formatted }
-    })
-      .then((res) => {
-        setPrivateNote(res.data.private_note || "");
-        setPublicNote(res.data.public_note || "");
+      axios.get(`/api/patients/${id}/records/notes`, {
+        params: { created_at: formatted }
       })
-      .catch((err) => console.error("❌ โหลดข้อมูล note ไม่สำเร็จ:", err));
-  }
-}, [id, createdAt]);
+        .then((res) => {
+          setPrivateNote(res.data.private_note || "");
+          setPublicNote(res.data.public_note || "");
+        })
+        .catch((err) => console.error("❌ โหลดข้อมูล note ไม่สำเร็จ:", err));
+    }
+  }, [id, createdAt]);
 
 
   useEffect(() => {
@@ -686,7 +761,7 @@ function Recomendation() {
 
               <div className="patient-info-grid-two">
                 <div className="info-card">
-                  <div className="label">HN:</div>
+                  <div className="label">User ID:</div>
                   <div className="value">{record?.hn_number || "--"}</div>
                 </div>
 
@@ -889,62 +964,81 @@ function Recomendation() {
                             </div>
 
                             {/* Checkbox แนวนอน */}
-                            <div style={{
-                              display: "flex",
-                              gap: "14px",
-                              justifyContent: "center"
-                            }}>
-                              {/* ปุ่มติ๊กแบบกลมๆ ชิด label */}
-                              <label style={{
-                                display: "flex",
-                                alignItems: "center",
-                                gap: "6px",
-                                fontSize: "13.5px",
-                                color: "#444",
-                                cursor: "pointer"
-                              }}>
+                            <div style={{ display: "flex", gap: "14px", justifyContent: "center" }}>
+                              <label style={{ display: "flex", alignItems: "center", gap: "6px", fontSize: "13.5px", color: "#444", cursor: "pointer" }}>
                                 <input
-                                  type="checkbox"
-                                  checked={shouldIncrease.includes(featureLabel)}
-                                  onChange={() => handleCheckboxChange(featureLabel, "increase")}
+                                  type="radio"
+                                  name={`suggestion-${featureLabel}`}
+                                  checked={suggestionMap[featureLabel] === "increase"}
+                                  onChange={() => handleRadioChange(featureLabel, "increase")}
                                   style={{
                                     width: "16px",
                                     height: "16px",
-                                    accentColor: "#22c55e", // เขียวแบบ Tailwind
+                                    accentColor: "#22c55e",
                                     cursor: "pointer"
                                   }}
                                 />
-                                ควรเพิ่ม
+                                {getSuggestionLabel(item.feature, "increase")}
                               </label>
 
-                              <label style={{
-                                display: "flex",
-                                alignItems: "center",
-                                gap: "6px",
-                                fontSize: "13.5px",
-                                color: "#444",
-                                cursor: "pointer"
-                              }}>
+                              <label style={{ display: "flex", alignItems: "center", gap: "6px", fontSize: "13.5px", color: "#444", cursor: "pointer" }}>
                                 <input
-                                  type="checkbox"
-                                  checked={shouldDecrease.includes(featureLabel)}
-                                  onChange={() => handleCheckboxChange(featureLabel, "decrease")}
+                                  type="radio"
+                                  name={`suggestion-${featureLabel}`}
+                                  checked={suggestionMap[featureLabel] === "decrease"}
+                                  onChange={() => handleRadioChange(featureLabel, "decrease")}
                                   style={{
                                     width: "16px",
                                     height: "16px",
-                                    accentColor: "#f43f5e", // แดงแบบ Tailwind
+                                    accentColor: "#f43f5e",
                                     cursor: "pointer"
                                   }}
                                 />
-                                ควรลด
+                                {getSuggestionLabel(item.feature, "decrease")}
+                              </label>
+
+                              <label style={{ display: "flex", alignItems: "center", gap: "6px", fontSize: "13.5px", color: "#888", cursor: "pointer" }}>
+                                <input
+                                  type="radio"
+                                  name={`suggestion-${featureLabel}`}
+                                  checked={!suggestionMap[featureLabel]}
+                                  onChange={() => handleRadioChange(featureLabel, null)}
+                                  style={{
+                                    width: "16px",
+                                    height: "16px",
+                                    accentColor: "#ccc",
+                                    cursor: "pointer"
+                                  }}
+                                />
+                                ไม่เลือก
                               </label>
                             </div>
                           </div>
                         </td>
 
-                        <td><span className="badge">{patientValue}</span></td>
-                        <td><span className="badge-green">{standardValue}</span></td>
-                        <td>
+                        <td><span className="badge">{formatWithUnit(item.feature, patientValue)}</span></td>
+                        <td><span className="badge-green">{formatWithUnit(item.feature, standardValue)}</span></td>
+
+                        <td style={{ textAlign: "center" }}>
+                          {(() => {
+                            const patientVal = valueMap[item.feature]?.values?.[realValue] ?? realValue;
+                            const normalVal = normalAverages[item.feature];
+                            const standardVal =
+                              valueMap[item.feature]?.values?.[String(normalVal)] ??
+                              valueMap[item.feature]?.values?.[normalVal] ??
+                              normalVal;
+
+                            const isCompliant = isEqual(patientVal, standardVal);
+
+                            return isCompliant ? (
+                              <span style={{ fontSize: "22px", color: "green" }}>✅</span>
+                            ) : (
+                              <span style={{ fontSize: "22px", color: "red" }}>❌</span>
+                            );
+                          })()}
+                        </td>
+
+                        {/* <td>
                           {(() => {
                             const normalVal = normalAverages[item.feature];
                             const globalFeature = mostGlobalFeatures.find(f => f.feature === item.feature);
@@ -976,13 +1070,13 @@ function Recomendation() {
 
                             // 🧠 2. คำแนะนำจาก shap
                             let shapNote = "";
-                            if (shap > 0) {
-                              shapNote = <>ส่งผลให้เป็น <span style={{ color: "#007bff" }}>{statusName}</span></>;
-                            } else if (shap < 0) {
-                              shapNote = <>ส่งผลให้ไม่เป็น <span style={{ color: "#007bff" }}>{statusName}</span></>;
-                            } else {
-                              shapNote = <>ไม่ส่งผลต่อ <span style={{ color: "#007bff" }}>{statusName}</span></>;
-                            }
+                            // if (shap > 0) {
+                            //   shapNote = <>ส่งผลให้เป็น <span style={{ color: "#007bff" }}>{statusName}</span></>;
+                            // } else if (shap < 0) {
+                            //   shapNote = <>ส่งผลให้ไม่เป็น <span style={{ color: "#007bff" }}>{statusName}</span></>;
+                            // } else {
+                            //   shapNote = <>ไม่ส่งผลต่อ <span style={{ color: "#007bff" }}>{statusName}</span></>;
+                            // }
 
                             // 🧠 3. คำแนะนำจากการเปรียบเทียบพฤติกรรม
                             let behaviorNote = "";
@@ -1020,7 +1114,7 @@ function Recomendation() {
                           })()}
 
 
-                        </td>
+                        </td> */}
                       </tr>
                     );
                   })}
@@ -1106,7 +1200,14 @@ function Recomendation() {
                     return (
                       <tr key={`top-${index}`} className="top-row">
                         <td><span className="arrow-up">↑</span> {featureName}</td>
-                        <td><span className="value-badge">{translatedMode}</span></td>
+                        <td>
+                          <span className="value-badge">
+                            {typeof translatedMode === "number"
+                              ? formatWithUnit(item.feature, translatedMode)
+                              : translatedMode}
+                          </span>
+                        </td>
+
                       </tr>
                     );
                   })}
@@ -1130,7 +1231,14 @@ function Recomendation() {
                     return (
                       <tr key={`bottom-${index}`} className="bottom-row">
                         <td><span className="arrow-down">↓</span> {featureName}</td>
-                        <td><span className="value-badge">{translatedMode}</span></td>
+                        <td>
+                          <span className="value-badge">
+                            {!isNaN(Number(translatedMode))
+                              ? formatWithUnit(item.feature, translatedMode)
+                              : translatedMode}
+                          </span>
+                        </td>
+
                       </tr>
                     );
                   })}

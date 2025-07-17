@@ -20,17 +20,23 @@ function RoleSelectionPage() {
   return (
     <div className="role-wrapper">
       <header className="custom-header">
-            <div className="header-left">
-              <FaHospitalSymbol className="hospital-icon" />
-              <span className="hospital-name">Healthy Kid</span>
-            </div>
-            <div className="header-right">
-              <button className="logout-btn" onClick={handleStartClick}>
-                <FaSignOutAlt size={24}/>
-               เริ่มต้นใช้งาน
-              </button>
-            </div>
-          </header>
+        <div className="header-left">
+          <FaHospitalSymbol className="hospital-icon" />
+          <span className="hospital-name">Healthy Kid</span>
+        </div>
+        <div className="header-right">
+          <button className="logout-btn" onClick={() => navigate("/register")}>
+            <FaSignInAlt size={24} />
+            สมัครเข้าใช้งาน
+          </button>
+          <button className="logout-btn" onClick={handleStartClick}>
+            <FaSignOutAlt size={24} />
+            เริ่มต้นใช้งาน
+          </button>
+
+        </div>
+
+      </header>
 
 
 
@@ -44,7 +50,11 @@ function RoleSelectionPage() {
         </p>
 
         <div className="role-cards">
-          <div className="role-card">
+          <div
+            className="role-card"
+            onClick={() => window.location.href = `${window.location.origin}/login`}
+            style={{ cursor: "pointer" }}
+          >
             <div className="icon-box">👨‍👩‍👧‍👦</div>
             <h3>สำหรับผู้ปกครอง</h3>
             <p>
@@ -53,7 +63,11 @@ function RoleSelectionPage() {
             </p>
           </div>
 
-          <div className="role-card">
+          <div
+            className="role-card"
+            onClick={() => window.location.href = `${window.location.origin}/login`}
+            style={{ cursor: "pointer" }}
+          >
             <div className="icon-box">🩺</div>
             <h3>สำหรับแพทย์</h3>
             <p>
@@ -61,14 +75,20 @@ function RoleSelectionPage() {
             </p>
           </div>
 
-          <div className="role-card">
+          <div
+            className="role-card"
+            onClick={() => window.location.href = `${window.location.origin}/login?mode=admin`}
+            style={{ cursor: "pointer" }}
+          >
             <div className="icon-box">🔐</div>
             <h3>สำหรับผู้ดูแลระบบ</h3>
             <p>
               จัดการระบบ ผู้ใช้งาน และรายงานสถิติการใช้งานอย่างมีประสิทธิภาพ
             </p>
           </div>
+
         </div>
+
 
         <button className="start-button" onClick={handleStartClick}>
           เริ่มต้นใช้งาน

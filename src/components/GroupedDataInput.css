@@ -8,7 +8,6 @@
   overflow-x: auto;                       /* เพิ่ม scrollbar ถ้าจอกว้างไม่พอ */
 }
 
-
 /* การ์ดแต่ละกลุ่ม */
 .group-card {
   background: white;
@@ -37,6 +36,7 @@
 
 .emoji {
   font-size: 2.5rem;
+  margin-bottom: 15px;
 }
 
 .status-container {
@@ -49,6 +49,7 @@
 
 .status-icon {
   font-size: 1.1rem;
+  margin-bottom: 20px;
 }
 
 /* ข้อความภายในการ์ด */
@@ -92,11 +93,12 @@
 
 /* ความคืบหน้าโดยรวม */
 .overall-progress {
-  max-width: 1200px;
-  margin: 2rem auto;
+  width: 100%;               /* ใช้ 100% ของความกว้างของ parent */
+  max-width: none;           /* ลบ max-width เพื่อให้มันยืดเต็มที่ */
+  margin: 2rem auto;         /* ค่ามาร์จิ้นเพื่อจัดตำแหน่งกลาง */
+  padding: 1.5rem;           /* เพิ่ม padding ตามต้องการ */
   background: white;
   border-radius: 1rem;
-  padding: 1.5rem;
   box-shadow: 0 4px 20px rgba(0, 0, 0, 0.05);
 }
 
@@ -210,3 +212,14 @@
   }
 }
 
+*,
+*::before,
+*::after {
+  box-sizing: border-box;
+}
+
+html, body {
+  width: 100%;
+  height: 100%;
+  margin: 0;
+}

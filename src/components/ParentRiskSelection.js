@@ -59,7 +59,7 @@ function ParentRiskSelection() {
 
       {/* Title */}
       <div className="children-section-title">
-        เลือกเด็กที่ต้องการประเมิน
+        เลือกบุตร/หลานที่ต้องการประเมิน
       </div>
 
       {/* Card Grid */}

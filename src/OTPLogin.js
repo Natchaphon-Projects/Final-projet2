@@ -9,7 +9,7 @@ function OTPLogin() {
 
   const handleLogin = async () => {
     if (!identity) {
-      alert("กรุณากรอก HN หรือ เบอร์โทร");
+      alert("กรุณากรอก User ID หรือ เบอร์โทร");
       return;
     }
 
@@ -27,7 +27,7 @@ function OTPLogin() {
       localStorage.setItem("hn", hn_number);
 
       // ✅ จำลอง OTP ส่ง
-      alert("OTP ถูกส่งแล้ว: 123456 (จำลอง)");
+      alert("OTP ถูกส่งแล้ว: 123456 ");
 
       // ✅ ไปหน้ากรอก OTP
       navigate("/enter-otp", { state: { hnNumber: hn_number, role } });
@@ -39,10 +39,10 @@ function OTPLogin() {
   return (
     <div className="otp-login-container">
       <h1>เข้าสู่ระบบ</h1>
-      <p>กรอก HN หรือ เบอร์โทร เพื่อรับ OTP</p>
+      <p>กรอก User ID หรือ เบอร์โทร เพื่อรับ OTP</p>
       <input
         type="text"
-        placeholder="HN หรือ เบอร์โทร"
+        placeholder="User ID หรือ เบอร์โทร"
         value={identity}
         onChange={(e) => setIdentity(e.target.value)}
         className="input-field"
