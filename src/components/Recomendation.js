@@ -1010,7 +1010,7 @@ function Recomendation() {
                                     cursor: "pointer"
                                   }}
                                 />
-                                ไม่เลือก
+                                ไม่มีคำแนะนำ
                               </label>
                             </div>
                           </div>
