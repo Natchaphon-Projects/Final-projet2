@@ -42,34 +42,23 @@ const MedicalHistory = () => {
           const filtered = all.filter((item) => item.patientId?.toString() === patientId);
           const mapped = filtered.map((item, index) => ({
             id: index + 1,
-            createdAt: item.date,
+            createdAt: item.date, // <-- raw datetime จริงจาก MySQL
             date: new Date(item.date).toLocaleDateString("th-TH"),
             time: new Date(item.date).toLocaleTimeString("th-TH", { hour: "2-digit", minute: "2-digit" }),
             doctor: item.prefix_name_doctor || item.first_name_doctor
               ? `${item.prefix_name_doctor || ""}${item.first_name_doctor || ""} ${item.last_name_doctor || ""}`.trim()
               : "หมอยังไม่ระบุ",
+
             status: item.status === "Normal" ? "ปกติ" : "กรุณาพบแพทย์",
             public_note: item.public_note || "",
-            note_updated_at: item.note_updated_at || item.date,
+            note_updated_at: item.note_updated_at || item.date, // ✅ ต้องระบุแบบนี้
             isLatest: index === 0
           }));
 
-          // ✅ กรองข้อมูลซ้ำออก
-          const seen = new Set();
-          const uniqueMapped = [];
-          mapped.forEach((item) => {
-            const key = `${patientId}-${item.createdAt}`;
-            if (!seen.has(key)) {
-              seen.add(key);
-              uniqueMapped.push(item);
-            }
-          });
-
-          setMedicalHistory(uniqueMapped);
+          setMedicalHistory(mapped);
         })
         .catch((err) => console.error("โหลดประวัติล้มเหลว", err));
     };
-
 
     fetchData(); // ดึงครั้งแรก
     const interval = setInterval(fetchData, 2000); // ทุก 2 วินาที
@@ -146,59 +135,54 @@ const MedicalHistory = () => {
         </div>
 
         {/* History cards */}
-        {/* History cards */}
         <div className="space-y-4">
-          {medicalHistory.length === 0 ? (
-            <div className="no-history-message">
-              <p style={{ textAlign: "center", color: "#999", fontSize: "1.1rem", marginTop: "1rem" }}>
-                ❗ เด็กคนนี้ยังไม่มีประวัติการตรวจ
-              </p>
-            </div>
-          ) : (
-            medicalHistory.map((item) => (
-              <div key={item.id} className={`mh-card ${item.isLatest ? "latest" : ""}`}>
-                <div className="mh-card-container">
-                  <div className="mh-card-content">
-                    <div className="mh-row">
-                      <div><Calendar className="icon-inline" /> <b>วันที่:</b> {item.date}</div>
-                      <div><Clock className="icon-inline" /> <b>เวลา:</b> {item.time}</div>
-                      <div><Stethoscope className="icon-inline" /> <b>แพทย์:</b> {item.doctor}</div>
-                      <div className={`status ${item.status === "ปกติ" ? "normal" : "alert"}`}>
-                        {item.status === "ปกติ" ? (
-                          <>
-                            <Smile className="icon-inline" /> ปกติ
-                          </>
-                        ) : (
-                          <>
-                            <Heart className="icon-inline pink" /> กรุณาพบแพทย์
-                          </>
-                        )}
-                      </div>
+          {medicalHistory.map((item) => (
+            <div key={item.id} className={`mh-card ${item.isLatest ? "latest" : ""}`}>
+              <div className="mh-card-container">
+                <div className="mh-card-content">
+                  <div className="mh-row">
+                    <div><Calendar className="icon-inline" /> <b>วันที่:</b> {item.date}</div>
+                    <div><Clock className="icon-inline" /> <b>เวลา:</b> {item.time}</div>
+                    <div><Stethoscope className="icon-inline" /> <b>แพทย์:</b> {item.doctor}</div>
+                    <div className={`status ${item.status === "ปกติ" ? "normal" : "alert"}`}>
+                      {item.status === "ปกติ" ? (
+                        <>
+                          <Smile className="icon-inline" /> ปกติ
+                        </>
+                      ) : (
+                        <>
+                          <Heart className="icon-inline pink" /> กรุณาพบแพทย์
+                        </>
+                      )}
                     </div>
                   </div>
+                </div>
 
-                  <div className="mh-card-button">
-                    <button
-                      className="recommend-button"
-                      onClick={() => {
-                        setSelectedNote({
-                          text: item.public_note?.trim() || "",
-                          updatedAt: item.note_updated_at
-                        });
-                        setSelectedCreatedAt(item.createdAt);
-                        setSelectedDoctor(item.doctor);
-                        setShowPopup(true);
-                      }}
-                    >
-                      📝 ดูคำแนะนำ
-                    </button>
-                  </div>
+                <div className="mh-card-button">
+                  <button
+                    className="recommend-button"
+                    onClick={() => {
+                      setSelectedNote({
+                        text: item.public_note?.trim() || "",
+                        updatedAt: item.note_updated_at
+                      });
+                      setSelectedCreatedAt(item.createdAt);
+                      setSelectedDoctor(item.doctor);
+                      setShowPopup(true);
+                    }}
+                  >
+                    📝 ดูคำแนะนำ
+                  </button>
                 </div>
               </div>
-            ))
-          )}
-        </div>
 
+
+
+
+
+            </div>
+          ))}
+        </div>
 
       </main >
 

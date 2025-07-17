@@ -46,7 +46,6 @@ function ViewPatientResults() {
     (currentPage - 1) * itemsPerPage,
     currentPage * itemsPerPage
   );
-
   const statusCount = {
     Normal: 0,
     Obesity: 0,
@@ -56,11 +55,18 @@ function ViewPatientResults() {
     Underweight: 0,
   };
 
+  const seenSummary = new Set();
+
   patients.forEach((p) => {
-    if (statusCount[p.status] !== undefined) {
-      statusCount[p.status]++;
+    const key = `${p.patientId}-${p.date}`;
+    if (!seenSummary.has(key)) {
+      seenSummary.add(key);
+      if (statusCount[p.status] !== undefined) {
+        statusCount[p.status]++;
+      }
     }
   });
+
   const handleViewDetails = (patient) => {
     navigate(`/Recomendation/${patient.patientId}`, {
       state: {
@@ -85,7 +91,7 @@ function ViewPatientResults() {
 
       {/* Summary Cards */}
       <div className="summary-cards">
-        <div className="card total"><span>All Patients</span><strong>{patients.length}</strong></div>
+        <div className="card total"><span>All Patients</span><strong>{uniquePatients.length}</strong></div>
         <div className="card normal"><span>Normal</span><strong>{statusCount["Normal"]}</strong></div>
         <div className="card fat"><span>Obesity</span><strong>{statusCount["Obesity"]}</strong></div>
         <div className="card over"><span>Overweight</span><strong>{statusCount["Overweight"]}</strong></div>

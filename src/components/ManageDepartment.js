@@ -18,8 +18,8 @@ const ManageDepartment = () => {
   const [showModal, setShowModal] = useState(false);
   const [birthDate, setBirthDate] = useState("");
   const [parentRelations, setParentRelations] = useState([
-  { parentId: "", relationship: "", customRelationship: "", parentPrefix: "" }
-]);
+    { parentId: "", relationship: "", customRelationship: "", parentPrefix: "" }
+  ]);
 
 
 
@@ -103,44 +103,44 @@ const ManageDepartment = () => {
   };
 
   const handleSave = async () => {
-  if (
-    !formData.hn ||
-    !formData.name ||
-    !formData.lastName ||
-    !birthDate ||
-    !formData.age ||
-    !formData.gender ||
-    !formData.childPrefix ||
-    parentRelations.length === 0 ||
-    parentRelations.some(
-      (rel) =>
-        !rel.parentId ||
-        !rel.relationship ||
-        (rel.relationship === "อื่นๆ" && (!rel.customRelationship || rel.customRelationship.trim() === ""))
-    )
-  ) {
-    alert("กรุณากรอกข้อมูลให้ครบถ้วน");
-    return;
-  }
+    if (
+      !formData.hn ||
+      !formData.name ||
+      !formData.lastName ||
+      !birthDate ||
+      !formData.age ||
+      !formData.gender ||
+      !formData.childPrefix ||
+      parentRelations.length === 0 ||
+      parentRelations.some(
+        (rel) =>
+          !rel.parentId ||
+          !rel.relationship ||
+          (rel.relationship === "อื่นๆ" && (!rel.customRelationship || rel.customRelationship.trim() === ""))
+      )
+    ) {
+      alert("กรุณากรอกข้อมูลให้ครบถ้วน");
+      return;
+    }
 
-  const totalMonths = extractMonths(formData.age);
+    const totalMonths = extractMonths(formData.age);
 
-  // ✅ แปลง parentRelations เป็น array ของความสัมพันธ์
-  const relationships = parentRelations.map((rel) => ({
-    parent_id: rel.parentId,
-    relationship: rel.relationship === "อื่นๆ" ? rel.customRelationship : rel.relationship,
-  }));
+    // ✅ แปลง parentRelations เป็น array ของความสัมพันธ์
+    const relationships = parentRelations.map((rel) => ({
+      parent_id: rel.parentId,
+      relationship: rel.relationship === "อื่นๆ" ? rel.customRelationship : rel.relationship,
+    }));
 
-  const payload = {
-    hn_number: formData.hn,
-    childPrefix: formData.childPrefix,
-    name: formData.name,
-    lastName: formData.lastName,
-    age: totalMonths,
-    gender: formData.gender,
-    birthDate,
-    relationships, // ✅ ส่งหลายความสัมพันธ์
-  };
+    const payload = {
+      hn_number: formData.hn,
+      childPrefix: formData.childPrefix,
+      name: formData.name,
+      lastName: formData.lastName,
+      age: totalMonths,
+      gender: formData.gender,
+      birthDate,
+      relationships, // ✅ ส่งหลายความสัมพันธ์
+    };
 
     try {
       if (editingPatient) {
@@ -160,22 +160,22 @@ const ManageDepartment = () => {
   };
 
   const resetForm = () => {
-  setFormData({
-    id: null,
-    hn: "",
-    childPrefix: "",
-    name: "",
-    lastName: "",
-    age: "",
-    gender: "",
-    birthDate: "",
-    parentId: null
-  });
-  setBirthDate("");
-  setParentRelations([
-  { parentId: "", relationship: "", customRelationship: "", parentPrefix: "" }
-]);
-};
+    setFormData({
+      id: null,
+      hn: "",
+      childPrefix: "",
+      name: "",
+      lastName: "",
+      age: "",
+      gender: "",
+      birthDate: "",
+      parentId: null
+    });
+    setBirthDate("");
+    setParentRelations([
+      { parentId: "", relationship: "", customRelationship: "", parentPrefix: "" }
+    ]);
+  };
 
   const handleAdd = () => {
     const lastPatient = [...patients].sort((a, b) => parseInt(b.hn_number) - parseInt(a.hn_number))[0];
@@ -191,17 +191,17 @@ const ManageDepartment = () => {
     console.log("DEBUG patient", patient);   // ✅ เพิ่มตรงนี้
 
     // ✅ กรอง parent relations ทั้งหมดจาก patients
-  const allRelations = patients
-    .filter(p => p.hn_number === patient.hn_number && p.parent_id)
-    .map(p => {
-      const parent = parents.find(pa => pa.id === p.parent_id);
-      return {
-        parentId: p.parent_id,
-        relationship: p.relationship || "",
-        customRelationship: p.relationship === "อื่นๆ" ? p.relationship : "",
-        parentPrefix: parent?.prefix || "",
-      };
-    });
+    const allRelations = patients
+      .filter(p => p.hn_number === patient.hn_number && p.parent_id)
+      .map(p => {
+        const parent = parents.find(pa => pa.id === p.parent_id);
+        return {
+          parentId: p.parent_id,
+          relationship: p.relationship || "",
+          customRelationship: p.relationship === "อื่นๆ" ? p.relationship : "",
+          parentPrefix: parent?.prefix || "",
+        };
+      });
 
     const rawAge = formatAgeText(patient.age);
     const formattedDate = patient.birthDate ? new Date(patient.birthDate).toISOString().split("T")[0] : "";
@@ -218,8 +218,8 @@ const ManageDepartment = () => {
       birthDate: formattedDate,
       parentId: null
     });
-      setParentRelations(allRelations.length > 0 ? allRelations : [
-    { parentId: "", relationship: "", customRelationship: "", parentPrefix: "" }
+    setParentRelations(allRelations.length > 0 ? allRelations : [
+      { parentId: "", relationship: "", customRelationship: "", parentPrefix: "" }
     ]);
     setShowModal(true);
   };
@@ -238,206 +238,213 @@ const ManageDepartment = () => {
   );
 
   const groupedPatients = Object.values(
-  filteredPatients.reduce((acc, p) => {
-    if (!acc[p.hn_number]) {
-      acc[p.hn_number] = {
-        ...p,
-        parents: [{ name: p.parent, relationship: p.relationship }]
-      };
-    } else {
-      acc[p.hn_number].parents.push({ name: p.parent, relationship: p.relationship });
-    }
-    return acc;
-  }, {})
-);
+    filteredPatients.reduce((acc, p) => {
+      if (!acc[p.hn_number]) {
+        acc[p.hn_number] = {
+          ...p,
+          parents: [{ name: p.parent, relationship: p.relationship }]
+        };
+      } else {
+        acc[p.hn_number].parents.push({ name: p.parent, relationship: p.relationship });
+      }
+      return acc;
+    }, {})
+  );
 
-  const totalPages = Math.ceil(groupedPatients.length / itemsPerPage);
+  // 🔧 เพิ่มการเรียงลำดับจากน้อยไปมาก
+  const sortedGroupedPatients = groupedPatients.sort((a, b) =>
+    parseInt(a.hn_number) - parseInt(b.hn_number)
+  );
+
+  // แล้วเปลี่ยนจาก groupedPatients เป็น sortedGroupedPatients
+  const totalPages = Math.ceil(sortedGroupedPatients.length / itemsPerPage);
   const startIndex = (currentPage - 1) * itemsPerPage;
-  const currentPatients = groupedPatients.slice(startIndex, startIndex + itemsPerPage);
+  const currentPatients = sortedGroupedPatients.slice(startIndex, startIndex + itemsPerPage);
+
   console.log("Current Page:", currentPage, "Patients:", currentPatients);
 
   return (
     <div className="dashboard-container">
-      <Header currentPage="manage-department" />  
+      <Header currentPage="manage-department" />
 
-    <div className="manage-wrapper">
-    
-      <div className="search-header">
-        <div className="left">
-          <h2>ค้นหาข้อมูลเด็ก</h2>
-          <div className="search-box">
-            <Search className="search-icon" />
-            <input
-              type="text"
-              placeholder="ค้นหา HN, ชื่อ, หรือผู้ปกครอง..."
-              value={searchTerm}
-              onChange={(e) => setSearchTerm(e.target.value)}
-            />
+      <div className="manage-wrapper">
+
+        <div className="search-header">
+          <div className="left">
+            <h2>ค้นหาข้อมูลเด็ก</h2>
+            <div className="search-box">
+              <Search className="search-icon" />
+              <input
+                type="text"
+                placeholder="ค้นหา HN, ชื่อ, หรือผู้ปกครอง..."
+                value={searchTerm}
+                onChange={(e) => setSearchTerm(e.target.value)}
+              />
+            </div>
           </div>
         </div>
-      </div>
 
-      <div className="table-title">
-        <h3>รายชื่อเด็ก <span>ทั้งหมด {groupedPatients.length} คน</span></h3>
-        <button className="add-btn" onClick={handleAdd}>
-          <Plus /> เพิ่มเด็กใหม่
-        </button>
-      </div>
+        <div className="table-title">
+          <h3>รายชื่อเด็ก <span>ทั้งหมด {sortedGroupedPatients.length} คน</span></h3>
+          <button className="add-btn" onClick={handleAdd}>
+            <Plus /> เพิ่มเด็กใหม่
+          </button>
+        </div>
 
-      <table className="modern-table">
-        <thead>
-          <tr>
-            <th>HN</th>
-            <th>ชื่อ</th>
-            <th>อายุ</th>
-            <th>เพศ</th>
-            <th>ผู้ปกครอง</th>
-            <th>การจัดการ</th>
-          </tr>
-        </thead>
-        <tbody>
-          {currentPatients.map((child) => (
-            <tr key={child.id}>
-              <td>{child.hn_number}</td>
-              <td>{`${child.childPrefix || ""} ${child.name}`}</td>
-              <td>{formatAgeText(child.age)}</td>
-              <td>{child.gender}</td>
-              <td>
-                {child.parents && child.parents.length > 0 && child.parents.some(p => p.name) ? (
-                  child.parents.map((parent, idx) =>
-                    parent.name ? (
-                      <div key={idx}>
-                        {parent.name} ({parent.relationship || "-"})
-                      </div>
-                    ) : null
-                  )
-                ) : (
-                  <span style={{ color: "#999" }}>ตอนนี้ยังไม่มีผู้ปกครองดูแล</span>
-                )}
-              </td>
-              <td className="actions">
-                <button className="icon edit" onClick={() => handleEdit(child)}>
-                  <Edit />
-                </button>
-                <button className="icon delete" onClick={() => handleDelete(child.id)}>
-                  <Trash2 />
-                </button>
-              </td>
+        <table className="modern-table">
+          <thead>
+            <tr>
+              <th>HN</th>
+              <th>ชื่อ</th>
+              <th>อายุ</th>
+              <th>เพศ</th>
+              <th>ผู้ปกครอง</th>
+              <th>การจัดการ</th>
             </tr>
+          </thead>
+          <tbody>
+            {currentPatients.map((child) => (
+              <tr key={child.id}>
+                <td>{child.hn_number}</td>
+                <td>{`${child.childPrefix || ""} ${child.name}`}</td>
+                <td>{formatAgeText(child.age)}</td>
+                <td>{child.gender}</td>
+                <td>
+                  {child.parents && child.parents.length > 0 && child.parents.some(p => p.name) ? (
+                    child.parents.map((parent, idx) =>
+                      parent.name ? (
+                        <div key={idx}>
+                          {parent.name} ({parent.relationship || "-"})
+                        </div>
+                      ) : null
+                    )
+                  ) : (
+                    <span style={{ color: "#999" }}>ตอนนี้ยังไม่มีผู้ปกครองดูแล</span>
+                  )}
+                </td>
+                <td className="actions">
+                  <button className="icon edit" onClick={() => handleEdit(child)}>
+                    <Edit />
+                  </button>
+                  <button className="icon delete" onClick={() => handleDelete(child.id)}>
+                    <Trash2 />
+                  </button>
+                </td>
+              </tr>
+            ))}
+          </tbody>
+        </table>
+
+        <div className="pagination-container">
+          <button onClick={() => setCurrentPage((p) => Math.max(p - 1, 1))} disabled={currentPage === 1}>ย้อนกลับ</button>
+          {Array.from({ length: totalPages }, (_, i) => i + 1).map((page) => (
+            <button key={page} onClick={() => setCurrentPage(page)} className={currentPage === page ? "active" : ""}>{page}</button>
           ))}
-        </tbody>
-      </table>
+          <button onClick={() => setCurrentPage((p) => Math.min(p + 1, totalPages))} disabled={currentPage === totalPages}>ถัดไป</button>
+        </div>
 
-      <div className="pagination-container">
-        <button onClick={() => setCurrentPage((p) => Math.max(p - 1, 1))} disabled={currentPage === 1}>ย้อนกลับ</button>
-        {Array.from({ length: totalPages }, (_, i) => i + 1).map((page) => (
-          <button key={page} onClick={() => setCurrentPage(page)} className={currentPage === page ? "active" : ""}>{page}</button>
-        ))}
-        <button onClick={() => setCurrentPage((p) => Math.min(p + 1, totalPages))} disabled={currentPage === totalPages}>ถัดไป</button>
-      </div>
+        {showModal && (
+          <div className="modal">
+            <div className="modal-content">
+              <h3 style={{ textAlign: "center" }}>
+                {editingPatient ? "✏️ แก้ไขข้อมูลเด็ก" : "➕ เพิ่มเด็กใหม่"}
+              </h3>
 
-      {showModal && (
-        <div className="modal">
-          <div className="modal-content">
-            <h3 style={{ textAlign: "center" }}>
-              {editingPatient ? "✏️ แก้ไขข้อมูลเด็ก" : "➕ เพิ่มเด็กใหม่"}
-            </h3>
+              <input className="text-input" disabled value={formData.hn} />
 
-            <input className="text-input" disabled value={formData.hn} />
+              <div className="form-row" style={{ display: "flex", alignItems: "center", gap: "10px" }}>
 
-            <div className="form-row" style={{ display: "flex", alignItems: "center", gap: "10px" }}>
-  
-              <select
-                className="form-input"
-                style={{ flex: "1" }}
-                value={formData.childPrefix}
-                onChange={(e) => {
-                  const prefix = e.target.value;
-                  let gender = formData.gender;
+                <select
+                  className="form-input"
+                  style={{ flex: "1" }}
+                  value={formData.childPrefix}
+                  onChange={(e) => {
+                    const prefix = e.target.value;
+                    let gender = formData.gender;
 
-                  if (prefix === "ด.ช.") gender = "ชาย";
-                  else if (prefix === "ด.ญ.") gender = "หญิง";
+                    if (prefix === "ด.ช.") gender = "ชาย";
+                    else if (prefix === "ด.ญ.") gender = "หญิง";
 
-                  setFormData({ ...formData, childPrefix: prefix, gender });
-                }}
-              >
-                <option value="">คำนำหน้า</option>
-                <option value="ด.ช.">ด.ช.</option>
-                <option value="ด.ญ.">ด.ญ.</option>
-              </select>
+                    setFormData({ ...formData, childPrefix: prefix, gender });
+                  }}
+                >
+                  <option value="">คำนำหน้า</option>
+                  <option value="ด.ช.">ด.ช.</option>
+                  <option value="ด.ญ.">ด.ญ.</option>
+                </select>
 
-              <select
-                className="form-input"
-                style={{ flex: "1" }}
-                value={formData.gender}
-                onChange={(e) => {
-                  const gender = e.target.value;
-                  let prefix = formData.childPrefix;
+                <select
+                  className="form-input"
+                  style={{ flex: "1" }}
+                  value={formData.gender}
+                  onChange={(e) => {
+                    const gender = e.target.value;
+                    let prefix = formData.childPrefix;
 
-                  if (gender === "ชาย") prefix = "ด.ช.";
-                  else if (gender === "หญิง") prefix = "ด.ญ.";
+                    if (gender === "ชาย") prefix = "ด.ช.";
+                    else if (gender === "หญิง") prefix = "ด.ญ.";
 
-                  setFormData({ ...formData, gender, childPrefix: prefix });
-                }}
-              >
-                <option value="">เลือกเพศ</option>
-                <option value="ชาย">ชาย</option>
-                <option value="หญิง">หญิง</option>
-              </select>
+                    setFormData({ ...formData, gender, childPrefix: prefix });
+                  }}
+                >
+                  <option value="">เลือกเพศ</option>
+                  <option value="ชาย">ชาย</option>
+                  <option value="หญิง">หญิง</option>
+                </select>
 
-              <input
-                className="text-input name-input"
-                style={{ flex: "2" }}
-                placeholder="ชื่อเด็ก"
-                value={formData.name}
-                onChange={(e) => setFormData({ ...formData, name: e.target.value })}
-              />
+                <input
+                  className="text-input name-input"
+                  style={{ flex: "2" }}
+                  placeholder="ชื่อเด็ก"
+                  value={formData.name}
+                  onChange={(e) => setFormData({ ...formData, name: e.target.value })}
+                />
 
-              <input
-                className="text-input name-input"
-                style={{ flex: "2" }}
-                placeholder="นามสกุลเด็ก"
-                value={formData.lastName}
-                onChange={(e) => setFormData({ ...formData, lastName: e.target.value })}
-              />
-            </div>
+                <input
+                  className="text-input name-input"
+                  style={{ flex: "2" }}
+                  placeholder="นามสกุลเด็ก"
+                  value={formData.lastName}
+                  onChange={(e) => setFormData({ ...formData, lastName: e.target.value })}
+                />
+              </div>
 
-            <div className="form-row">
-              <input
-                type="date"
-                className="form-input"
-                value={birthDate}
-                onChange={(e) => {
-                  const dob = e.target.value;
-                  setBirthDate(dob);
-                  const ageText = calculateAgeInText(dob);
-                  setFormData({ ...formData, age: ageText });
-                }}
-                min={new Date(new Date().setFullYear(new Date().getFullYear() - 5)).toISOString().split("T")[0]}
-                max={new Date(new Date().setFullYear(new Date().getFullYear() - 0)).toISOString().split("T")[0]}
-              />
-              <input
-                className="form-input age-display"
-                type="text"
-                value={formData.age || ""}
-                disabled
-                readOnly
-              />
-            </div>
+              <div className="form-row">
+                <input
+                  type="date"
+                  className="form-input"
+                  value={birthDate}
+                  onChange={(e) => {
+                    const dob = e.target.value;
+                    setBirthDate(dob);
+                    const ageText = calculateAgeInText(dob);
+                    setFormData({ ...formData, age: ageText });
+                  }}
+                  min={new Date(new Date().setFullYear(new Date().getFullYear() - 5)).toISOString().split("T")[0]}
+                  max={new Date(new Date().setFullYear(new Date().getFullYear() - 0)).toISOString().split("T")[0]}
+                />
+                <input
+                  className="form-input age-display"
+                  type="text"
+                  value={formData.age || ""}
+                  disabled
+                  readOnly
+                />
+              </div>
 
-          
-     
+
+
               {parentRelations.map((relation, index) => {
-              
-              const selectedParent = parents.find((p) => p.id === relation.parentId);
-              const parentPrefix = relation.parentPrefix || selectedParent?.prefix || "";
-              let relationshipOptions = [];
 
-              if (parentPrefix === "นาย") {
-                relationshipOptions = ["พ่อ", "ปู่", "ตา", "อื่นๆ"];
-              } else if (parentPrefix === "นาง" || parentPrefix === "นางสาว") {
-                relationshipOptions = ["แม่", "ย่า", "ยาย", "อื่นๆ"];
-              }
+                const selectedParent = parents.find((p) => p.id === relation.parentId);
+                const parentPrefix = relation.parentPrefix || selectedParent?.prefix || "";
+                let relationshipOptions = [];
+
+                if (parentPrefix === "นาย") {
+                  relationshipOptions = ["พ่อ", "ปู่", "ตา", "อื่นๆ"];
+                } else if (parentPrefix === "นาง" || parentPrefix === "นางสาว") {
+                  relationshipOptions = ["แม่", "ย่า", "ยาย", "อื่นๆ"];
+                }
                 return (
                   <div key={index} className="form-row" style={{ display: "flex", alignItems: "center" }}>
                     <select
@@ -501,7 +508,7 @@ const ManageDepartment = () => {
                           setParentRelations(updated);
                         }}
                         className="icon delete"
-                        
+
                       >
                         <Trash2 size={20} />
                       </button>
@@ -521,28 +528,28 @@ const ManageDepartment = () => {
                 + เพิ่มผู้ปกครอง
               </button>
 
-            <div className="button-group">
-              <button className="confirm-btn" onClick={handleSave}>บันทึก</button>
-              <button
-                className="cancel-btn"
-                onClick={() => {
-                  resetForm();
-                  setEditingPatient(null);
-                  setShowModal(false);
-                }}
-              >
-                ยกเลิก
-              </button>
+              <div className="button-group">
+                <button className="confirm-btn" onClick={handleSave}>บันทึก</button>
+                <button
+                  className="cancel-btn"
+                  onClick={() => {
+                    resetForm();
+                    setEditingPatient(null);
+                    setShowModal(false);
+                  }}
+                >
+                  ยกเลิก
+                </button>
+              </div>
             </div>
           </div>
-        </div>
-      )}
+        )}
 
 
+      </div>
+      <Footer />
     </div>
-    <Footer />
-    </div>
-    
+
   );
 };
 

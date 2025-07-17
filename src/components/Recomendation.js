@@ -339,11 +339,31 @@ function Recomendation() {
       return updated;
     });
   };
+const updatePublicNoteText = (incKeys, decKeys) => {
+  const combined = [...incKeys.map(k => [k, "increase"]), ...decKeys.map(k => [k, "decrease"])];
+  const grouped = {};
 
-  const updatePublicNoteText = (inc, dec) => {
-    const text = `โปรดปฏิบัติตาม:\n- ควรเพิ่ม: ${inc.join(", ") || "-"}\n- ควรลด: ${dec.join(", ") || "-"}`;
-    setPublicNote(text);
-  };
+  for (const [label, type] of combined) {
+    const featureKey = Object.keys(valueMap).find(key => valueMap[key].label === label);
+    if (!featureKey) continue;
+
+    const suggestionText = getSuggestionLabel(featureKey, type); // เช่น "ควรล้างมือ"
+    if (!grouped[suggestionText]) {
+      grouped[suggestionText] = [];
+    }
+    grouped[suggestionText].push(label);
+  }
+
+  // ✨ แปลงเป็นรูปแบบแนวยาว
+  const lines = ["โปรดปฏิบัติตาม:"];
+  for (const [actionText, labels] of Object.entries(grouped)) {
+    const unique = [...new Set(labels)];
+    lines.push(`${actionText}: ${unique.join(", ")}`);
+  }
+
+  setPublicNote(lines.join("\n"));
+};
+
 
 
   useEffect(() => {
@@ -475,6 +495,7 @@ function Recomendation() {
           setRecord(res.data);
           setPrivateNote(res.data.private_note || "");
           setPublicNote(res.data.public_note || "");
+          
         })
         .catch((err) => {
           console.error("❌ โหลดข้อมูลล่าสุดไม่สำเร็จ:", err);

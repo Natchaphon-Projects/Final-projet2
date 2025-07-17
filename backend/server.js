@@ -46,31 +46,26 @@ app.get("/doctors/:hn", (req, res) => {
 });
 
 app.get("/patients", (req, res) => {
-  // เพิ่ม doctor ที่ให้คำแนะนำ
-const query = `
-  SELECT 
-    p.patient_id AS patientId,
-    CONCAT(p.first_name_child, ' ', p.last_name_child) AS name,
-    p.gender,
-    p.age,
-    pr.created_at AS date,
-    pr.Status_personal AS status,
-    mr.public_note,
-    mr.note_updated_at,
-    d.prefix_name_doctor,
-    d.first_name_doctor,
-    d.last_name_doctor
-  FROM prediction pr
-  JOIN patient p ON p.patient_id = pr.patient_id
-  LEFT JOIN medical_records mr 
-    ON mr.patient_id = pr.patient_id AND mr.created_at = pr.created_at
-  LEFT JOIN doctor d 
-    ON mr.doctor_id = d.doctor_id
-  ORDER BY pr.created_at ${order}
-`;
-
-
-
+  const order = req.query.order === "asc" ? "ASC" : "DESC";
+  
+  const query = `
+    SELECT 
+      p.patient_id AS id,
+      p.hn_number,
+      p.prefix_name_child AS childPrefix,
+      CONCAT(p.first_name_child, ' ', p.last_name_child) AS name,
+      p.gender,
+      p.age,
+      p.birth_date,
+      r.parent_id,
+      pa.prefix_name_parent,
+      CONCAT(pa.first_name_parent, ' ', pa.last_name_parent) AS parent,
+      r.relationship
+    FROM patient p
+    LEFT JOIN relationship r ON p.patient_id = r.patient_id
+    LEFT JOIN parent pa ON r.parent_id = pa.parent_id
+    ORDER BY p.patient_id DESC
+  `;
   db.query(query, (err, results) => {
     if (err) {
       console.error("❌ SQL Error:", err);
@@ -917,22 +912,30 @@ app.get("/patients/:id/records/timestamps", (req, res) => {
 // ✅ PUT: บันทึก note ทั้งสองแบบ
 app.put("/patients/:id/records/public_note", (req, res) => {
   const { id } = req.params;
-  const { created_at, public_note } = req.body;
+  const { created_at, public_note, review_by } = req.body;
 
-  const sql = `
+  // 🔒 ตรวจสอบว่าข้อมูลจำเป็นถูกส่งมาครบ
+  if (!created_at || !public_note || !review_by) {
+    return res.status(400).json({ message: "❌ Missing required fields" });
+  }
+
+  const updateQuery = `
     UPDATE medical_records
-    SET 
-      public_note = ?, 
-      note_updated_at = NOW()
+    SET public_note = ?, review_by = ?
     WHERE patient_id = ? AND created_at = ?
   `;
 
-  db.query(sql, [public_note, id, created_at], (err, result) => {
+  db.query(updateQuery, [public_note, review_by, id, created_at], (err, result) => {
     if (err) {
-      console.error("❌ Error updating notes:", err);
-      return res.status(500).json({ message: "Error updating notes" });
+      console.error("❌ Update failed:", err);
+      return res.status(500).json({ message: "Update failed", error: err });
     }
-    res.json({ message: "✅ Notes updated successfully" });
+
+    if (result.affectedRows === 0) {
+      return res.status(404).json({ message: "❌ Record not found or not updated" });
+    }
+
+    res.json({ message: "✅ Updated successfully" });
   });
 });
 
