@@ -903,7 +903,6 @@ function Recomendation() {
                     <th>คำแนะนำ</th>
                     <th>พฤติกรรมของผู้ป่วย</th>
                     <th>ค่ามาตรฐานของเด็กภาวะปกติ</th>
-                    <th>ผู้ป่วยปฏิบัติตามค่ามาตรฐานหรือไม่</th>
                   </tr>
                 </thead>
                 <tbody>
@@ -1010,33 +1009,23 @@ function Recomendation() {
                                     cursor: "pointer"
                                   }}
                                 />
-                                ไม่มีคำแนะนำ                                                                                                                     
+                                ไม่มีคำแนะนำ
                               </label>
                             </div>
                           </div>
                         </td>
 
-                        <td><span className="badge">{formatWithUnit(item.feature, patientValue)}</span></td>
+                        <td>
+                          <span
+                            className={isEqual(patientValue, standardValue) ? "badge-green" : "badge-red"}
+                          >
+                            {formatWithUnit(item.feature, patientValue)}
+                          </span>
+                        </td>
+
                         <td><span className="badge-green">{formatWithUnit(item.feature, standardValue)}</span></td>
 
-                        <td style={{ textAlign: "center" }}>
-                          {(() => {
-                            const patientVal = valueMap[item.feature]?.values?.[realValue] ?? realValue;
-                            const normalVal = normalAverages[item.feature];
-                            const standardVal =
-                              valueMap[item.feature]?.values?.[String(normalVal)] ??
-                              valueMap[item.feature]?.values?.[normalVal] ??
-                              normalVal;
 
-                            const isCompliant = isEqual(patientVal, standardVal);
-
-                            return isCompliant ? (
-                              <span style={{ fontSize: "22px", color: "green" }}>✅</span>
-                            ) : (
-                              <span style={{ fontSize: "22px", color: "red" }}>❌</span>
-                            );
-                          })()}
-                        </td>
 
                         {/* <td>
                           {(() => {
