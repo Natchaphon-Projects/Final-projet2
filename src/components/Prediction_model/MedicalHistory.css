@@ -346,3 +346,10 @@
 .recommend-button:hover {
   background: #ffedd5;
 }
+
+.no-history-message {
+  padding: 1.5rem;
+  background-color: #f9f9f9;
+  border: 2px dashed #ccc;
+  border-radius: 12px;
+}
