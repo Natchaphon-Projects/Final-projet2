@@ -900,10 +900,10 @@ function Recomendation() {
               <table className="result-table">
                 <thead>
                   <tr>
-                    <th>ข้อมูล</th>
+                    <th>คำแนะนำ</th>
                     <th>พฤติกรรมของผู้ป่วย</th>
                     <th>ค่ามาตรฐานของเด็กภาวะปกติ</th>
-                    <th>คำแนะนำ</th>
+                    <th>ผู้ป่วยปฏิบัติตามค่ามาตรฐานหรือไม่</th>
                   </tr>
                 </thead>
                 <tbody>
@@ -1010,7 +1010,7 @@ function Recomendation() {
                                     cursor: "pointer"
                                   }}
                                 />
-                                ไม่มีคำแนะนำ
+                                ไม่เลือก
                               </label>
                             </div>
                           </div>
