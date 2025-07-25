@@ -40,6 +40,14 @@ function ParentDashboard() {
     }
   }, [hnNumber]);
 
+  useEffect(() => {
+    if (parentData) {
+      const fullName = `คุณ ${parentData.first_name_parent} ${parentData.last_name_parent}`;
+      localStorage.setItem("fullName", fullName);
+    }
+  }, [parentData]);
+
+
   const handleReadMore = (title) => {
     alert(`อ่านเพิ่มเติมเกี่ยวกับ: ${title}`);
   };

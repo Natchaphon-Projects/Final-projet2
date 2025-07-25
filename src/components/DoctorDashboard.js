@@ -35,6 +35,15 @@ function DoctorDashboard() {
     }
   }, [hnNumber, navigate]);
 
+  // ✅ เพิ่มอันนี้ "ต่อท้าย" useEffect เก่าทั้งหมด
+  useEffect(() => {
+    if (doctorInfo) {
+      const fullName = `${doctorInfo.prefix_name_doctor} ${doctorInfo.first_name_doctor} ${doctorInfo.last_name_doctor}`;
+      localStorage.setItem("fullName", fullName);
+    }
+  }, [doctorInfo]);
+
+
   const getInitials = () => {
     if (!doctorInfo) return "";
     return (

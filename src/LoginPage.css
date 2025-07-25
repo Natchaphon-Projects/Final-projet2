@@ -6,6 +6,7 @@
   align-items: center;
   justify-content: center;
   font-family: 'Sarabun', sans-serif;
+  padding: 16px;
 }
 
 /* กล่องหลัก */
@@ -61,7 +62,7 @@
   background-color: #f9fafb;
 }
 
-/* ปุ่ม */
+/* ปุ่ม login */
 .login-button {
   width: 100%;
   padding: 12px;
@@ -77,6 +78,46 @@
 
 .login-button:hover {
   background-color: #10b981;
+}
+
+/* ปุ่ม toggle โหมด + สมัคร */
+.toggle-mode-btn {
+  width: 100%;
+  padding: 10px;
+  background-color: white;
+  border: 1px solid #10b981;
+  color: #059669;
+  font-size: 14px;
+  border-radius: 10px;
+  margin-top: 10px;
+  cursor: pointer;
+  transition: background-color 0.2s;
+}
+
+.toggle-mode-btn:hover {
+  background-color: #ecfdf5;
+}
+
+/* กล่อง password + ไอคอน */
+.password-wrapper {
+  position: relative;
+  width: 100%;
+}
+
+.password-wrapper input.hn-input {
+  padding-right: 44px;
+  margin-bottom: 20px;
+}
+
+.toggle-password-icon {
+  position: absolute;
+  right: 16px;
+  top: 50%;
+  transform: translateY(-90%);
+  cursor: pointer;
+  color: #6b7280;
+  font-size: 18px;
+  pointer-events: all;
 }
 
 /* ข้อมูลทดสอบ */
@@ -96,6 +137,11 @@
   margin: 8px 0 0;
 }
 
+.demo-info ul li {
+  line-height: 1.8;
+  margin-bottom: 6px;
+}
+
 /* footer */
 .footer-text {
   margin-top: 20px;
@@ -103,11 +149,10 @@
   color: #9ca3af;
 }
 
-
+/* 📱 Responsive - มือถือเล็ก */
 @media (max-width: 480px) {
-  .login-button {
-    font-size: 14px;
-    padding: 10px;
+  .login-page-wrapper {
+    padding: 12px;
   }
 
   .login-card {
@@ -136,18 +181,37 @@
   .icon {
     font-size: 24px;
   }
+
+  .login-button {
+    font-size: 14px;
+    padding: 10px;
+  }
+
+  .toggle-mode-btn {
+    font-size: 13.5px;
+    padding: 9px;
+  }
+
+  .footer-text {
+    font-size: 11.5px;
+    text-align: center;
+  }
+
+  .demo-info {
+    font-size: 13px;
+    padding: 12px;
+  }
+
+  .demo-info ul {
+    padding-left: 16px;
+  }
 }
 
-
+/* 📱 Responsive - แท็บเล็ตแนวตั้ง */
 @media (max-width: 768px) {
   .login-card {
     padding: 32px;
     max-width: 90%;
-  }
-
-  .login-button {
-    font-size: 15px;
-    padding: 11px;
   }
 
   .hn-input {
@@ -166,31 +230,16 @@
   .icon {
     font-size: 26px;
   }
+
+  .login-button {
+    font-size: 15px;
+    padding: 11px;
+  }
 }
 
 
-.password-wrapper {
-  position: relative;
-  width: 100%;
-}
-
-.password-wrapper input.hn-input {
-  padding-right: 44px; /* ระยะเผื่อไอคอนด้านขวา */
-  margin-bottom: 20px;
-}
-
-.toggle-password-icon {
-  position: absolute;
-  right: 16px;
-  top: 50%;
-  transform: translateY(-90%);
-  cursor: pointer;
-  color: #6b7280;
-  font-size: 18px;
-  pointer-events: all;
-}
-
-.demo-info ul li {
-  line-height: 1.8; /* ปรับจากค่าเริ่มต้น 1.2-1.4 ให้ห่างขึ้น */
-  margin-bottom: 6px; /* เพิ่มช่องว่างด้านล่างแต่ละบรรทัด */
+.hn-input::placeholder {
+  white-space: nowrap;        /* ไม่ตัดบรรทัด */
+  text-overflow: ellipsis;    /* ใส่ … หากยาวเกิน */
+  overflow: hidden;
 }

@@ -6,10 +6,12 @@ import Header from "../components/layout/Header";
 import Footer from "../components/layout/Footer";
 import { FaChild, FaUserShield, FaUserMd } from "react-icons/fa";
 
+
 function AdminDashboard() {
   const location = useLocation();
   const navigate = useNavigate(); // ✅ เพิ่มตรงนี้
   const [adminInfo, setAdminInfo] = useState(null);
+
 
   // ✅ เก็บ HN และ role ลง localStorage
   useEffect(() => {
@@ -31,6 +33,13 @@ function AdminDashboard() {
         .catch((err) => console.error("โหลดข้อมูลแอดมินไม่สำเร็จ", err));
     }
   }, [hnNumber]);
+
+  useEffect(() => {
+    if (adminInfo) {
+      const fullName = `${adminInfo.prefix_name_admin} ${adminInfo.first_name_admin} ${adminInfo.last_name_admin}`;
+      localStorage.setItem("fullName", fullName);
+    }
+  }, [adminInfo]);
 
   const getInitials = () => {
     if (!adminInfo) return "";
@@ -70,11 +79,11 @@ function AdminDashboard() {
       <main className="dashboard-main">
         <div className="user-info-header">
           <div className="profile-circle">
-  {getInitials()}
-  <div className="status-dot">
-    <div className="status-inner"></div>
-  </div>
-</div>
+            {getInitials()}
+            <div className="status-dot">
+              <div className="status-inner"></div>
+            </div>
+          </div>
 
           <div className="user-details">
             <p className="greeting1">ยินดีต้อนรับ 🌟</p>
@@ -85,18 +94,18 @@ function AdminDashboard() {
                 : "กำลังโหลด..."}
             </p>
             <div className="underline1" />
-            
+
           </div>
           <div className="user-date">
-    <p className="date-label">วันนี้</p>
-    <p className="date-value">
-      {new Date().toLocaleDateString("th-TH", {
-        year: "numeric",
-        month: "long",
-        day: "numeric",
-      })}
-    </p>
-  </div>
+            <p className="date-label">วันนี้</p>
+            <p className="date-value">
+              {new Date().toLocaleDateString("th-TH", {
+                year: "numeric",
+                month: "long",
+                day: "numeric",
+              })}
+            </p>
+          </div>
         </div>
         <div className="menu-container">
           {adminMenus.map((item, index) => (

@@ -322,6 +322,7 @@ app.get("/predictions", (req, res) => {
       pr.created_at AS date,
       pr.Status_personal AS status,
       mr.public_note,
+      mr.review_by,
       mr.note_updated_at
     FROM prediction pr
     JOIN patient p ON p.patient_id = pr.patient_id
@@ -921,7 +922,7 @@ app.put("/patients/:id/records/public_note", (req, res) => {
 
   const updateQuery = `
     UPDATE medical_records
-    SET public_note = ?, review_by = ?
+    SET public_note = ?, review_by = ?,note_updated_at = NOW()
     WHERE patient_id = ? AND created_at = ?
   `;
 
@@ -942,7 +943,7 @@ app.put("/patients/:id/records/public_note", (req, res) => {
 
 app.put("/patients/:id/records/private_note", (req, res) => {
   const { id } = req.params;
-  const { created_at, private_note } = req.body;
+  const { created_at, private_note,  } = req.body; // ✅ เพิ่ม review_by
 
   const sql = `
     UPDATE medical_records
@@ -952,11 +953,17 @@ app.put("/patients/:id/records/private_note", (req, res) => {
     WHERE patient_id = ? AND created_at = ?
   `;
 
-  db.query(sql, [private_note, id, created_at], (err, result) => {
+  // ✅ ส่งค่าครบทั้ง 4 ตัว
+  db.query(sql, [private_note,  id, created_at], (err, result) => {
     if (err) {
       console.error("❌ Error updating notes:", err);
       return res.status(500).json({ message: "Error updating notes" });
     }
+
+    if (result.affectedRows === 0) {
+      return res.status(404).json({ message: "❌ Record not found" });
+    }
+
     res.json({ message: "✅ Notes updated successfully" });
   });
 });

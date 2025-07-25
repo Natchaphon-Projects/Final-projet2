@@ -25,11 +25,13 @@
   flex-wrap: wrap;
   gap: 24px;
   margin-bottom: 30px;
+  justify-content: space-between;
 }
 
 /* --- Patient Section --- */
 .recommendation-patient-section {
-  flex: 1 1 500px;
+  max-width: 500px;
+  flex: 1 1 500px;  
   background: #c8f5da;
   border-radius: 16px;
   padding: 24px 30px;
@@ -47,7 +49,8 @@
     justify-content: flex-start;
     width: 200px;
     gap: 12px;
-    padding-top: 10px;
+    padding-top: 50px;
+    
 }
 
 .patient-icon-image {
@@ -97,6 +100,7 @@
     box-shadow: 0 2px 6px rgba(0,0,0,0.05);
     display: flex;
     flex-direction: column;
+    text-align: center;
 }
 
 .info-card .label {
@@ -564,3 +568,66 @@
 }
 
 
+
+.patient-date {
+  text-align: right;
+  margin-bottom: 16px;
+}
+
+@media (max-width: 768px) {
+  .recommendation-patient-wrapper {
+    flex-direction: column;
+    gap: 20px;
+  }
+
+  .recommendation-patient-section {
+    width: 100%;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+  }
+
+  .patient-main-info .patient-info-grid-two {
+    grid-template-columns: 1fr !important;
+    gap: 12px;
+  }
+
+  .result-table-wrapper {
+    flex-direction: column;
+  }
+
+  .result-table-block {
+    width: 100% !important;
+  }
+
+  .result-table {
+    font-size: 13px;
+    overflow-x: auto;
+    display: block;
+  }
+
+  .feedback-textarea {
+    width: 100% !important;
+    min-height: 100px;
+  }
+
+  .recommendation-action-btn,
+  .feedback-submit-btn {
+    width: 100%;
+  }
+
+  .dropdown-wrapper-inline {
+    flex-direction: column;
+    align-items: flex-start;
+  }
+
+  .recommendation-title {
+    font-size: 20px;
+    text-align: center;
+    margin-bottom: 16px;
+  }
+
+  .patient-name-large {
+    font-size: 18px;
+  }
+}

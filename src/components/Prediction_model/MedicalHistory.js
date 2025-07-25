@@ -45,10 +45,8 @@ const MedicalHistory = () => {
             createdAt: item.date, // <-- raw datetime จริงจาก MySQL
             date: new Date(item.date).toLocaleDateString("th-TH"),
             time: new Date(item.date).toLocaleTimeString("th-TH", { hour: "2-digit", minute: "2-digit" }),
-            doctor: item.prefix_name_doctor || item.first_name_doctor
-              ? `${item.prefix_name_doctor || ""}${item.first_name_doctor || ""} ${item.last_name_doctor || ""}`.trim()
-              : "หมอยังไม่ระบุ",
-
+            doctor: item.review_by || "หมอยังไม่ระบุ",
+            review_by: item.review_by || "",
             status: item.status === "Normal" ? "ปกติ" : "กรุณาพบแพทย์",
             public_note: item.public_note || "",
             note_updated_at: item.note_updated_at || item.date, // ✅ ต้องระบุแบบนี้
@@ -167,7 +165,7 @@ const MedicalHistory = () => {
                         updatedAt: item.note_updated_at
                       });
                       setSelectedCreatedAt(item.createdAt);
-                      setSelectedDoctor(item.doctor);
+                      setSelectedDoctor(item.review_by || "หมอยังไม่ระบุ");
                       setShowPopup(true);
                     }}
                   >

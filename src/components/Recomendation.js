@@ -339,30 +339,30 @@ function Recomendation() {
       return updated;
     });
   };
-const updatePublicNoteText = (incKeys, decKeys) => {
-  const combined = [...incKeys.map(k => [k, "increase"]), ...decKeys.map(k => [k, "decrease"])];
-  const grouped = {};
+  const updatePublicNoteText = (incKeys, decKeys) => {
+    const combined = [...incKeys.map(k => [k, "increase"]), ...decKeys.map(k => [k, "decrease"])];
+    const grouped = {};
 
-  for (const [label, type] of combined) {
-    const featureKey = Object.keys(valueMap).find(key => valueMap[key].label === label);
-    if (!featureKey) continue;
+    for (const [label, type] of combined) {
+      const featureKey = Object.keys(valueMap).find(key => valueMap[key].label === label);
+      if (!featureKey) continue;
 
-    const suggestionText = getSuggestionLabel(featureKey, type); // เช่น "ควรล้างมือ"
-    if (!grouped[suggestionText]) {
-      grouped[suggestionText] = [];
+      const suggestionText = getSuggestionLabel(featureKey, type); // เช่น "ควรล้างมือ"
+      if (!grouped[suggestionText]) {
+        grouped[suggestionText] = [];
+      }
+      grouped[suggestionText].push(label);
     }
-    grouped[suggestionText].push(label);
-  }
 
-  // ✨ แปลงเป็นรูปแบบแนวยาว
-  const lines = ["โปรดปฏิบัติตาม:"];
-  for (const [actionText, labels] of Object.entries(grouped)) {
-    const unique = [...new Set(labels)];
-    lines.push(`${actionText}: ${unique.join(", ")}`);
-  }
+    // ✨ แปลงเป็นรูปแบบแนวยาว
+    const lines = ["โปรดปฏิบัติตาม:"];
+    for (const [actionText, labels] of Object.entries(grouped)) {
+      const unique = [...new Set(labels)];
+      lines.push(`${actionText}: ${unique.join(", ")}`);
+    }
 
-  setPublicNote(lines.join("\n"));
-};
+    setPublicNote(lines.join("\n"));
+  };
 
 
 
@@ -495,7 +495,7 @@ const updatePublicNoteText = (incKeys, decKeys) => {
           setRecord(res.data);
           setPrivateNote(res.data.private_note || "");
           setPublicNote(res.data.public_note || "");
-          
+
         })
         .catch((err) => {
           console.error("❌ โหลดข้อมูลล่าสุดไม่สำเร็จ:", err);
@@ -598,17 +598,17 @@ const updatePublicNoteText = (incKeys, decKeys) => {
 
         {/* CSS Animation */}
         <style>{`
-            @keyframes zoomIn {
-              0% {
-                transform: scale(0.9);
-                opacity: 0;
+              @keyframes zoomIn {
+                0% {
+                  transform: scale(0.9);
+                  opacity: 0;
+                }
+                100% {
+                  transform: scale(1);
+                  opacity: 1;
+                }
               }
-              100% {
-                transform: scale(1);
-                opacity: 1;
-              }
-            }
-          `}</style>
+            `}</style>
       </div>
     );
   }
@@ -632,11 +632,11 @@ const updatePublicNoteText = (incKeys, decKeys) => {
   const handleSavePublicNote = () => {
     if (!id || !shapTime) return;  // ✅ ต้องมีเวลาที่ตรงกับใน DB
     setIsSaving(true);
-
+    const fullName = localStorage.getItem("fullName") || "ไม่ทราบชื่อผู้ใช้";
     axios.put(`/api/patients/${id}/records/public_note`, {
       created_at: shapTime,  // ✅ ใช้เวลาที่ตรงกับ DB
-      private_note: privateNote,
-      public_note: publicNote
+      public_note: publicNote,
+      review_by: fullName
     })
       .then(() => {
         alert("✅ บันทึกสำเร็จแล้ว");
@@ -655,11 +655,11 @@ const updatePublicNoteText = (incKeys, decKeys) => {
   const handleSavePrivateNote = () => {
     if (!id || !shapTime) return;  // ✅ ต้องมีเวลาที่ตรงกับใน DB
     setIsSaving(true);
-
+    const fullName = localStorage.getItem("fullName") || "ไม่ทราบชื่อผู้ใช้";
     axios.put(`/api/patients/${id}/records/private_note`, {
       created_at: shapTime,  // ✅ ใช้เวลาที่ตรงกับ DB
       private_note: privateNote,
-      public_note: publicNote
+      review_by: fullName
     })
       .then(() => {
         alert("✅ บันทึกสำเร็จแล้ว");
@@ -734,6 +734,10 @@ const updatePublicNoteText = (incKeys, decKeys) => {
       <Header />
       <div className="recommendation-page">
 
+        <div className="patient-date">
+          วันที่ {shapTime ? new Date(shapTime).toLocaleString('th-TH', { dateStyle: 'long', timeStyle: 'short' }) : "--"}
+        </div>
+
         {/* Page Title */}
         <div className="recommendation-title">
           ดูผลลัพธ์การประเมินของผู้ป่วย
@@ -758,9 +762,6 @@ const updatePublicNoteText = (incKeys, decKeys) => {
             {/* ซ้าย: รูป + ชื่อ + ปุ่ม */}
             <div className="patient-profile">
               <div className="patient-health-badge">ข้อมูลสุขภาพ</div>
-              <div className="patient-date">
-                วันที่ {shapTime ? new Date(shapTime).toLocaleString('th-TH', { dateStyle: 'long', timeStyle: 'short' }) : "--"}
-              </div>
 
 
 
@@ -1035,96 +1036,127 @@ const updatePublicNoteText = (incKeys, decKeys) => {
                             </div>
                           </div>
                         </td>
-
-                        <td>
-                          <span
-                            className={isEqual(patientValue, standardValue) ? "badge-green" : "badge-red"}
-                          >
-                            {formatWithUnit(item.feature, patientValue)}
-                          </span>
-                        </td>
-
-                        <td><span className="badge-green">{formatWithUnit(item.feature, standardValue)}</span></td>
-
-
-
-                        {/* <td>
+                        <td style={{ textAlign: "center", verticalAlign: "middle", padding: "12px" }}>
                           {(() => {
-                            const normalVal = normalAverages[item.feature];
-                            const globalFeature = mostGlobalFeatures.find(f => f.feature === item.feature);
-                            const globalVal = globalFeature?.real_value_original;
                             const shap = item.shap;
-                            const status = record?.status;
-                            const statusName = statusMap[status?.split(" ")[0]] || status;
+                            const isSame = isEqual(patientValue, standardValue);
 
-                            const featureLabel = valueMap[item.feature]?.label || item.feature;
-                            const patientValue = valueMap[item.feature]?.values?.[realValue] ?? realValue;
-                            const standardValueText = valueMap[item.feature]?.values?.[String(normalVal)] ?? valueMap[item.feature]?.values?.[normalVal] ?? normalVal;
+                            let arrowClass = "";
+                            let arrowSymbol = null;
 
-                            const isStringStandard = typeof standardValueText === "string";
-
-                            // ✅ ถ้าค่าผู้ป่วย = ค่ามาตรฐาน → แสดงข้อความเดียว
-                            if (patientValue === standardValueText) {
-                              return <span>ผู้ป่วยได้ปฏิบัติตามมาตรฐาน</span>;
-                            }
-
-                            let msg = "";
-                            // 🧠 1. เปรียบเทียบกับ global
-                            if (
-                              normalVal !== undefined &&
-                              globalVal !== undefined &&
-                              Number(normalVal) === Number(globalVal)
-                            ) {
-                              msg = <span style={{ color: "#FF0033" }}>ควรพิจารณาร่วมกับข้อมูลอื่น</span>;
-                            }
-
-                            // 🧠 2. คำแนะนำจาก shap
-                            let shapNote = "";
-                            // if (shap > 0) {
-                            //   shapNote = <>ส่งผลให้เป็น <span style={{ color: "#007bff" }}>{statusName}</span></>;
-                            // } else if (shap < 0) {
-                            //   shapNote = <>ส่งผลให้ไม่เป็น <span style={{ color: "#007bff" }}>{statusName}</span></>;
-                            // } else {
-                            //   shapNote = <>ไม่ส่งผลต่อ <span style={{ color: "#007bff" }}>{statusName}</span></>;
-                            // }
-
-                            // 🧠 3. คำแนะนำจากการเปรียบเทียบพฤติกรรม
-                            let behaviorNote = "";
-                            let recomendation = "";
-                            if (isStringStandard) {
-                              // → เป็นค่าข้อความ เช่น "บริโภค"
-                              if (patientValue === standardValueText) {
-                                behaviorNote = "ผู้ป่วยได้ปฏิบัติตามมาตรฐาน";
-                              } else {
-                                behaviorNote = "ผู้ป่วยไม่ได้ปฏิบัติตามมาตรฐาน";
-                              }
-                            } else {
-                              const numericPatient = Number(realValue);
-                              const numericStandard = Number(normalVal);
-
-                              if (numericPatient < numericStandard) {
-                                recomendation = `ควรบริโภค ${featureLabel} เพิ่มขึ้น`;
-                                behaviorNote = `ผู้ป่วยไม่ได้ปฏิบัติตามค่ามาตรฐาน`;
-                              } else if (numericPatient > numericStandard) {
-                                recomendation = `ควรบริโภค ${featureLabel} ลดลง`;
-                                behaviorNote = `ผู้ป่วยไม่ได้ปฏิบัติตามค่ามาตรฐาน`;
-                              } else {
-                                behaviorNote = `ผู้ป่วยปฏิบัติตามค่ามาตรฐาน`;
+                            if (!isSame) {
+                              if (shap > 0) {
+                                arrowClass = "arrow-up";
+                                arrowSymbol = "↑";
+                              } else if (shap < 0) {
+                                arrowClass = "arrow-down";
+                                arrowSymbol = "↓";
                               }
                             }
 
                             return (
-                              <>
-                                {behaviorNote} <br />
-                                {recomendation} <br />
-                                {shapNote} <br />
-                                {msg && <span style={{ fontStyle: "italic", color: "#888" }}>{msg}</span>}
-                              </>
+                              <div style={{
+                                display: "inline-flex",
+                                alignItems: "center",
+                                justifyContent: "center"
+                              }}>
+                                <span className={isSame ? "badge-green" : "badge-red"}>
+                                  {formatWithUnit(item.feature, patientValue)}
+                                </span>
+                                {!isSame && arrowSymbol && (
+                                  <span className={arrowClass} style={{ marginLeft: 6 }}>
+                                    {arrowSymbol}
+                                  </span>
+                                )}
+                              </div>
                             );
                           })()}
+                        </td>
 
 
-                        </td> */}
+                        <td style={{ textAlign: "center", verticalAlign: "middle", padding: "12px" }}>
+                          <span className="badge-green">{formatWithUnit(item.feature, standardValue)}</span>
+                        </td>
+
+
+
+                        {/* <td>
+                            {(() => {
+                              const normalVal = normalAverages[item.feature];
+                              const globalFeature = mostGlobalFeatures.find(f => f.feature === item.feature);
+                              const globalVal = globalFeature?.real_value_original;
+                              const shap = item.shap;
+                              const status = record?.status;
+                              const statusName = statusMap[status?.split(" ")[0]] || status;
+
+                              const featureLabel = valueMap[item.feature]?.label || item.feature;
+                              const patientValue = valueMap[item.feature]?.values?.[realValue] ?? realValue;
+                              const standardValueText = valueMap[item.feature]?.values?.[String(normalVal)] ?? valueMap[item.feature]?.values?.[normalVal] ?? normalVal;
+
+                              const isStringStandard = typeof standardValueText === "string";
+
+                              // ✅ ถ้าค่าผู้ป่วย = ค่ามาตรฐาน → แสดงข้อความเดียว
+                              if (patientValue === standardValueText) {
+                                return <span>ผู้ป่วยได้ปฏิบัติตามมาตรฐาน</span>;
+                              }
+
+                              let msg = "";
+                              // 🧠 1. เปรียบเทียบกับ global
+                              if (
+                                normalVal !== undefined &&
+                                globalVal !== undefined &&
+                                Number(normalVal) === Number(globalVal)
+                              ) {
+                                msg = <span style={{ color: "#FF0033" }}>ควรพิจารณาร่วมกับข้อมูลอื่น</span>;
+                              }
+
+                              // 🧠 2. คำแนะนำจาก shap
+                              let shapNote = "";
+                              // if (shap > 0) {
+                              //   shapNote = <>ส่งผลให้เป็น <span style={{ color: "#007bff" }}>{statusName}</span></>;
+                              // } else if (shap < 0) {
+                              //   shapNote = <>ส่งผลให้ไม่เป็น <span style={{ color: "#007bff" }}>{statusName}</span></>;
+                              // } else {
+                              //   shapNote = <>ไม่ส่งผลต่อ <span style={{ color: "#007bff" }}>{statusName}</span></>;
+                              // }
+
+                              // 🧠 3. คำแนะนำจากการเปรียบเทียบพฤติกรรม
+                              let behaviorNote = "";
+                              let recomendation = "";
+                              if (isStringStandard) {
+                                // → เป็นค่าข้อความ เช่น "บริโภค"
+                                if (patientValue === standardValueText) {
+                                  behaviorNote = "ผู้ป่วยได้ปฏิบัติตามมาตรฐาน";
+                                } else {
+                                  behaviorNote = "ผู้ป่วยไม่ได้ปฏิบัติตามมาตรฐาน";
+                                }
+                              } else {
+                                const numericPatient = Number(realValue);
+                                const numericStandard = Number(normalVal);
+
+                                if (numericPatient < numericStandard) {
+                                  recomendation = `ควรบริโภค ${featureLabel} เพิ่มขึ้น`;
+                                  behaviorNote = `ผู้ป่วยไม่ได้ปฏิบัติตามค่ามาตรฐาน`;
+                                } else if (numericPatient > numericStandard) {
+                                  recomendation = `ควรบริโภค ${featureLabel} ลดลง`;
+                                  behaviorNote = `ผู้ป่วยไม่ได้ปฏิบัติตามค่ามาตรฐาน`;
+                                } else {
+                                  behaviorNote = `ผู้ป่วยปฏิบัติตามค่ามาตรฐาน`;
+                                }
+                              }
+
+                              return (
+                                <>
+                                  {behaviorNote} <br />
+                                  {recomendation} <br />
+                                  {shapNote} <br />
+                                  {msg && <span style={{ fontStyle: "italic", color: "#888" }}>{msg}</span>}
+                                </>
+                              );
+                            })()}
+
+
+                          </td> */}
                       </tr>
                     );
                   })}
