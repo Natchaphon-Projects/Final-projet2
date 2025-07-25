@@ -53,7 +53,11 @@ const MedicalHistory = () => {
             isLatest: index === 0
           }));
 
-          setMedicalHistory(mapped);
+          const uniqueMapped = Array.from(
+            new Map(mapped.map(item => [item.createdAt, item])).values()
+          );
+
+          setMedicalHistory(uniqueMapped);
         })
         .catch((err) => console.error("โหลดประวัติล้มเหลว", err));
     };
