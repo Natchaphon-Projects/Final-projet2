@@ -11,49 +11,7 @@
       "yes": 1
     }
   },
-  "Received_Vitamin_or_Mineral_Supplements": {
-    "mapping": {
-      "no": 0,
-      "yes": 1
-    }
-  },
-  "Received_Plain_Water": {
-    "mapping": {
-      "no": 0,
-      "yes": 1
-    }
-  },
-  "Received_Animal_Milk": {
-    "mapping": {
-      "no": 0,
-      "yes": 1
-    }
-  },
-  "Received_Juice_or_Juice_Drinks": {
-    "mapping": {
-      "no": 0,
-      "yes": 1
-    }
-  },
-  "Received_Yogurt": {
-    "mapping": {
-      "no": 0,
-      "yes": 1
-    }
-  },
   "Received_Thin_Porridge": {
-    "mapping": {
-      "no": 0,
-      "yes": 1
-    }
-  },
-  "Received_Tea": {
-    "mapping": {
-      "no": 0,
-      "yes": 1
-    }
-  },
-  "Received_Other_Liquids": {
     "mapping": {
       "no": 0,
       "yes": 1
@@ -84,12 +42,6 @@
     }
   },
   "Received_Ripe_Mangoes_Papayas": {
-    "mapping": {
-      "no": 0,
-      "yes": 1
-    }
-  },
-  "Received_Other_Fruits_Vegetables": {
     "mapping": {
       "no": 0,
       "yes": 1
@@ -126,30 +78,6 @@
     }
   },
   "Received_Oil_Fats_Butter": {
-    "mapping": {
-      "no": 0,
-      "yes": 1
-    }
-  },
-  "Received_Sugary_Foods": {
-    "mapping": {
-      "no": 0,
-      "yes": 1
-    }
-  },
-  "Received_Chilies_Spices_Herbs": {
-    "mapping": {
-      "no": 0,
-      "yes": 1
-    }
-  },
-  "Received_Grubs_Snails_Insects": {
-    "mapping": {
-      "no": 0,
-      "yes": 1
-    }
-  },
-  "Received_Other_Solid_Semi_Solid_Food": {
     "mapping": {
       "no": 0,
       "yes": 1

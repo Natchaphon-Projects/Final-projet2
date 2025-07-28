@@ -16,7 +16,6 @@ function Groupdatainput() {
 
   const [groupProgress, setGroupProgress] = useState({
     general: 0,
-    caregiver: 0,
     nutrition: 0,
     sanitation: 0,
   });
@@ -36,26 +35,31 @@ function Groupdatainput() {
   }, []);
 
   const requiredKeys = [
-    "Guardian", "Vitamin_A_Intake_First_8_Weeks", "Sanitary_Disposal",
-    "Mom_wash_hand_before_or_after_cleaning_children", "Mom_wash_hand_before_or_after_feeding_the_child",
-    "Child_wash_hand_before_or_after_eating_food", "Child_wash_hand_before_or_after_visiting_the_toilet",
-    "Last_Month_Weight_Check", "Weighed_Twice_Check_in_Last_3_Months",
-    "Given_Anything_to_Drink_in_First_6_Months", "Still_Breastfeeding",
-    "Is_Respondent_Biological_Mother", "Breastfeeding_Count_DayandNight",
-    "Received_Vitamin_or_Mineral_Supplements", "Received_Plain_Water",
-    "Infant_Formula_Intake_Count_Yesterday", "Received_Animal_Milk",
-    "Received_Animal_Milk_Count", "Received_Juice_or_Juice_Drinks",
-    "Received_Yogurt", "Received_Yogurt_Count", "Received_Thin_Porridge",
-    "Received_Tea", "Received_Other_Liquids", "Received_Grain_Based_Foods",
-    "Received_Orange_Yellow_Foods", "Received_White_Root_Foods",
-    "Received_Dark_Green_Leafy_Veggies", "Received_Ripe_Mangoes_Papayas",
-    "Received_Other_Fruits_Vegetables", "Received_Meat", "Received_Eggs",
-    "Received_Fish_Shellfish_Seafood", "Received_Legumes_Nuts_Foods",
-    "Received_Dairy_Products", "Received_Oil_Fats_Butter",
-    "Received_Sugary_Foods", "Received_Chilies_Spices_Herbs",
-    "Received_Grubs_Snails_Insects", "Received_Other_Solid_Semi_Solid_Food",
-    "Received_Salt", "Number_of_Times_Eaten_Solid_Food"
+    "Vitamin_A_Intake_First_8_Weeks",
+    "Sanitary_Disposal",
+    "Child_wash_hand_before_or_after_eating_food",
+    "Child_wash_hand_before_or_after_visiting_the_toilet",
+    "Given_Anything_to_Drink_in_First_6_Months",
+    "Still_Breastfeeding",
+    "Breastfeeding_Count_DayandNight",
+    "Infant_Formula_Intake_Count_Yesterday",
+    "Received_Animal_Milk_Count",
+    "Received_Thin_Porridge",
+    "Received_Grain_Based_Foods",
+    "Received_Orange_Yellow_Foods",
+    "Received_White_Root_Foods",
+    "Received_Dark_Green_Leafy_Veggies",
+    "Received_Ripe_Mangoes_Papayas",
+    "Received_Meat",
+    "Received_Eggs",
+    "Received_Fish_Shellfish_Seafood",
+    "Received_Legumes_Nuts_Foods",
+    "Received_Dairy_Products",
+    "Received_Oil_Fats_Butter",
+    "Received_Salt",
+    "Number_of_Times_Eaten_Solid_Food"
   ];
+
 
 
   const handleFinalSubmit = async () => {
@@ -63,7 +67,6 @@ function Groupdatainput() {
     setIsSubmitting(true);    // ✅ ล็อกการคลิกซ้ำ
 
     const general = JSON.parse(localStorage.getItem("generalFormData") || "{}");
-    const caregiver = JSON.parse(localStorage.getItem("caregiverFormData") || "{}");
     const nutrition = JSON.parse(localStorage.getItem("nutritionFormData") || "{}");
     const sanitation = JSON.parse(localStorage.getItem("sanitationFormData") || "{}");
 
@@ -78,7 +81,6 @@ function Groupdatainput() {
       const allData = {
         patient_id: patientId,
         ...general,
-        ...caregiver,
         ...nutrition,
         ...sanitation,
       };
@@ -108,11 +110,10 @@ function Groupdatainput() {
   useEffect(() => {
     const interval = setInterval(() => {
       const general = parseInt(localStorage.getItem("generalProgress") || "0");
-      const caregiver = parseInt(localStorage.getItem("caregiverProgress") || "0");
       const nutrition = parseInt(localStorage.getItem("nutritionProgress") || "0");
       const sanitation = parseInt(localStorage.getItem("sanitationProgress") || "0");
 
-      setGroupProgress({ general, caregiver, nutrition, sanitation });
+      setGroupProgress({ general, nutrition, sanitation });
     }, 1000); // อัปเดตทุก 1 วินาที
 
     return () => clearInterval(interval);
@@ -121,9 +122,8 @@ function Groupdatainput() {
   useEffect(() => {
     const avg =
       (groupProgress.general +
-        groupProgress.caregiver +
         groupProgress.nutrition +
-        groupProgress.sanitation) / 4;
+        groupProgress.sanitation) / 3;
     setTotalProgress(avg);
   }, [groupProgress]);
 
@@ -135,14 +135,6 @@ function Groupdatainput() {
       color: "#22c55e",
       buttonGradient: "gradient-general",
       progress: groupProgress.general,
-    },
-    {
-      label: "ผู้เลี้ยงดูหลัก",
-      description: "ข้อมูลผู้ดูแลและครอบครัว",
-      path: "/form/caregiver",
-      color: "#f59e0b",
-      buttonGradient: "gradient-caregiver",
-      progress: groupProgress.caregiver,
     },
     {
       label: "อาหารที่เด็กได้รับ",
@@ -164,21 +156,21 @@ function Groupdatainput() {
   ];
 
   const getProgressStatus = (progress) => {
-  if (progress === 100)
+    if (progress === 100)
+      return {
+        icon: <img src={doneIcon} alt="done" style={{ width: "24px", height: "24px" }} />,
+        text: <span style={{ color: "green" }}>เสร็จสิ้น</span>,
+      };
+    if (progress > 0)
+      return {
+        icon: <img src={clockwiseIcon} alt="loading" style={{ width: "24px", height: "24px" }} />,
+        text: <span style={{ color: "yellow" }}>กำลังกรอกข้อมูล</span>,
+      };
     return {
-      icon: <img src={doneIcon} alt="done" style={{ width: "24px", height: "24px" }} />,
-      text: <span style={{ color: "green" }}>เสร็จสิ้น</span>,
+      icon: <span style={{ fontSize: "24px" }}>❌</span>,
+      text: <span style={{ color: "red" }}>ยังไม่เริ่ม</span>,
     };
-  if (progress > 0)
-    return {
-      icon: <img src={clockwiseIcon} alt="loading" style={{ width: "24px", height: "24px" }} />,
-      text: <span style={{ color: "yellow" }}>กำลังกรอกข้อมูล</span>,
-    };
-  return {
-    icon: <span style={{ fontSize: "24px" }}>❌</span>,
-    text: <span style={{ color: "red" }}>ยังไม่เริ่ม</span>,
   };
-};
 
 
 
@@ -222,6 +214,7 @@ function Groupdatainput() {
           </p>
         </div>
 
+        <div style={{ display: "flex", justifyContent: "center" }}></div>
         <div className="groups-grid">
           {groups.map((group, index) => {
             const { icon, text } = getProgressStatus(group.progress);
@@ -230,7 +223,7 @@ function Groupdatainput() {
                 <div className="card-header">
                   <div className="emoji">{icon}</div>
                   <div className="status-container">
-                    
+
                     <span className="status-text">{text}</span>
                   </div>
                 </div>
@@ -264,6 +257,7 @@ function Groupdatainput() {
             );
           })}
         </div>
+        
 
 
       </main>

@@ -1,11 +1,12 @@
 /* กล่อง Grid แสดงการ์ดกลุ่มข้อมูล */
 .groups-grid {
   display: grid;
-  grid-template-columns: repeat(4, 1fr);  /* 4 คอลัมน์ */
+  grid-template-columns: repeat(3, 1fr);  /* 4 คอลัมน์ */
   gap: 2rem;
   max-width: 1200px;                      /* กำหนดความกว้างรวมของแถว */
   margin: 3rem auto;
-  overflow-x: auto;                       /* เพิ่ม scrollbar ถ้าจอกว้างไม่พอ */
+  overflow-x: auto;
+  justify-content: center;  
 }
 
 /* การ์ดแต่ละกลุ่ม */

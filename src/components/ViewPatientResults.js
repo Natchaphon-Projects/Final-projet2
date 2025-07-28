@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, useMemo } from "react";
 import { useNavigate } from "react-router-dom";
 import axios from "axios";
 import "./ViewPatientResults.css";
@@ -19,21 +19,36 @@ function ViewPatientResults() {
       .catch((err) => console.error("โหลดข้อมูลไม่สำเร็จ", err));
   }, [sortOrder]);
 
+  useEffect(() => {
+    setCurrentPage(1);
+  }, [sortOrder, searchTerm]);
 
 
+  const sortedPatients = useMemo(() => {
+    const sorted = [...patients];
+    sorted.sort((a, b) => {
+      const dateA = new Date(a.date);
+      const dateB = new Date(b.date);
+      return sortOrder === "asc" ? dateA - dateB : dateB - dateA;
+    });
+    return sorted;
+  }, [patients, sortOrder]);
 
+  const uniquePatients = useMemo(() => {
+    const seen = new Set();
+    const result = [];
 
-  // 🔁 กรองให้เหลือเพียงรายการเดียวต่อ patient_id + created_at ที่ซ้ำกันเป๊ะ
-  const uniquePatients = [];
-  const seen = new Set();
+    sortedPatients.forEach((p) => {
+      const key = `${p.patientId}-${p.date}`;
+      if (!seen.has(key)) {
+        seen.add(key);
+        result.push(p);
+      }
+    });
 
-  patients.forEach((p) => {
-    const key = `${p.patientId}-${p.date}`;// ✅ ใช้ patient_id จริง + datetime เต็ม (มีวินาที)
-    if (!seen.has(key)) {
-      seen.add(key);
-      uniquePatients.push(p);
-    }
-  });
+    return result;
+  }, [sortedPatients]);
+
 
 
   // 🔍 จากนั้นค่อย filter ตามชื่อ
@@ -46,26 +61,27 @@ function ViewPatientResults() {
     (currentPage - 1) * itemsPerPage,
     currentPage * itemsPerPage
   );
-  const statusCount = {
-    Normal: 0,
-    Obesity: 0,
-    Overweight: 0,
-    SAM: 0,
-    Stunting: 0,
-    Underweight: 0,
-  };
+  const statusCount = useMemo(() => {
+    const count = {
+      Normal: 0,
+      Obesity: 0,
+      Overweight: 0,
+      SAM: 0,
+      Stunting: 0,
+      Underweight: 0,
+    };
 
-  const seenSummary = new Set();
 
-  patients.forEach((p) => {
-    const key = `${p.patientId}-${p.date}`;
-    if (!seenSummary.has(key)) {
-      seenSummary.add(key);
-      if (statusCount[p.status] !== undefined) {
-        statusCount[p.status]++;
+
+    uniquePatients.forEach((p) => {
+      if (count[p.status] !== undefined) {
+        count[p.status]++;
       }
-    }
-  });
+    });
+
+    return count;
+  }, [uniquePatients]);
+
 
   const handleViewDetails = (patient) => {
     navigate(`/Recomendation/${patient.patientId}`, {
@@ -142,7 +158,7 @@ function ViewPatientResults() {
               console.log("📦 Patient data:", p);
               const date = new Date(p.date);
               return (
-                <tr key={p.patientId}>
+                <tr key={`${p.patientId}-${p.date}`}>
                   <td>{p.name}</td>
                   <td>{date.toLocaleDateString("th-TH")}</td>
                   <td>{date.toLocaleTimeString("th-TH", { hour: "2-digit", minute: "2-digit" })}</td>

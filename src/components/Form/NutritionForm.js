@@ -13,8 +13,6 @@ const nutritionGroups = [
     groupNote: "หากมีการบริโภคให้ติ๊กถูกในช่องสี่เหลี่ยม ☐",
     questions: [
       { key: "Still_Breastfeeding", label: "ขณะนี้เด็กยังคงได้รับนมแม่อยู่", type: "checkbox" },
-      { key: "Received_Animal_Milk", label: "ได้รับนมสัตว์ เช่น นมวัว หรือนมแพะ ", type: "checkbox" },
-      { key: "Received_Yogurt", label: "ได้รับโยเกิร์ตหรืออาหารที่มีส่วนผสมของโยเกิร์ต", type: "checkbox" },
       { key: "Received_Dairy_Products", label: "ได้รับผลิตภัณฑ์จากนมหรือไม่", type: "checkbox" },
     ],
   },
@@ -23,10 +21,13 @@ const nutritionGroups = [
     groupNote: "หากมีการบริโภคให้ติ๊กถูกในช่องสี่เหลี่ยม ☐",
     questions: [
       { key: "Given_Anything_to_Drink_in_First_6_Months", label: "ได้ดื่มอะไรก็ตามในช่วง 6 เดือนแรก", type: "checkbox" },
-      { key: "Received_Plain_Water", label: "ได้รับน้ำเปล่า", type: "checkbox" },
-      { key: "Received_Juice_or_Juice_Drinks", label: "ได้รับน้ำผลไม้", type: "checkbox" },
-      { key: "Received_Tea", label: "ได้รับชาหรือเครื่องดื่มผสมคาเฟอีน", type: "checkbox" },
-      { key: "Received_Other_Liquids", label: "ได้รับของเหลวอื่นๆ นอกเหนือจากนี้ เช่น น้ำอัดลม เป็นต้น", type: "checkbox" },
+    ],
+  },
+  {
+    groupTitle: "อาหารเสริม",
+    groupNote: "หากมีการบริโภคให้ติ๊กถูกในช่องสี่เหลี่ยม ☐",
+    questions: [
+      { key: "Vitamin_A_Intake_First_8_Weeks", label: "ได้รับวิตามินเอภายใน 8 สัปดาห์แรกที่เกิดหรือไม่", type: "checkbox" },
     ],
   },
   {
@@ -39,25 +40,12 @@ const nutritionGroups = [
       { key: "Received_White_Root_Foods", label: "อาหารประเภทหัวที่มีแป้งและเนื้อสีขาว เช่น มันเทศขาว มันเผือก", type: "checkbox" },
       { key: "Received_Dark_Green_Leafy_Veggies", label: "ได้รับผักใบเขียวเข้ม เช่น ผักโขม คะน้า", type: "checkbox" },
       { key: "Received_Ripe_Mangoes_Papayas", label: "ได้รับอาหารมะละกอหรือมะม่วงสุก", type: "checkbox" },
-      { key: "Received_Other_Fruits_Vegetables", label: "ได้รับผลไม้/ผักอื่นๆนอกเหนือจากที่กล่าว", type: "checkbox" },
       { key: "Received_Meat", label: "ได้รับเนื้อสัตว์ประเภทต่างๆ", type: "checkbox" },
       { key: "Received_Eggs", label: "ได้รับอาหารที่มีส่วนผสมของไข่", type: "checkbox" },
       { key: "Received_Fish_Shellfish_Seafood", label: "ได้รับอาหารทะเล เช่น ปลา กุ้ง หอย", type: "checkbox" },
       { key: "Received_Legumes_Nuts_Foods", label: "ได้รับอาหารที่มีส่วนผสมของถั่วหรือทำจากถั่วต่างๆ", type: "checkbox" },
       { key: "Received_Oil_Fats_Butter", label: "ได้รับอาหารประเภทไขมันต่างๆ เช่น น้ำมัน เนย ไขมันสัตว์", type: "checkbox" },
-      { key: "Received_Sugary_Foods", label: "ได้รับอาหารหวาน เช่น ช็อกโกแลต ลูกกวาด ขนมหวาน", type: "checkbox" },
-      { key: "Received_Chilies_Spices_Herbs", label: "ได้รับเครื่องเทศ/สมุนไพรต่างๆหรือไม่", type: "checkbox" },
-      { key: "Received_Grubs_Snails_Insects", label: "ได้รับอาหารที่มีส่วนผสมของตัวอ่อน/หอยทาก/หนอน", type: "checkbox" },
-      { key: "Received_Other_Solid_Semi_Solid_Food", label: "ได้รับอาหารอื่นๆนอกจากอาหารเสริม", type: "checkbox" },
       { key: "Received_Salt", label: "ได้รับอาหารที่เติมเกลือหรือไม่", type: "checkbox" },
-    ],
-  },
-  {
-    groupTitle: "อาหารเสริม",
-    groupNote: "หากมีการบริโภคให้ติ๊กถูกในช่องสี่เหลี่ยม ☐",
-    questions: [
-      { key: "Received_Vitamin_or_Mineral_Supplements", label: "ได้รับอาหารเสริมวิตามินหรือแร่ธาตุ", type: "checkbox" },
-      { key: "Vitamin_A_Intake_First_8_Weeks", label: "ได้รับวิตามินเอภายใน 8 สัปดาห์แรกที่เกิดหรือไม่", type: "checkbox" },
     ],
   },
   {
@@ -67,7 +55,6 @@ const nutritionGroups = [
       { key: "Infant_Formula_Intake_Count_Yesterday", label: "จำนวนครั้งการบริโภคนมผง", type: "number" },
       { key: "Breastfeeding_Count_DayandNight", label: "จำนวนครั้งให้นมทั้งวันและคืน", type: "number" },
       { key: "Received_Animal_Milk_Count", label: "จำนวนครั้งดื่มนมสัตว์", type: "number" },
-      { key: "Received_Yogurt_Count", label: "จำนวนครั้งบริโภคโยเกิร์ต", type: "number" },
       {
         key: "Number_of_Times_Eaten_Solid_Food",
         label: "จำนวนมื้ออาหารแข็ง",
@@ -90,7 +77,6 @@ function NutritionForm() {
 
   const pages = [
     "/form/general",
-    "/form/caregiver",
     "/form/nutrition",
     "/form/sanitation",
   ];
@@ -125,9 +111,8 @@ function NutritionForm() {
   // 👇 เพิ่มคำนวณ totalProgress เหมือน GroupedDataInput
   const totalProgress =
     (parseInt(localStorage.getItem("generalProgress") || 0) +
-      parseInt(localStorage.getItem("caregiverProgress") || 0) +
       parseInt(localStorage.getItem("nutritionProgress") || 0) +
-      parseInt(localStorage.getItem("sanitationProgress") || 0)) / 4;
+      parseInt(localStorage.getItem("sanitationProgress") || 0)) / 3;
 
 
   const handleChange = (key, value) => {
@@ -141,8 +126,7 @@ function NutritionForm() {
     return (
       (formData.Infant_Formula_Intake_Count_Yesterday === "" || formData.Infant_Formula_Intake_Count_Yesterday === undefined) &&
       (formData.Breastfeeding_Count_DayandNight === "" || formData.Breastfeeding_Count_DayandNight === undefined) &&
-      (formData.Received_Animal_Milk_Count === "" || formData.Received_Animal_Milk_Count === undefined) &&
-      (formData.Received_Yogurt_Count === "" || formData.Received_Yogurt_Count === undefined)
+      (formData.Received_Animal_Milk_Count === "" || formData.Received_Animal_Milk_Count === undefined)
     );
   };
 
@@ -155,7 +139,6 @@ function NutritionForm() {
       "Infant_Formula_Intake_Count_Yesterday",
       "Breastfeeding_Count_DayandNight",
       "Received_Animal_Milk_Count",
-      "Received_Yogurt_Count",
     ];
 
     const isComplete = requiredKeys.every(key => {
@@ -225,7 +208,6 @@ function NutritionForm() {
       Infant_Formula_Intake_Count_Yesterday: formData.Infant_Formula_Intake_Count_Yesterday || 0,
       Breastfeeding_Count_DayandNight: formData.Breastfeeding_Count_DayandNight || 0,
       Received_Animal_Milk_Count: formData.Received_Animal_Milk_Count || 0,
-      Received_Yogurt_Count: formData.Received_Yogurt_Count || 0,
       created_at: new Date().toISOString(),
     };
 
@@ -442,8 +424,8 @@ function NutritionForm() {
                     <>
                       <button
                         className={`complete-btn ${completedGroups.length < nutritionGroups.length - 1 || !formData.Number_of_Times_Eaten_Solid_Food
-                            ? "disabled-btn"
-                            : ""
+                          ? "disabled-btn"
+                          : ""
                           }`}
 
                         onClick={() => {
@@ -491,7 +473,6 @@ function NutritionForm() {
                 localStorage.setItem("isSubmitting", "true");
 
                 const general = JSON.parse(localStorage.getItem("generalFormData") || "{}");
-                const caregiver = JSON.parse(localStorage.getItem("caregiverFormData") || "{}");
                 const nutrition = JSON.parse(localStorage.getItem("nutritionFormData") || "{}");
                 const sanitation = JSON.parse(localStorage.getItem("sanitationFormData") || "{}");
                 const patientId = localStorage.getItem("childId");
@@ -505,32 +486,36 @@ function NutritionForm() {
                 const allData = {
                   patient_id: patientId,
                   ...general,
-                  ...caregiver,
                   ...nutrition,
                   ...sanitation,
                 };
 
                 const requiredKeys = [
-                  "Guardian", "Vitamin_A_Intake_First_8_Weeks", "Sanitary_Disposal",
-                  "Mom_wash_hand_before_or_after_cleaning_children", "Mom_wash_hand_before_or_after_feeding_the_child",
-                  "Child_wash_hand_before_or_after_eating_food", "Child_wash_hand_before_or_after_visiting_the_toilet",
-                  "Last_Month_Weight_Check", "Weighed_Twice_Check_in_Last_3_Months",
-                  "Given_Anything_to_Drink_in_First_6_Months", "Still_Breastfeeding",
-                  "Is_Respondent_Biological_Mother", "Breastfeeding_Count_DayandNight",
-                  "Received_Vitamin_or_Mineral_Supplements", "Received_Plain_Water",
-                  "Infant_Formula_Intake_Count_Yesterday", "Received_Animal_Milk",
-                  "Received_Animal_Milk_Count", "Received_Juice_or_Juice_Drinks",
-                  "Received_Yogurt", "Received_Yogurt_Count", "Received_Thin_Porridge",
-                  "Received_Tea", "Received_Other_Liquids", "Received_Grain_Based_Foods",
-                  "Received_Orange_Yellow_Foods", "Received_White_Root_Foods",
-                  "Received_Dark_Green_Leafy_Veggies", "Received_Ripe_Mangoes_Papayas",
-                  "Received_Other_Fruits_Vegetables", "Received_Meat", "Received_Eggs",
-                  "Received_Fish_Shellfish_Seafood", "Received_Legumes_Nuts_Foods",
-                  "Received_Dairy_Products", "Received_Oil_Fats_Butter",
-                  "Received_Sugary_Foods", "Received_Chilies_Spices_Herbs",
-                  "Received_Grubs_Snails_Insects", "Received_Other_Solid_Semi_Solid_Food",
-                  "Received_Salt", "Number_of_Times_Eaten_Solid_Food"
+                  "Vitamin_A_Intake_First_8_Weeks",
+                  "Sanitary_Disposal",
+                  "Child_wash_hand_before_or_after_eating_food",
+                  "Child_wash_hand_before_or_after_visiting_the_toilet",
+                  "Given_Anything_to_Drink_in_First_6_Months",
+                  "Still_Breastfeeding",
+                  "Breastfeeding_Count_DayandNight",
+                  "Infant_Formula_Intake_Count_Yesterday",
+                  "Received_Animal_Milk_Count",
+                  "Received_Thin_Porridge",
+                  "Received_Grain_Based_Foods",
+                  "Received_Orange_Yellow_Foods",
+                  "Received_White_Root_Foods",
+                  "Received_Dark_Green_Leafy_Veggies",
+                  "Received_Ripe_Mangoes_Papayas",
+                  "Received_Meat",
+                  "Received_Eggs",
+                  "Received_Fish_Shellfish_Seafood",
+                  "Received_Legumes_Nuts_Foods",
+                  "Received_Dairy_Products",
+                  "Received_Oil_Fats_Butter",
+                  "Received_Salt",
+                  "Number_of_Times_Eaten_Solid_Food"
                 ];
+
 
                 // เติมค่าที่ขาด = 0
                 requiredKeys.forEach((key) => {

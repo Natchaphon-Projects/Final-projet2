@@ -86,25 +86,29 @@ function PredictionModel() {
     setLoading(true);
 
     const featureKeys = [
-      "Guardian", "Vitamin_A_Intake_First_8_Weeks", "Sanitary_Disposal",
-      "Mom_wash_hand_before_or_after_cleaning_children", "Mom_wash_hand_before_or_after_feeding_the_child",
-      "Child_wash_hand_before_or_after_eating_food", "Child_wash_hand_before_or_after_visiting_the_toilet",
-      "Last_Month_Weight_Check", "Weighed_Twice_Check_in_Last_3_Months",
-      "Given_Anything_to_Drink_in_First_6_Months", "Still_Breastfeeding",
-      "Is_Respondent_Biological_Mother", "Breastfeeding_Count_DayandNight",
-      "Received_Vitamin_or_Mineral_Supplements", "Received_Plain_Water",
-      "Infant_Formula_Intake_Count_Yesterday", "Received_Animal_Milk",
-      "Received_Animal_Milk_Count", "Received_Juice_or_Juice_Drinks",
-      "Received_Yogurt", "Received_Yogurt_Count", "Received_Thin_Porridge",
-      "Received_Tea", "Received_Other_Liquids", "Received_Grain_Based_Foods",
-      "Received_Orange_Yellow_Foods", "Received_White_Root_Foods",
-      "Received_Dark_Green_Leafy_Veggies", "Received_Ripe_Mangoes_Papayas",
-      "Received_Other_Fruits_Vegetables", "Received_Meat", "Received_Eggs",
-      "Received_Fish_Shellfish_Seafood", "Received_Legumes_Nuts_Foods",
-      "Received_Dairy_Products", "Received_Oil_Fats_Butter",
-      "Received_Sugary_Foods", "Received_Chilies_Spices_Herbs",
-      "Received_Grubs_Snails_Insects", "Received_Other_Solid_Semi_Solid_Food",
-      "Received_Salt", "Number_of_Times_Eaten_Solid_Food"
+      "Vitamin_A_Intake_First_8_Weeks",
+      "Sanitary_Disposal",
+      "Child_wash_hand_before_or_after_eating_food",
+      "Child_wash_hand_before_or_after_visiting_the_toilet",
+      "Given_Anything_to_Drink_in_First_6_Months",
+      "Still_Breastfeeding",
+      "Breastfeeding_Count_DayandNight",
+      "Infant_Formula_Intake_Count_Yesterday",
+      "Received_Animal_Milk_Count",
+      "Received_Thin_Porridge",
+      "Received_Grain_Based_Foods",
+      "Received_Orange_Yellow_Foods",
+      "Received_White_Root_Foods",
+      "Received_Dark_Green_Leafy_Veggies",
+      "Received_Ripe_Mangoes_Papayas",
+      "Received_Meat",
+      "Received_Eggs",
+      "Received_Fish_Shellfish_Seafood",
+      "Received_Legumes_Nuts_Foods",
+      "Received_Dairy_Products",
+      "Received_Oil_Fats_Butter",
+      "Received_Salt",
+      "Number_of_Times_Eaten_Solid_Food"
     ];
 
     const getRandomData = () => {

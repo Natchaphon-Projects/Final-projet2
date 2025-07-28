@@ -468,3 +468,12 @@ select {
     font-size: 14px;
   }
 }
+
+
+.patient-table td:first-child,
+.patient-table th:first-child {
+  min-width: 140px; /* หรือ 160px ก็ได้ ลองปรับตามชื่อจริง */
+  width: 140px;
+  max-width: 200px;
+  word-break: break-word; /* ป้องกันชื่อยาวหลุด */
+}

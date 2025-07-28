@@ -11,11 +11,8 @@ import ManageDepartment from "./components/ManageDepartment";
 import ManageParentDepartment from "./components/ManageParentDepartment";
 import ManageDoctorDepartment from "./components/ManageDoctorDepartment";
 import ViewPatientResults from "./components/ViewPatientResults";
-import RiskAssessmentEdit from "./components/RiskAssessmentEdit";
-import RiskAssessment from "./components/RiskAssessment";
 import GroupedDataInput from "./components/GroupedDataInput";
 import GeneralForm from "./components/Form/GeneralForm";
-import CaregiverForm from "./components/Form/CaregiverForm";
 import NutritionForm from "./components/Form/NutritionForm";
 import SanitationForm from "./components/Form/SanitationForm";
 import Recomendation from "./components/Recomendation";
@@ -46,7 +43,6 @@ function App() {
         <Route path="/parent-risk-selection" element={<ParentRiskSelection />} />
         <Route path="/parent-risk-assessment" element={<GroupedDataInput />} />
         <Route path="/form/general" element={<GeneralForm />} />
-        <Route path="/form/caregiver" element={<CaregiverForm />} />
         <Route path="/form/nutrition" element={<NutritionForm />} />
         <Route path="/form/sanitation" element={<SanitationForm />} />
         <Route path="/pre" element={<PredictionModel />} /> {/* ✅ เพิ่ม route ไปยังหน้าผลประเมิน */}
@@ -60,7 +56,6 @@ function App() {
         {/* Doctor Routes */}
         <Route path="/doctor-dashboard" element={<DoctorDashboard />} />
         <Route path="/view-results" element={<ViewPatientResults />} />
-        <Route path="/edit-assessment/:id" element={<RiskAssessmentEdit />} />
         <Route path="/Recomendation/:id" element={<Recomendation />} />
 
         {/* Admin Routes */}

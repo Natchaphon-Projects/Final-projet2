@@ -32,66 +32,34 @@ const valueMap = {
     }
   },
 
-  // ✅ checkbox
-  Guardian: {
-    label: "บุคคลที่ดูแลเด็กเป็นมารดาผู้ให้กำเนิดหรือไม่",
-    values: { 0: "ไม่ใช่มารดาผู้ให้กำเนิด", 1: "เป็นมารดาผู้ให้กำเนิด" }
-  },
-  Is_Respondent_Biological_Mother: {
-    label: "ผู้ตอบแบบสอบถามเป็นมารดาผู้ให้กำเนิดหรือไม่",
-    values: { 0: "ไม่ใช่มารดาผู้ให้กำเนิด", 1: "เป็นมารดาผู้ให้กำเนิด" }
-  },
-  Last_Month_Weight_Check: {
-    label: "น้ำหนักได้รับการตรวจในเดือนที่ผ่านมา",
-    values: { 0: "ไม่ได้ตรวจ", 1: "ตรวจแล้ว" }
-  },
-  Weighed_Twice_Check_in_Last_3_Months: {
-    label: "ตรวจน้ำหนักอย่างน้อย 2 ครั้งใน 3 เดือน",
-    values: { 0: "ไม่ครบ 2 ครั้ง", 1: "ครบ 2 ครั้ง" }
-  },
 
   // ✅ checkbox บริโภค
   Still_Breastfeeding: { label: "บริโภคนมแม่", values: { 0: "ไม่ได้บริโภค", 1: "บริโภค" } },
-  Received_Yogurt: { label: "บริโภคโยเกิร์ต", values: { 0: "ไม่ได้บริโภค", 1: "บริโภค" } },
   Received_Thin_Porridge: { label: "บริโภคข้าวต้มเหลว", values: { 0: "ไม่ได้บริโภค", 1: "บริโภค" } },
   Received_Grain_Based_Foods: { label: "บริโภคอาหารธัญพืช", values: { 0: "ไม่ได้บริโภค", 1: "บริโภค" } },
   Received_Orange_Yellow_Foods: { label: "บริโภคผักเนื้อสีส้ม/เหลืองเข้ม", values: { 0: "ไม่ได้บริโภค", 1: "บริโภค" } },
   Received_White_Root_Foods: { label: "บริโภคอาหารประเภทหัวที่มีแป้งและเนื้อสีขาว", values: { 0: "ไม่ได้บริโภค", 1: "บริโภค" } },
   Received_Dark_Green_Leafy_Veggies: { label: "บริโภคผักใบเขียวเข้ม", values: { 0: "ไม่ได้บริโภค", 1: "บริโภค" } },
   Received_Ripe_Mangoes_Papayas: { label: "บริโภคมะม่วง/มะละกอสุก", values: { 0: "ไม่ได้บริโภค", 1: "บริโภค" } },
-  Received_Other_Fruits_Vegetables: { label: "บริโภคผลไม้/ผักอื่นๆ", values: { 0: "ไม่ได้บริโภค", 1: "บริโภค" } },
   Received_Meat: { label: "บริโภคเนื้อสัตว์", values: { 0: "ไม่ได้บริโภค", 1: "บริโภค" } },
   Received_Eggs: { label: "บริโภคอาหารที่มีส่วนผสมของไข่", values: { 0: "ไม่ได้บริโภค", 1: "บริโภค" } },
   Received_Fish_Shellfish_Seafood: { label: "บริโภคอาหารทะเล", values: { 0: "ไม่ได้บริโภค", 1: "บริโภค" } },
   Received_Legumes_Nuts_Foods: { label: "บริโภคถั่ว", values: { 0: "ไม่ได้บริโภค", 1: "บริโภค" } },
   Received_Oil_Fats_Butter: { label: "บริโภคน้ำมัน/เนย", values: { 0: "ไม่ได้บริโภค", 1: "บริโภค" } },
-  Received_Sugary_Foods: { label: "บริโภคของหวาน", values: { 0: "ไม่ได้บริโภค", 1: "บริโภค" } },
-  Received_Chilies_Spices_Herbs: { label: "บริโภคเครื่องเทศ/สมุนไพร", values: { 0: "ไม่ได้บริโภค", 1: "บริโภค" } },
-  Received_Grubs_Snails_Insects: { label: "บริโภคแมลง/หอยทาก", values: { 0: "ไม่ได้บริโภค", 1: "บริโภค" } },
-  Received_Other_Solid_Semi_Solid_Food: { label: "บริโภคอาหารอื่นๆ", values: { 0: "ไม่ได้บริโภค", 1: "บริโภค" } },
   Received_Salt: { label: "บริโภคอาหารที่มีเกลือผสม", values: { 0: "ไม่ได้บริโภค", 1: "บริโภค" } },
-  Received_Animal_Milk: { label: "บริโภคนมสัตว์", values: { 0: "ไม่ได้บริโภค", 1: "บริโภค" } },
   Received_Dairy_Products: { label: "บริโภคผลิตภัณฑ์ที่ทำจากนม", values: { 0: "ไม่ได้บริโภค", 1: "บริโภค" } },
   Given_Anything_to_Drink_in_First_6_Months: { label: "ดื่มของเหลวใน 6 เดือนแรก", values: { 0: "ไม่ได้บริโภค", 1: "บริโภค" } },
-  Received_Plain_Water: { label: "บริโภคน้ำเปล่า", values: { 0: "ไม่ได้บริโภค", 1: "บริโภค" } },
-  Received_Juice_or_Juice_Drinks: { label: "บริโภคน้ำผลไม้", values: { 0: "ไม่ได้บริโภค", 1: "บริโภค" } },
-  Received_Tea: { label: "บริโภคชา/คาเฟอีน", values: { 0: "ไม่ได้บริโภค", 1: "บริโภค" } },
-  Received_Other_Liquids: { label: "บริโภคเครื่องดื่มอื่นๆ เช่น น้ำอัดลม", values: { 0: "ไม่ได้บริโภค", 1: "บริโภค" } },
-  Received_Vitamin_or_Mineral_Supplements: { label: "บริโภควิตามิน/แร่ธาตุ", values: { 0: "ไม่ได้บริโภค", 1: "บริโภค" } },
   Vitamin_A_Intake_First_8_Weeks: { label: "บริโภควิตามินเอใน 8 สัปดาห์แรก", values: { 0: "ไม่ได้บริโภค", 1: "บริโภค" } },
 
   // ✅ สุขอนามัย
   Sanitary_Disposal: { label: "ถ่ายอุจจาระถูกสุขลักษณะ", values: { 0: "ไม่ถูกสุขลักษณะ", 1: "ถูกสุขลักษณะ" } },
   Child_wash_hand_before_or_after_eating_food: { label: "เด็กล้างมือก่อน/หลังทานข้าว", values: { 0: "ไม่ล้างมือ", 1: "ล้างมือ" } },
   Child_wash_hand_before_or_after_visiting_the_toilet: { label: "เด็กล้างมือก่อน/หลังเข้าห้องน้ำ", values: { 0: "ไม่ล้างมือ", 1: "ล้างมือ" } },
-  Mom_wash_hand_before_or_after_cleaning_children: { label: "แม่ล้างมือก่อน/หลังทำความสะอาดเด็ก", values: { 0: "ไม่ล้างมือ", 1: "ล้างมือ" } },
-  Mom_wash_hand_before_or_after_feeding_the_child: { label: "แม่ล้างมือก่อน/หลังให้อาหารเด็ก", values: { 0: "ไม่ล้างมือ", 1: "ล้างมือ" } },
 
   // ✅ number
   Infant_Formula_Intake_Count_Yesterday: { label: "จำนวนครั้งการบริโภคนมผงภายใน 1 วัน" },
   Breastfeeding_Count_DayandNight: { label: "จำนวนการบริโภคนมภายใน 1 วัน" },
   Received_Animal_Milk_Count: { label: "จำนวนครั้งที่ดื่มนมสัตว์ภายใน 1 วัน" },
-  Received_Yogurt_Count: { label: "จำนวนครั้งบริโภคโยเกิร์ตภายใน 1 วัน" }
 };
 
 function normalizeTimestamp(ts) {
@@ -252,38 +220,24 @@ function Recomendation() {
 
   const categoryMap = {
     Still_Breastfeeding: "บริโภค",
-    Received_Yogurt: "บริโภค",
     Received_Thin_Porridge: "บริโภค",
     Received_Grain_Based_Foods: "บริโภค",
     Received_Orange_Yellow_Foods: "บริโภค",
     Received_White_Root_Foods: "บริโภค",
     Received_Dark_Green_Leafy_Veggies: "บริโภค",
     Received_Ripe_Mangoes_Papayas: "บริโภค",
-    Received_Other_Fruits_Vegetables: "บริโภค",
     Received_Meat: "บริโภค",
     Received_Eggs: "บริโภค",
     Received_Fish_Shellfish_Seafood: "บริโภค",
     Received_Legumes_Nuts_Foods: "บริโภค",
     Received_Oil_Fats_Butter: "บริโภค",
-    Received_Sugary_Foods: "บริโภค",
-    Received_Chilies_Spices_Herbs: "บริโภค",
-    Received_Grubs_Snails_Insects: "บริโภค",
-    Received_Other_Solid_Semi_Solid_Food: "บริโภค",
     Received_Salt: "บริโภค",
-    Received_Animal_Milk: "บริโภค",
     Received_Dairy_Products: "บริโภค",
-    Received_Plain_Water: "บริโภค",
-    Received_Juice_or_Juice_Drinks: "บริโภค",
-    Received_Tea: "บริโภค",
-    Received_Other_Liquids: "บริโภค",
     Given_Anything_to_Drink_in_First_6_Months: "บริโภค",
-    Received_Vitamin_or_Mineral_Supplements: "บริโภค",
     Vitamin_A_Intake_First_8_Weeks: "บริโภค",
     Sanitary_Disposal: "ถูกสุขลักษณะ",
     Child_wash_hand_before_or_after_eating_food: "ล้างมือ",
     Child_wash_hand_before_or_after_visiting_the_toilet: "ล้างมือ",
-    Mom_wash_hand_before_or_after_cleaning_children: "ล้างมือ",
-    Mom_wash_hand_before_or_after_feeding_the_child: "ล้างมือ",
   };
 
   const numericSuggestionFeatures = new Set([
@@ -291,7 +245,6 @@ function Recomendation() {
     "Infant_Formula_Intake_Count_Yesterday",
     "Breastfeeding_Count_DayandNight",
     "Received_Animal_Milk_Count",
-    "Received_Yogurt_Count"
   ]);
 
   const getSuggestionLabel = (feature, type = "increase") => {
@@ -317,7 +270,6 @@ function Recomendation() {
     Infant_Formula_Intake_Count_Yesterday: "ครั้ง",
     Breastfeeding_Count_DayandNight: "ครั้ง",
     Received_Animal_Milk_Count: "ครั้ง",
-    Received_Yogurt_Count: "ครั้ง"
   };
 
   const formatWithUnit = (feature, value) => {
@@ -598,17 +550,17 @@ function Recomendation() {
 
         {/* CSS Animation */}
         <style>{`
-              @keyframes zoomIn {
-                0% {
-                  transform: scale(0.9);
-                  opacity: 0;
-                }
-                100% {
-                  transform: scale(1);
-                  opacity: 1;
-                }
+            @keyframes zoomIn {
+              0% {
+                transform: scale(0.9);
+                opacity: 0;
               }
-            `}</style>
+              100% {
+                transform: scale(1);
+                opacity: 1;
+              }
+            }
+          `}</style>
       </div>
     );
   }
@@ -632,11 +584,11 @@ function Recomendation() {
   const handleSavePublicNote = () => {
     if (!id || !shapTime) return;  // ✅ ต้องมีเวลาที่ตรงกับใน DB
     setIsSaving(true);
-    const fullName = localStorage.getItem("fullName") || "ไม่ทราบชื่อผู้ใช้";
+
     axios.put(`/api/patients/${id}/records/public_note`, {
       created_at: shapTime,  // ✅ ใช้เวลาที่ตรงกับ DB
-      public_note: publicNote,
-      review_by: fullName
+      private_note: privateNote,
+      public_note: publicNote
     })
       .then(() => {
         alert("✅ บันทึกสำเร็จแล้ว");
@@ -655,11 +607,11 @@ function Recomendation() {
   const handleSavePrivateNote = () => {
     if (!id || !shapTime) return;  // ✅ ต้องมีเวลาที่ตรงกับใน DB
     setIsSaving(true);
-    const fullName = localStorage.getItem("fullName") || "ไม่ทราบชื่อผู้ใช้";
+
     axios.put(`/api/patients/${id}/records/private_note`, {
       created_at: shapTime,  // ✅ ใช้เวลาที่ตรงกับ DB
       private_note: privateNote,
-      review_by: fullName
+      public_note: publicNote
     })
       .then(() => {
         alert("✅ บันทึกสำเร็จแล้ว");
@@ -734,10 +686,6 @@ function Recomendation() {
       <Header />
       <div className="recommendation-page">
 
-        <div className="patient-date">
-          วันที่ {shapTime ? new Date(shapTime).toLocaleString('th-TH', { dateStyle: 'long', timeStyle: 'short' }) : "--"}
-        </div>
-
         {/* Page Title */}
         <div className="recommendation-title">
           ดูผลลัพธ์การประเมินของผู้ป่วย
@@ -762,6 +710,9 @@ function Recomendation() {
             {/* ซ้าย: รูป + ชื่อ + ปุ่ม */}
             <div className="patient-profile">
               <div className="patient-health-badge">ข้อมูลสุขภาพ</div>
+              <div className="patient-date">
+                วันที่ {shapTime ? new Date(shapTime).toLocaleString('th-TH', { dateStyle: 'long', timeStyle: 'short' }) : "--"}
+              </div>
 
 
 
@@ -1036,6 +987,7 @@ function Recomendation() {
                             </div>
                           </div>
                         </td>
+
                         <td style={{ textAlign: "center", verticalAlign: "middle", padding: "12px" }}>
                           {(() => {
                             const shap = item.shap;
@@ -1072,8 +1024,6 @@ function Recomendation() {
                             );
                           })()}
                         </td>
-
-
                         <td style={{ textAlign: "center", verticalAlign: "middle", padding: "12px" }}>
                           <span className="badge-green">{formatWithUnit(item.feature, standardValue)}</span>
                         </td>
@@ -1081,82 +1031,82 @@ function Recomendation() {
 
 
                         {/* <td>
-                            {(() => {
-                              const normalVal = normalAverages[item.feature];
-                              const globalFeature = mostGlobalFeatures.find(f => f.feature === item.feature);
-                              const globalVal = globalFeature?.real_value_original;
-                              const shap = item.shap;
-                              const status = record?.status;
-                              const statusName = statusMap[status?.split(" ")[0]] || status;
+                          {(() => {
+                            const normalVal = normalAverages[item.feature];
+                            const globalFeature = mostGlobalFeatures.find(f => f.feature === item.feature);
+                            const globalVal = globalFeature?.real_value_original;
+                            const shap = item.shap;
+                            const status = record?.status;
+                            const statusName = statusMap[status?.split(" ")[0]] || status;
 
-                              const featureLabel = valueMap[item.feature]?.label || item.feature;
-                              const patientValue = valueMap[item.feature]?.values?.[realValue] ?? realValue;
-                              const standardValueText = valueMap[item.feature]?.values?.[String(normalVal)] ?? valueMap[item.feature]?.values?.[normalVal] ?? normalVal;
+                            const featureLabel = valueMap[item.feature]?.label || item.feature;
+                            const patientValue = valueMap[item.feature]?.values?.[realValue] ?? realValue;
+                            const standardValueText = valueMap[item.feature]?.values?.[String(normalVal)] ?? valueMap[item.feature]?.values?.[normalVal] ?? normalVal;
 
-                              const isStringStandard = typeof standardValueText === "string";
+                            const isStringStandard = typeof standardValueText === "string";
 
-                              // ✅ ถ้าค่าผู้ป่วย = ค่ามาตรฐาน → แสดงข้อความเดียว
+                            // ✅ ถ้าค่าผู้ป่วย = ค่ามาตรฐาน → แสดงข้อความเดียว
+                            if (patientValue === standardValueText) {
+                              return <span>ผู้ป่วยได้ปฏิบัติตามมาตรฐาน</span>;
+                            }
+
+                            let msg = "";
+                            // 🧠 1. เปรียบเทียบกับ global
+                            if (
+                              normalVal !== undefined &&
+                              globalVal !== undefined &&
+                              Number(normalVal) === Number(globalVal)
+                            ) {
+                              msg = <span style={{ color: "#FF0033" }}>ควรพิจารณาร่วมกับข้อมูลอื่น</span>;
+                            }
+
+                            // 🧠 2. คำแนะนำจาก shap
+                            let shapNote = "";
+                            // if (shap > 0) {
+                            //   shapNote = <>ส่งผลให้เป็น <span style={{ color: "#007bff" }}>{statusName}</span></>;
+                            // } else if (shap < 0) {
+                            //   shapNote = <>ส่งผลให้ไม่เป็น <span style={{ color: "#007bff" }}>{statusName}</span></>;
+                            // } else {
+                            //   shapNote = <>ไม่ส่งผลต่อ <span style={{ color: "#007bff" }}>{statusName}</span></>;
+                            // }
+
+                            // 🧠 3. คำแนะนำจากการเปรียบเทียบพฤติกรรม
+                            let behaviorNote = "";
+                            let recomendation = "";
+                            if (isStringStandard) {
+                              // → เป็นค่าข้อความ เช่น "บริโภค"
                               if (patientValue === standardValueText) {
-                                return <span>ผู้ป่วยได้ปฏิบัติตามมาตรฐาน</span>;
-                              }
-
-                              let msg = "";
-                              // 🧠 1. เปรียบเทียบกับ global
-                              if (
-                                normalVal !== undefined &&
-                                globalVal !== undefined &&
-                                Number(normalVal) === Number(globalVal)
-                              ) {
-                                msg = <span style={{ color: "#FF0033" }}>ควรพิจารณาร่วมกับข้อมูลอื่น</span>;
-                              }
-
-                              // 🧠 2. คำแนะนำจาก shap
-                              let shapNote = "";
-                              // if (shap > 0) {
-                              //   shapNote = <>ส่งผลให้เป็น <span style={{ color: "#007bff" }}>{statusName}</span></>;
-                              // } else if (shap < 0) {
-                              //   shapNote = <>ส่งผลให้ไม่เป็น <span style={{ color: "#007bff" }}>{statusName}</span></>;
-                              // } else {
-                              //   shapNote = <>ไม่ส่งผลต่อ <span style={{ color: "#007bff" }}>{statusName}</span></>;
-                              // }
-
-                              // 🧠 3. คำแนะนำจากการเปรียบเทียบพฤติกรรม
-                              let behaviorNote = "";
-                              let recomendation = "";
-                              if (isStringStandard) {
-                                // → เป็นค่าข้อความ เช่น "บริโภค"
-                                if (patientValue === standardValueText) {
-                                  behaviorNote = "ผู้ป่วยได้ปฏิบัติตามมาตรฐาน";
-                                } else {
-                                  behaviorNote = "ผู้ป่วยไม่ได้ปฏิบัติตามมาตรฐาน";
-                                }
+                                behaviorNote = "ผู้ป่วยได้ปฏิบัติตามมาตรฐาน";
                               } else {
-                                const numericPatient = Number(realValue);
-                                const numericStandard = Number(normalVal);
-
-                                if (numericPatient < numericStandard) {
-                                  recomendation = `ควรบริโภค ${featureLabel} เพิ่มขึ้น`;
-                                  behaviorNote = `ผู้ป่วยไม่ได้ปฏิบัติตามค่ามาตรฐาน`;
-                                } else if (numericPatient > numericStandard) {
-                                  recomendation = `ควรบริโภค ${featureLabel} ลดลง`;
-                                  behaviorNote = `ผู้ป่วยไม่ได้ปฏิบัติตามค่ามาตรฐาน`;
-                                } else {
-                                  behaviorNote = `ผู้ป่วยปฏิบัติตามค่ามาตรฐาน`;
-                                }
+                                behaviorNote = "ผู้ป่วยไม่ได้ปฏิบัติตามมาตรฐาน";
                               }
+                            } else {
+                              const numericPatient = Number(realValue);
+                              const numericStandard = Number(normalVal);
 
-                              return (
-                                <>
-                                  {behaviorNote} <br />
-                                  {recomendation} <br />
-                                  {shapNote} <br />
-                                  {msg && <span style={{ fontStyle: "italic", color: "#888" }}>{msg}</span>}
-                                </>
-                              );
-                            })()}
+                              if (numericPatient < numericStandard) {
+                                recomendation = `ควรบริโภค ${featureLabel} เพิ่มขึ้น`;
+                                behaviorNote = `ผู้ป่วยไม่ได้ปฏิบัติตามค่ามาตรฐาน`;
+                              } else if (numericPatient > numericStandard) {
+                                recomendation = `ควรบริโภค ${featureLabel} ลดลง`;
+                                behaviorNote = `ผู้ป่วยไม่ได้ปฏิบัติตามค่ามาตรฐาน`;
+                              } else {
+                                behaviorNote = `ผู้ป่วยปฏิบัติตามค่ามาตรฐาน`;
+                              }
+                            }
+
+                            return (
+                              <>
+                                {behaviorNote} <br />
+                                {recomendation} <br />
+                                {shapNote} <br />
+                                {msg && <span style={{ fontStyle: "italic", color: "#888" }}>{msg}</span>}
+                              </>
+                            );
+                          })()}
 
 
-                          </td> */}
+                        </td> */}
                       </tr>
                     );
                   })}
