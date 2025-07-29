@@ -170,7 +170,7 @@ const ManageDoctorDepartment = () => {
               <FaSearch className="search-icon" />
               <input
                 type="text"
-                placeholder="ค้นหาชื่อ, นามสกุล, หรือความเชี่ยวชาญ..."
+                placeholder="ค้นหาชื่อ, ความเชี่ยวชาญ..."
                 value={searchTerm}
                 onChange={(e) => setSearchTerm(e.target.value)}
               />
