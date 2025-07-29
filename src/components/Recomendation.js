@@ -96,6 +96,30 @@ function Recomendation() {
   const [suggestionMap, setSuggestionMap] = useState({});
   const [timestamps, setTimestamps] = useState([]);
   const [mostGlobalFeatures, setMostGlobalFeatures] = useState([]);
+  const parsePublicNoteToSuggestionMap = (note) => {
+    const map = {};
+    if (!note || typeof note !== "string") return map;
+
+    const lines = note.split("\n");
+    for (const line of lines) {
+      if (line.includes(":")) {
+        const [action, content] = line.split(":").map(s => s.trim());
+        const labels = content.split(",").map(l => l.trim());
+
+        let value = null;
+        if (action.startsWith("ควร")) value = "increase";
+        else if (action.startsWith("ไม่ควร")) value = "decrease";
+
+        if (value) {
+          for (const label of labels) {
+            map[label] = value;
+          }
+        }
+      }
+    }
+    return map;
+  };
+
 
   useEffect(() => {
     if (id) {
@@ -399,40 +423,42 @@ function Recomendation() {
 
   useEffect(() => {
     if (id && createdAt) {
-      const dateObj = new Date(createdAt);
-      const yyyy = dateObj.getFullYear();
-      const mm = String(dateObj.getMonth() + 1).padStart(2, '0');
-      const dd = String(dateObj.getDate()).padStart(2, '0');
-      const hh = String(dateObj.getHours()).padStart(2, '0');
-      const mi = String(dateObj.getMinutes()).padStart(2, '0');
-      const ss = String(dateObj.getSeconds()).padStart(2, '0');
-      const formatted = `${yyyy}-${mm}-${dd} ${hh}:${mi}:${ss}`;
-
-      console.log("📌 createdAt formatted:", formatted);
+      const formatted = normalizeTimestamp(createdAt);
       setShapTime(formatted);
 
-      // ❌ อย่า return axios
       axios.get(`/api/patients/${id}/records`, {
         params: { created_at: formatted }
       })
         .then((res) => {
-          console.log("📦 record from created_at:", res.data);
           setRecord(res.data);
-          setPrivateNote(res.data.private_note || "");
-          setPublicNote(res.data.public_note || "");
         })
-        .catch((err) => console.error("❌ โหลดข้อมูล record ไม่สำเร็จ:", err));
-
-      axios.get(`/api/patients/${id}/records/notes`, {
-        params: { created_at: formatted }
-      })
-        .then((res) => {
-          setPrivateNote(res.data.private_note || "");
-          setPublicNote(res.data.public_note || "");
-        })
-        .catch((err) => console.error("❌ โหลดข้อมูล note ไม่สำเร็จ:", err));
+        .catch((err) => {
+          console.error("❌ โหลดข้อมูล record ไม่สำเร็จ:", err);
+        });
     }
   }, [id, createdAt]);
+
+  // ✅ แยกโหลด public/private note (อย่างใดอย่างหนึ่งก็ขึ้นได้)
+  useEffect(() => {
+    if (id && shapTime) {
+      axios.get(`/api/patients/${id}/records/notes`, {
+        params: { created_at: shapTime }
+      })
+        .then((res) => {
+          if (res.data.public_note !== undefined && res.data.public_note !== null) {
+            setPublicNote(res.data.public_note);
+            const parsedMap = parsePublicNoteToSuggestionMap(res.data.public_note);
+            setSuggestionMap(parsedMap);
+          }
+          if (res.data.private_note !== undefined && res.data.private_note !== null) {
+            setPrivateNote(res.data.private_note);
+          }
+        })
+        .catch((err) => {
+          console.error("❌ โหลด note ไม่สำเร็จ:", err);
+        });
+    }
+  }, [id, shapTime]);
 
 
   useEffect(() => {
@@ -584,10 +610,11 @@ function Recomendation() {
   const handleSavePublicNote = () => {
     if (!id || !shapTime) return;  // ✅ ต้องมีเวลาที่ตรงกับใน DB
     setIsSaving(true);
+    const fullName = localStorage.getItem("fullName") || "ไม่ทราบชื่อผู้ใช้";
 
     axios.put(`/api/patients/${id}/records/public_note`, {
       created_at: shapTime,  // ✅ ใช้เวลาที่ตรงกับ DB
-      private_note: privateNote,
+      review_by: fullName,
       public_note: publicNote
     })
       .then(() => {
@@ -610,8 +637,7 @@ function Recomendation() {
 
     axios.put(`/api/patients/${id}/records/private_note`, {
       created_at: shapTime,  // ✅ ใช้เวลาที่ตรงกับ DB
-      private_note: privateNote,
-      public_note: publicNote
+      private_note: privateNote
     })
       .then(() => {
         alert("✅ บันทึกสำเร็จแล้ว");
@@ -685,6 +711,21 @@ function Recomendation() {
     <div className="dashboard-container">
       <Header />
       <div className="recommendation-page">
+        <div className="patient-date">
+          วันที่ {shapTime
+            ? (() => {
+              const d = new Date(shapTime);
+              return d.toLocaleDateString('th-TH', { dateStyle: 'long' }) +
+                ' เวลา ' +
+                d.toLocaleTimeString('th-TH', {
+                  hour: '2-digit',
+                  minute: '2-digit',
+                  second: '2-digit',
+                  hour12: false
+                });
+            })()
+            : "--"}
+        </div>
 
         {/* Page Title */}
         <div className="recommendation-title">
@@ -710,9 +751,6 @@ function Recomendation() {
             {/* ซ้าย: รูป + ชื่อ + ปุ่ม */}
             <div className="patient-profile">
               <div className="patient-health-badge">ข้อมูลสุขภาพ</div>
-              <div className="patient-date">
-                วันที่ {shapTime ? new Date(shapTime).toLocaleString('th-TH', { dateStyle: 'long', timeStyle: 'short' }) : "--"}
-              </div>
 
 
 
