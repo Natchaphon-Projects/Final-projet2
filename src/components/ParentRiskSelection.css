@@ -137,10 +137,23 @@
 @media (max-width: 480px) {
   .children-section-title {
     font-size: 22px;
+    padding: 0 0.5rem;
+    margin-top: 2rem;
+    margin-bottom: 1rem;
+  }
+
+  .children-grid {
+    grid-template-columns: 1fr;
+    gap: 1rem;
+    padding: 0 0.5rem 1.5rem;
   }
 
   .child-card {
-    padding: 1.25rem;
+    padding: 1.75rem;
+    margin: 0 auto;
+    max-width: 450px;
+    width: 100%;
+    align-self: stretch;
   }
 
   .child-avatar {
@@ -155,5 +168,15 @@
   .no-children-message {
     font-size: 1rem;
     padding: 40px 15px;
+  }
+   header, footer {
+    width: 100vw;
+    min-width: 0;
+    left: 0;
+    right: 0;
+    position: relative;
+    box-sizing: border-box;
+    padding-left: 0;
+    padding-right: 0;
   }
 }
