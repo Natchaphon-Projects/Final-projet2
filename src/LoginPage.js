@@ -213,19 +213,9 @@ function LoginPage() {
         </button>
 
 
-        {loginMode === "email" && (
-          <div className="demo-info">
-            <p><strong>ตัวอย่างบัญชีแอดมินที่ใช้งานได้:</strong></p>
-            <ul>
-              <li>อีเมล: <strong>admin@gmail.com</strong></li>
-              <li>Username: <strong>admin</strong></li>
-              <li>รหัสผ่าน: <strong>admin</strong></li>
-            </ul>
-          </div>
-        )}
 
 
-    
+
 
         <p className="footer-text">
           {loginMode === "hn"
