@@ -194,9 +194,14 @@ function LoginPage() {
           onClick={toggleMode}
           style={{ marginTop: "10px" }}
         >
-          {loginMode === "hn"
-            ? "ล็อกอินด้วยอีเมล/ชื่อผู้ใช้ (สำหรับแอดมิน)"
-            : "ล็อกอินด้วยหมายเลข User ID"}
+          {loginMode === "hn" ? (
+            <>
+              ล็อกอินด้วยอีเมล/ชื่อผู้ใช้{" "}
+              <span className="admin-note">(สำหรับแอดมิน)</span>
+            </>
+          ) : (
+            "ล็อกอินด้วยหมายเลข User ID"
+          )}
 
         </button>
         <button

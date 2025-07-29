@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from "react";
 import axios from "axios";
-import { Search, Edit, Trash2, Plus } from "lucide-react";
+import { Search, Edit, Trash2, Plus, X } from "lucide-react";
 import "./ManageDepartment.css";
 import Header from "../components/layout/Header";
 import Footer from "../components/layout/Footer";
@@ -498,12 +498,26 @@ const ManageDepartment = () => {
                     )}
 
                     {parentRelations.length > 1 && (
-                      <button type="button" className="icon delete remove-btn" onClick={() => {
-                        const updated = [...parentRelations];
-                        updated.splice(index, 1);
-                        setParentRelations(updated);
-                      }}>
-                        <Trash2 size={20} />
+                      <button
+                        type="button"
+                        className="icon delete"
+                        style={{
+                          width: "36px",
+                          height: "48px",         
+                          display: "flex",
+                          alignItems: "center",
+                          justifyContent: "center",
+                          padding: 0,
+                          marginTop: "6px",       
+                          alignSelf: "center",
+                        }}
+                        onClick={() => {
+                          const updated = [...parentRelations];
+                          updated.splice(index, 1);
+                          setParentRelations(updated);
+                        }}
+                      >
+                        <Trash2 size={20} color="#ef4444" />
                       </button>
                     )}
                   </div>

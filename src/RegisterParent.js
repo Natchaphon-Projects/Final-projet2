@@ -28,7 +28,9 @@ function RegisterParent() {
       try {
         const res = await axios.get("/api/last-parent-hn");
         const lastHN = res.data.last_hn || "00000";
+        console.log("โหลด HN สำเร็จ:", lastHN);
         setForm((prev) => ({ ...prev, hn_number: lastHN }));
+        console.log("โหลด HN สำเร็จใน form:", form.hn_number);
       } catch (err) {
         console.error("โหลด HN ไม่สำเร็จ", err);
       }

@@ -114,6 +114,7 @@
   color: #fefefe;
   font-size: 14px;
   margin-right: 8px;
+  margin-top: 15px;
 }
 @media (max-width: 768px) {
   .custom-header {
@@ -149,5 +150,7 @@
     text-align: center;
     font-size: 14px;
     margin-top: 6px;
+    flex-direction: row;
+    justify-content: center;
   }
 }

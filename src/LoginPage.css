@@ -148,6 +148,9 @@
   font-size: 12px;
   color: #9ca3af;
 }
+.admin-note {
+  display: inline;
+}
 
 /* 📱 Responsive - มือถือเล็ก */
 @media (max-width: 480px) {
@@ -204,6 +207,10 @@
 
   .demo-info ul {
     padding-left: 16px;
+  }
+   .admin-note {
+    display: block;
+    margin-top: 0.25rem;
   }
 }
 

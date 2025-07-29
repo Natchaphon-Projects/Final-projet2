@@ -319,7 +319,7 @@ function NutritionForm() {
           {childData && (
             <div style={{ textAlign: "center", marginBottom: "1rem" }}>
               <h3>แบบฟอร์มของ: {childData.prefix_name_child} {childData.first_name_child} {childData.last_name_child}</h3>
-              <p>HN: {childData.hn_number}</p>
+
             </div>
           )}
 
@@ -534,42 +534,35 @@ function NutritionForm() {
           )}
 
 
-          <div
-            style={{
-              display: "flex",
-              justifyContent: "space-between",
-              alignItems: "center",
-              gap: "1rem",
-              marginTop: "2rem",
-            }}
-          >
-            {/* ปุ่มย้อนหน้า */}
+          <div className="button-group">
             <button
               className="submit-btn"
               onClick={() => navigate(prevPage)}
               style={{ background: "linear-gradient(to right, #3b82f6, #2563eb)" }}
             >
-              ◀ กลับหน้าก่อนหน้า
+              <span className="btn-text">◀ กลับหน้าก่อนหน้า</span>
+              <span className="btn-icon">◀</span>
             </button>
 
-            {/* ปุ่มกลับหน้า GroupedDataInput */}
             <button
               className="submit-btn"
-              onClick={() => navigate("/parent-risk-assessment")} // เส้นทาง path ของหน้า GroupedDataInput
+              onClick={() => navigate("/parent-risk-assessment")}
               style={{ background: "linear-gradient(to right, #f59e0b, #f97316)" }}
             >
-              🏠 กลับหน้าเลือกกลุ่มข้อมูล
+              <span className="btn-text">🏠 กลับหน้าเลือกกลุ่มข้อมูล</span>
+              <span className="btn-icon">🏠</span>
             </button>
 
-            {/* ปุ่มไปหน้าใหม่ */}
             <button
               className="submit-btn"
               onClick={() => navigate(nextPage)}
               style={{ background: "linear-gradient(to right, #10b981, #06b6d4)" }}
             >
-              ตอบคำถามหน้าถัดไป ➜
+              <span className="btn-text">ตอบคำถามหน้าถัดไป ▶</span>
+              <span className="btn-icon">▶</span>
             </button>
           </div>
+
 
 
 

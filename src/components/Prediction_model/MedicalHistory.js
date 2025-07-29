@@ -196,7 +196,7 @@ const MedicalHistory = () => {
             <p className="note-date">
               📅 วันที่: {new Date(selectedNote.updatedAt || selectedCreatedAt).toLocaleDateString("th-TH")} ⏰ เวลา: {new Date(selectedNote.updatedAt || selectedCreatedAt).toLocaleTimeString("th-TH", { hour: "2-digit", minute: "2-digit" })}
             </p>
-            <p>
+            <p className="note-text">
               {selectedNote.text && selectedNote.text.trim() !== ""
                 ? selectedNote.text
                 : "กรุณารอคุณหมอให้คำแนะนำในครั้งถัดไปนะครับ 😊"}
