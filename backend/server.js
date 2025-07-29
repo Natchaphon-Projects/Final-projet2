@@ -1198,7 +1198,7 @@ app.get("/registers", (req, res) => {
   });
 });
 
-app.get("/api/last-parent-hn", async (req, res) => {
+app.get("/last-parent-hn", async (req, res) => {
   const query = `
     SELECT MAX(hn_number_num) AS max_hn FROM (
       SELECT CAST(NULLIF(hn_number, '') AS UNSIGNED) AS hn_number_num FROM users

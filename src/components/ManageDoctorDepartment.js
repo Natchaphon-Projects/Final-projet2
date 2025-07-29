@@ -1,6 +1,6 @@
 // 🔄 เพิ่มฟีเจอร์เพิ่มวันทำงานหลายรายการแบบ dynamic
 import React, { useState, useEffect } from "react";
-import { FaEdit, FaTrashAlt, FaSearch, FaPlus } from "react-icons/fa";
+import { Search, Edit, Trash2, Plus } from "lucide-react";
 import axios from "axios";
 import "./ManageDoctorDepartment.css";
 import Header from "../components/layout/Header";
@@ -11,7 +11,14 @@ const ManageDoctorDepartment = () => {
   const [searchTerm, setSearchTerm] = useState("");
   const [editingDoctor, setEditingDoctor] = useState(null);
   const [showModal, setShowModal] = useState(false);
-
+  const [errorMessages, setErrorMessages] = useState([]);
+  const [validationErrors, setValidationErrors] = useState({
+    name: "",
+    lastName: "",
+    phone: "",
+    specialist: "",
+  });
+  const [lastHN, setLastHN] = useState("");
   const [formData, setFormData] = useState({
     hn: "",
     prefix: "",
@@ -21,6 +28,20 @@ const ManageDoctorDepartment = () => {
     specialist: "",
     workSchedules: [{ day: "", time: "" }] // ✅ ใช้ array สำหรับหลายรายการ
   });
+
+  useEffect(() => {
+    const fetchLatestHN = async () => {
+      try {
+        const res = await axios.get("/api/last-parent-hn");
+        const lastHN = res.data.last_hn || "00000";
+        console.log("โหลด HN สำเร็จ:", lastHN);
+        setLastHN(lastHN); // ✅ ใช้ setLastHN
+      } catch (err) {
+        console.error("โหลด HN ไม่สำเร็จ", err);
+      }
+    };
+    fetchLatestHN();
+  }, []);
 
   useEffect(() => {
     loadDoctors();
@@ -68,12 +89,10 @@ const ManageDoctorDepartment = () => {
   };
 
   const handleAdd = () => {
-    const lastDoctor = [...doctors].sort((a, b) => parseInt(b.hn_number) - parseInt(a.hn_number))[0];
-    const newHN = lastDoctor ? (parseInt(lastDoctor.hn_number) + 1).toString().padStart(5, "0") : "00001";
-
     setEditingDoctor(null);
+    setErrorMessages([]); // ✅ เคลียร์ error เก่า
     setFormData({
-      hn: newHN,
+      hn: lastHN,
       prefix: "",
       name: "",
       lastName: "",
@@ -84,19 +103,56 @@ const ManageDoctorDepartment = () => {
     setShowModal(true);
   };
 
+
   const handleSave = async () => {
-    if (
-      !formData.prefix ||
-      !formData.name ||
-      !formData.lastName ||
-      !formData.phone ||
-      !formData.specialist ||
-      formData.workSchedules.some(w => !w.day || !w.time)
-    ) {
-      alert("กรุณากรอกข้อมูลให้ครบถ้วนทุกช่องก่อนบันทึก");
-      return;
+    const errors = {
+      name: "",
+      lastName: "",
+      phone: "",
+      specialist: ""
+    };
+
+    const thaiRegex = /^[ก-๙\s]+$/;
+    const phoneDigits = formData.phone.replace(/\D/g, "");
+
+    if (!thaiRegex.test(formData.name)) {
+      errors.name = "กรุณากรอกชื่อเป็นภาษาไทยเท่านั้น";
+    }
+    if (!thaiRegex.test(formData.lastName)) {
+      errors.lastName = "กรุณากรอกนามสกุลเป็นภาษาไทยเท่านั้น";
+    }
+    if (!thaiRegex.test(formData.specialist)) {
+      errors.specialist = "กรุณากรอกความเชี่ยวชาญเป็นภาษาไทยเท่านั้น";
+    }
+    if (phoneDigits.length !== 10 || !phoneDigits.startsWith("0")) {
+      errors.phone = "เบอร์โทรต้องขึ้นต้นด้วย 0 และมี 10 หลัก";
     }
 
+    const hasErrors = Object.values(errors).some((e) => e !== "");
+    setValidationErrors(errors);
+
+    if (hasErrors || formData.workSchedules.some(w => !w.day || !w.time)) {
+      const messages = [];
+
+      if (errors.name) messages.push(`ชื่อ: ${errors.name}`);
+      if (errors.lastName) messages.push(`นามสกุล: ${errors.lastName}`);
+      if (errors.phone) messages.push(`เบอร์โทร: ${errors.phone}`);
+      if (errors.specialist) messages.push(`ความเชี่ยวชาญ: ${errors.specialist}`);
+
+      formData.workSchedules.forEach((w, i) => {
+        if (!w.day || !w.time) {
+          messages.push(`วัน/เวลาเข้าทำงาน : กรุณากรอกวันและเวลาทำงานให้ครบถ้วน`);
+        }
+      });
+
+      // 🔁 ใช้ alert แทนการขึ้นกล่องในหน้า
+      alert("กรุณากรอกข้อมูลให้ถูกต้อง:\n\n" + messages.join("\n"));
+
+      return;
+
+
+
+    }
     const workDay = formData.workSchedules.map(w => w.day).join(" , ");
     const workTime = formData.workSchedules.map(w => w.time).join(" , ");
 
@@ -167,7 +223,7 @@ const ManageDoctorDepartment = () => {
           <div className="left">
             <h2>ค้นหาหมอ</h2>
             <div className="search-box">
-              <FaSearch className="search-icon" />
+              <Search className="search-icon" />
               <input
                 type="text"
                 placeholder="ค้นหาชื่อ, ความเชี่ยวชาญ..."
@@ -178,11 +234,11 @@ const ManageDoctorDepartment = () => {
           </div>
         </div>
 
-      
+
         <div className="table-title">
           <h3>รายชื่อหมอ <span>ทั้งหมด {filteredDoctors.length} คน</span></h3>
           <button className="add-btn" onClick={handleAdd}>
-            <FaPlus /> เพิ่มหมอใหม่
+            <Plus /> เพิ่มหมอใหม่
           </button>
         </div>
 
@@ -221,8 +277,8 @@ const ManageDoctorDepartment = () => {
                   </td>
                   <td>{d.phone_number?.replace(/^(\d{3})(\d{3})(\d+)/, "$1-$2-$3")}</td>
                   <td className="actions">
-                    <button className="icon edit" onClick={() => handleEdit(d)}><FaEdit /></button>
-                    <button className="icon delete" onClick={() => handleDelete(d.doctor_id)}><FaTrashAlt /></button>
+                    <button className="icon edit" onClick={() => handleEdit(d)}><Edit /></button>
+                    <button className="icon delete" onClick={() => handleDelete(d.doctor_id)}><Trash2 /></button>
                   </td>
                 </tr>
               ))}
@@ -246,13 +302,30 @@ const ManageDoctorDepartment = () => {
                   <option value="นพ.">นพ.</option>
                   <option value="พญ.">พญ.</option>
                 </select>
-                <input className="text-input name-input" placeholder="ชื่อ" value={formData.name} onChange={(e) => setFormData({ ...formData, name: e.target.value.replace(/[^ก-๙a-zA-Z\s]/g, "") })} />
-                <input className="text-input name-input" placeholder="นามสกุล" value={formData.lastName} onChange={(e) => setFormData({ ...formData, lastName: e.target.value.replace(/[^ก-๙a-zA-Z\s]/g, "") })} />
+                <input className="text-input name-input" placeholder="ชื่อ" value={formData.name} onChange={(e) => setFormData({ ...formData, name: e.target.value.replace(/[^\u0E00-\u0E7F\s]/g, "") })} />
+                <input className="text-input name-input" placeholder="นามสกุล" value={formData.lastName} onChange={(e) => setFormData({ ...formData, lastName: e.target.value.replace(/[^\u0E00-\u0E7F\s]/g, "") })} />
               </div>
 
               <div className="form-row">
-                <input className="text-input name-input" placeholder="เบอร์โทร (เช่น 081-234-5678)" value={formatPhoneNumber(formData.phone)} maxLength={12} onChange={(e) => setFormData({ ...formData, phone: e.target.value.replace(/\D/g, "").slice(0, 10) })} />
-                <input className="text-input name-input" placeholder="ความเชี่ยวชาญ" value={formData.specialist} onChange={(e) => setFormData({ ...formData, specialist: e.target.value })} />
+                <input
+                  className="text-input name-input"
+                  placeholder="เบอร์มือถือ (เช่น 081-234-5678)"
+                  value={formatPhoneNumber(formData.phone)}
+                  maxLength={12} // รูปแบบมีขีด: 081-234-5678
+                  onChange={(e) => {
+                    let digits = e.target.value.replace(/\D/g, ""); // เอาเฉพาะเลข
+
+                    // ✅ บังคับให้เริ่มด้วย 0 เสมอ
+                    if (!digits.startsWith("0")) {
+                      digits = "0" + digits;
+                    }
+
+                    digits = digits.slice(0, 10); // จำกัด 10 ตัวเลข
+
+                    setFormData({ ...formData, phone: digits });
+                  }}
+                />
+                <input className="text-input name-input" placeholder="ความเชี่ยวชาญ" value={formData.specialist} onChange={(e) => setFormData({ ...formData, specialist: e.target.value.replace(/[^ก-๙a-zA-Z\s]/g, "") })} />
               </div>
 
               {/* 🔁 หลายวันทำงาน */}
@@ -276,25 +349,87 @@ const ManageDoctorDepartment = () => {
                     className="text-input name-input"
                     placeholder="เวลา เช่น 09:00-16:00"
                     value={schedule.time}
+                    maxLength={13}
                     onChange={(e) => {
-                      const value = e.target.value.replace(/[^0-9:-]/g, "");
-                      handleScheduleChange(index, "time", value);
+                      const inputValue = e.target.value;
+
+                      // ลบทุกอย่างที่ไม่ใช่ตัวเลข
+                      let digits = inputValue.replace(/\D/g, "").slice(0, 8);
+
+                      let formatted = "";
+                      const length = digits.length;
+
+                      if (length <= 2) {
+                        formatted = digits;
+                        if (length === 2 && !inputValue.includes(":")) {
+                          formatted += ":";
+                        }
+                      } else if (length <= 4) {
+                        formatted = `${digits.slice(0, 2)}:${digits.slice(2)}`;
+                        if (length === 4 && !inputValue.includes("-")) {
+                          formatted += "-";
+                        }
+                      } else if (length <= 6) {
+                        formatted = `${digits.slice(0, 2)}:${digits.slice(2, 4)}-${digits.slice(4)}`;
+                        if (length === 6 && !inputValue.match(/:\d{2}-\d{2}$/)) {
+                          formatted += ":";
+                        }
+                      } else {
+                        formatted = `${digits.slice(0, 2)}:${digits.slice(2, 4)}-${digits.slice(4, 6)}:${digits.slice(6, 8)}`;
+                      }
+
+                      handleScheduleChange(index, "time", formatted);
                     }}
                   />
 
                   {/* ถังขยะ */}
                   {formData.workSchedules.length > 1 && (
-                    <button className="icon delete" onClick={() => handleRemoveSchedule(index)}>
-                      <FaTrashAlt />
+                    <button
+                      type="button"
+                      className="icon delete"
+                      style={{
+                        width: "36px",
+                        height: "48px",
+                        display: "flex",
+                        alignItems: "center",
+                        justifyContent: "center",
+                        padding: 0,
+                        marginTop: "6px",
+                        alignSelf: "center",
+                      }}
+                      onClick={() => handleRemoveSchedule(index)}>
+
+                      <Trash2 size={20} color="#ef4444" />
                     </button>
                   )}
                 </div>
               ))}
               <button className="confirm-btn" onClick={handleAddSchedule}>+ เพิ่มวันทำงาน</button>
 
+
+              {errorMessages.length > 0 && (
+                <div style={{ background: "#fee2e2", padding: "12px", borderRadius: "8px", marginBottom: "16px" }}>
+                  <strong style={{ color: "#b91c1c" }}>ไม่สามารถบันทึกข้อมูลได้ เนื่องจาก:</strong>
+                  <ul style={{ color: "#b91c1c", paddingLeft: "24px", marginTop: "8px" }}>
+                    {errorMessages.map((msg, idx) => (
+                      <li key={idx}>{msg}</li>
+                    ))}
+                  </ul>
+                </div>
+              )}
+
               <div className="button-group">
                 <button className="confirm-btn" onClick={handleSave}>บันทึก</button>
-                <button className="cancel-btn" onClick={() => setShowModal(false)}>ยกเลิก</button>
+                <button
+                  className="cancel-btn"
+                  onClick={() => {
+                    setShowModal(false);
+                    setErrorMessages([]);
+                  }}
+                >
+                  ยกเลิก
+                </button>
+
               </div>
             </div>
           </div>
