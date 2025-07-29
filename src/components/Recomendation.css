@@ -573,9 +573,6 @@
   text-align: right;
   margin-bottom: 16px;
 }
-.admin-note {
-  display: inline;
-}
 
 
 @media (max-width: 768px) {
@@ -639,8 +636,4 @@
     font-weight: bold;
     text-align: left;
 }
-  .admin-note {
-    display: block;
-    margin-top: 0.25rem;
-  }
 }

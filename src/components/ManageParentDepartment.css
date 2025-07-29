@@ -631,19 +631,6 @@
   align-items: center;
 }
 
-/* Buttons */
-.add-parent-btn {
-  background: none;
-  border: none;
-  color: #15803d;
-  font-weight: bold;
-  cursor: pointer;
-  margin-top: 8px;
-}
-
-.add-parent-btn:hover {
-  color: #166534;
-}
 
 /* ✅ ใช้จัดขนาดทุก input/select ให้เท่ากันภายในแต่ละแถว */
 .spacing-row {
@@ -676,22 +663,7 @@
   cursor: pointer;
 }
 
-/* ✅ ปุ่มเพิ่มผู้ปกครอง */
-.add-parent-btn {
-  margin-top: 8px;
-  background: none;
-  border: 2px solid #15803d;
-  padding: 8px 16px;
-  font-weight: bold;
-  color: #15803d;
-  cursor: pointer;
-  border-radius: 6px;
-}
 
-.add-parent-btn:hover {
-  background-color: #15803d;
-  color: white;
-}
 
 
 /* ทำให้ input date มีสไตล์เหมือน input ปกติ */

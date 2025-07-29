@@ -223,7 +223,7 @@ const ManageParentDepartment = () => {
 
   return (
     <div className="dashboard-container">
-      <Header currentPage="manage-parent-department" />
+      <Header currentPage="manage-department" />
 
       <div className="manage-wrapper">
         <div className="search-header">

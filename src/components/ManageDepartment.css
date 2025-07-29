@@ -86,8 +86,7 @@
 }
 
 .add-btn {
-  background: #059669;
-  color: white;
+  background-color: #2563eb;
   font-weight: bold;
   padding: 12px 22px;
   border-radius: 9999px;
@@ -409,6 +408,12 @@
   align-items: center;
 }
 
+/* ให้ edit/delete icon ติดกันมากขึ้น */
+.actions .icon.edit + .icon.delete {
+  margin-left: -50px;
+}
+
+
 /* ช่องแสดงอายุแบบ readonly */
 .age-display {
   background-color: #f3f4f6;
@@ -631,19 +636,7 @@
   align-items: center;
 }
 
-/* Buttons */
-.add-parent-btn {
-  background: none;
-  border: none;
-  color: #15803d;
-  font-weight: bold;
-  cursor: pointer;
-  margin-top: 8px;
-}
 
-.add-parent-btn:hover {
-  color: #166534;
-}
 
 /* ✅ ใช้จัดขนาดทุก input/select ให้เท่ากันภายในแต่ละแถว */
 .spacing-row {
@@ -679,13 +672,14 @@
 /* ✅ ปุ่มเพิ่มผู้ปกครอง */
 .add-parent-btn {
   margin-top: 8px;
-  background: none;
+  background: #22c55e;
   border: 2px solid #15803d;
   padding: 8px 16px;
   font-weight: bold;
   color: #15803d;
   cursor: pointer;
   border-radius: 6px;
+  color: white;
 }
 
 .add-parent-btn:hover {

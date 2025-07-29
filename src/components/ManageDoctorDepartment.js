@@ -161,7 +161,7 @@ const ManageDoctorDepartment = () => {
 
   return (
     <div className="dashboard-container">
-      <Header currentPage="manage-doctor-department" />
+      <Header currentPage="manage-department" />
       <div className="manage-wrapper">
         <div className="search-header">
           <div className="left">
