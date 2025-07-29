@@ -225,16 +225,7 @@ function LoginPage() {
         )}
 
 
-        {loginMode === "hn" && (
-          <div className="demo-info">
-            <p><strong>ตัวอย่างหมายเลข HN ที่ใช้งานได้:</strong></p>
-            <ul>
-              <li>ผู้ปกครอง: <strong>1001</strong> หรือ <strong>0911111111</strong></li>
-              <li>หมอ: <strong>9002</strong> (ใช้ User ID login เท่านั้น)</li>
-              <li>แอดมิน: <strong>9001</strong> (ใช้ email login เท่านั้น)</li>
-            </ul>
-          </div>
-        )}
+    
 
         <p className="footer-text">
           {loginMode === "hn"
