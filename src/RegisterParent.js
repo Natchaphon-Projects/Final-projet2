@@ -37,32 +37,59 @@ function RegisterParent() {
     };
     fetchLatestHN();
   }, []);
-
   const handleChange = (e) => {
     const { name, value } = e.target;
-
     let filtered = value;
+
+    // ✅ ชื่อ-นามสกุล: เฉพาะอักษรไทย + เว้นวรรค
     if (name === "firstName" || name === "lastName") {
-      filtered = value.replace(/[0-9]/g, ""); // ห้ามกรอกเลข
-    } else if (name === "phone") {
-      filtered = value.replace(/\D/g, "").slice(0, 10);
-      if (filtered.length > 3 && filtered.length <= 6) {
-        filtered = `${filtered.slice(0, 3)}-${filtered.slice(3)}`;
-      } else if (filtered.length > 6) {
-        filtered = `${filtered.slice(0, 3)}-${filtered.slice(3, 6)}-${filtered.slice(6)}`;
-      }
-    } else if (name === "houseNo") {
-      filtered = value.replace(/[^0-9/]/g, "");
-    } else if (name === "moo") {
-      filtered = value.replace(/\D/g, "");
-    } else if (name === "postalCode") {
-      filtered = value.replace(/\D/g, "");
-    } else if (name === "province") {
-      filtered = value.replace(/[^ก-๙a-zA-Z\s]/g, "");
+      filtered = value.replace(/[^ก-๙\s]/g, "");
     }
 
-    setForm({ ...form, [name]: filtered });
+    // ✅ เบอร์โทร: เฉพาะเลขไทย ใส่รูปแบบ xxx-xxx-xxxx
+    else if (name === "phone") {
+      const numeric = value.replace(/\D/g, "").slice(0, 10);
+      if (numeric.length > 6) {
+        filtered = `${numeric.slice(0, 3)}-${numeric.slice(3, 6)}-${numeric.slice(6)}`;
+      } else if (numeric.length > 3) {
+        filtered = `${numeric.slice(0, 3)}-${numeric.slice(3)}`;
+      } else {
+        filtered = numeric;
+      }
+    }
+
+    // ✅ บ้านเลขที่: ตัวเลข และ /
+    else if (name === "houseNo") {
+      filtered = value.replace(/[^0-9/]/g, "");
+    }
+
+    // ✅ หมู่: ตัวเลขเท่านั้น
+    else if (name === "moo") {
+      filtered = value.replace(/\D/g, "");
+    }
+
+    // ✅ รหัสไปรษณีย์: ตัวเลข 5 หลัก
+    else if (name === "postalCode") {
+      filtered = value.replace(/\D/g, "").slice(0, 5); // ✅ จำกัด 5 ตัว
+    }
+
+    // ✅ จังหวัด / เขต / แขวง / ถนน / ซอย: เฉพาะอักษรไทย + เว้นวรรค เท่านั้น
+    const thaiFields = [
+      "province",
+      "district",
+      "subDistrict",
+      "alley",
+      "street"
+    ];
+    if (thaiFields.includes(name)) {
+      filtered = value.replace(/[^ก-๙\s]/g, "");
+    }
+
+    // ✅ อัปเดตค่าที่กรองแล้ว
+    setForm((prev) => ({ ...prev, [name]: filtered }));
   };
+
+
 
   const handleSubmit = async () => {
     const requiredFields = [
@@ -71,14 +98,14 @@ function RegisterParent() {
       "lastName",
       "phone",
       "houseNo",
-      "moo",
+      // "moo", ← เอาออกเพราะให้เว้นได้
       "subDistrict",
       "district",
       "province",
       "postalCode"
     ];
 
-    const missingFields = requiredFields.filter((field) => !form[field]);
+    const missingFields = requiredFields.filter((field) => !form[field]?.trim());
     if (missingFields.length > 0) {
       const fieldNames = {
         prefix: "คำนำหน้า",
@@ -86,7 +113,6 @@ function RegisterParent() {
         lastName: "นามสกุล",
         phone: "เบอร์โทรศัพท์",
         houseNo: "บ้านเลขที่",
-        moo: "หมู่",
         subDistrict: "แขวง/ตำบล",
         district: "เขต/อำเภอ",
         province: "จังหวัด",
@@ -98,6 +124,45 @@ function RegisterParent() {
       return;
     }
 
+    // ✅ ตรวจสอบเบอร์โทรศัพท์
+    const phoneDigits = form.phone.replace(/-/g, "");
+    if (!/^0\d{9}$/.test(phoneDigits)) {
+      alert("เบอร์โทรศัพท์ต้องขึ้นต้นด้วย 0 และมีความยาว 10 หลัก");
+      return;
+    }
+
+    // ✅ ตรวจสอบรหัสไปรษณีย์
+    if (!/^\d{5}$/.test(form.postalCode)) {
+      alert("รหัสไปรษณีย์ต้องเป็นตัวเลข 5 หลัก");
+      return;
+    }
+
+    // ✅ ตรวจสอบชื่อ-นามสกุล (ภาษาไทยเท่านั้น)
+    const thaiOnlyRegex = /^[ก-๙\s]+$/;
+    if (!thaiOnlyRegex.test(form.firstName)) {
+      alert("ชื่อ ต้องเป็นอักษรภาษาไทยเท่านั้น");
+      return;
+    }
+    if (!thaiOnlyRegex.test(form.lastName)) {
+      alert("นามสกุล ต้องเป็นอักษรภาษาไทยเท่านั้น");
+      return;
+    }
+
+    // ✅ ตรวจสอบ จังหวัด / เขต / แขวง
+    const thaiAddressRegex = /^[ก-๙\s]+$/;
+    const addressFields = [
+      { name: "province", label: "จังหวัด" },
+      { name: "district", label: "เขต/อำเภอ" },
+      { name: "subDistrict", label: "แขวง/ตำบล" }
+    ];
+    for (let field of addressFields) {
+      if (!thaiAddressRegex.test(form[field.name])) {
+        alert(`${field.label} ต้องเป็นภาษาไทยเท่านั้น (ห้ามมีตัวเลขหรืออักขระพิเศษ)`);
+        return;
+      }
+    }
+
+    // ✅ หากผ่านทั้งหมด ส่งข้อมูล
     try {
       setLoading(true);
       const payload = { ...form, status: "pending" };
@@ -111,6 +176,7 @@ function RegisterParent() {
       setLoading(false);
     }
   };
+
 
   return (
     <div className="register-page-wrapper">
@@ -203,7 +269,7 @@ function RegisterParent() {
               onChange={handleChange}
               className="input-field short"
             />
-            {!form.moo && <span className="required-star-register">*</span>}
+            {!form.moo && <span className="required-star-register"></span>}
           </div>
           <div className="input-with-star-register name-field">
             <input

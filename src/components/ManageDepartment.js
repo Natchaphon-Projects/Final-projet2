@@ -12,7 +12,6 @@ const ManageDepartment = () => {
   const [patients, setPatients] = useState([]);
   const [parents, setParents] = useState([]); // 🔥 รายชื่อผู้ปกครอง
 
-
   const [searchTerm, setSearchTerm] = useState("");
   const [currentPage, setCurrentPage] = useState(1);
   const [editingPatient, setEditingPatient] = useState(null);
@@ -104,25 +103,37 @@ const ManageDepartment = () => {
   };
 
   const handleSave = async () => {
-    if (
-      !formData.hn ||
-      !formData.name ||
-      !formData.lastName ||
-      !birthDate ||
-      !formData.age ||
-      !formData.gender ||
-      !formData.childPrefix ||
-      parentRelations.length === 0 ||
-      parentRelations.some(
-        (rel) =>
-          !rel.parentId ||
-          !rel.relationship ||
-          (rel.relationship === "อื่นๆ" && (!rel.customRelationship || rel.customRelationship.trim() === ""))
-      )
-    ) {
-      alert("กรุณากรอกข้อมูลให้ครบถ้วน");
+    const errors = [];
+
+    if (!formData.hn) errors.push("กรุณากรอก HN");
+    if (!formData.name) errors.push("กรุณากรอกชื่อเด็ก");
+    if (!formData.lastName) errors.push("กรุณากรอกนามสกุลเด็ก");
+    const thaiNameRegex = /^[ก-๙\s]+$/;
+    if (!thaiNameRegex.test(formData.name)) errors.push("ชื่อเด็กต้องเป็นภาษาไทยเท่านั้น");
+    if (!thaiNameRegex.test(formData.lastName)) errors.push("นามสกุลเด็กต้องเป็นภาษาไทยเท่านั้น");
+
+    if (!formData.childPrefix) errors.push("กรุณาเลือกคำนำหน้า");
+    if (!formData.gender) errors.push("กรุณาเลือกเพศ");
+    if (!birthDate) errors.push("กรุณาเลือกวันเกิด");
+    if (!formData.age) errors.push("อายุไม่ถูกต้อง");
+
+    parentRelations.forEach((rel, idx) => {
+      if (!rel.parentId) {
+        errors.push(`กรุณาเลือกผู้ปกครอง`);
+      }
+      if (!rel.relationship) {
+        errors.push(`กรุณาเลือกความสัมพันธ์`);
+      }
+      if (rel.relationship === "อื่นๆ" && (!rel.customRelationship || rel.customRelationship.trim() === "")) {
+        errors.push(`กรุณาระบุความสัมพันธ์อื่นๆ`);
+      }
+    });
+
+    if (errors.length > 0) {
+      alert("กรุณากรอกข้อมูลให้ถูกต้อง:\n\n" + errors.map((e) => `- ${e}`).join("\n"));
       return;
     }
+
 
     const totalMonths = extractMonths(formData.age);
 
@@ -398,15 +409,22 @@ const ManageDepartment = () => {
                     className="text-input spacing-item"
                     placeholder="ชื่อเด็ก"
                     value={formData.name}
-                    onChange={(e) => setFormData({ ...formData, name: e.target.value })}
+                    onChange={(e) => {
+                      const thaiOnly = e.target.value.replace(/[^ก-๙\s]/g, "");
+                      setFormData({ ...formData, name: thaiOnly });
+                    }}
                   />
 
                   <input
                     className="text-input spacing-item"
                     placeholder="นามสกุลเด็ก"
                     value={formData.lastName}
-                    onChange={(e) => setFormData({ ...formData, lastName: e.target.value })}
+                    onChange={(e) => {
+                      const thaiOnly = e.target.value.replace(/[^ก-๙\s]/g, "");
+                      setFormData({ ...formData, lastName: thaiOnly });
+                    }}
                   />
+
                 </div>
 
               </div>
@@ -503,12 +521,12 @@ const ManageDepartment = () => {
                         className="icon delete"
                         style={{
                           width: "36px",
-                          height: "48px",         
+                          height: "48px",
                           display: "flex",
                           alignItems: "center",
                           justifyContent: "center",
                           padding: 0,
-                          marginTop: "6px",       
+                          marginTop: "6px",
                           alignSelf: "center",
                         }}
                         onClick={() => {
@@ -532,8 +550,9 @@ const ManageDepartment = () => {
                 + เพิ่มผู้ปกครอง
               </button>
 
+
               <div className="button-group spacing-row">
-                <button className="confirm-btn">บันทึก</button>
+                <button className="confirm-btn" onClick={handleSave}>บันทึก</button>
                 <button className="cancel-btn" onClick={() => {
                   resetForm();
                   setEditingPatient(null);

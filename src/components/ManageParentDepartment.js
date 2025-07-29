@@ -65,29 +65,60 @@ const ManageParentDepartment = () => {
   const handleSave = async () => {
     const errors = [];
 
-    const thaiRegex = /^[ก-๙\s]+$/;
+    const thaiOnlyRegex = /^[ก-๙\s\d/]+$/; // อนุญาตเฉพาะภาษาไทย + ตัวเลข + ช่องว่าง + / ในบางช่อง
+    const thaiStrictRegex = /^[ก-๙\s]+$/;  // สำหรับชื่อหรือนามสกุลเท่านั้น
     const phoneDigits = formData.phone.replace(/\D/g, "");
 
-    if (!formData.name || !thaiRegex.test(formData.name)) {
+    // 1. ตรวจชื่อเป็นภาษาไทย
+    if (!formData.name || !thaiStrictRegex.test(formData.name)) {
       errors.push("กรุณากรอกชื่อเป็นภาษาไทยเท่านั้น");
     }
 
-    if (!formData.lastName || !thaiRegex.test(formData.lastName)) {
+    // 2. ตรวจนามสกุลเป็นภาษาไทย
+    if (!formData.lastName || !thaiStrictRegex.test(formData.lastName)) {
       errors.push("กรุณากรอกนามสกุลเป็นภาษาไทยเท่านั้น");
     }
 
+    // 3. เบอร์โทรต้อง 10 หลักขึ้นต้นด้วย 0
     if (phoneDigits.length !== 10 || !phoneDigits.startsWith("0")) {
       errors.push("กรุณากรอกเบอร์โทรให้ถูกต้อง (ต้องขึ้นต้นด้วย 0 และมี 10 หลัก)");
     }
 
-    if (!formData.prefix || !formData.houseNo || !formData.moo || !formData.subDistrict || !formData.district || !formData.province || !formData.postalCode) {
-      errors.push("กรุณากรอกข้อมูลที่อยู่ให้ครบถ้วน");
+    // 4. ต้องเลือกคำนำหน้า
+    const validPrefixes = ["นาย", "นาง", "นางสาว"];
+    if (!validPrefixes.includes(formData.prefix)) {
+      errors.push("กรุณาเลือกคำนำหน้าที่ถูกต้อง");
     }
+
+    // 5. ตรวจบ้านเลขที่ ต้องมีและต้องไม่ใช่อักษรอังกฤษ
+    if (!formData.houseNo.trim() || !thaiOnlyRegex.test(formData.houseNo)) {
+      errors.push("กรุณากรอกบ้านเลขที่ (ห้ามใช้อักษรอังกฤษ)");
+    }
+
+    // 6. ตรวจตำบล อำเภอ จังหวัด (ต้องมี และเป็นไทย)
+    if (!formData.subDistrict.trim() || !thaiOnlyRegex.test(formData.subDistrict)) {
+      errors.push("กรุณากรอกตำบล (ห้ามใช้อักษรอังกฤษ)");
+    }
+    if (!formData.district.trim() || !thaiOnlyRegex.test(formData.district)) {
+      errors.push("กรุณากรอกอำเภอ (ห้ามใช้อักษรอังกฤษ)");
+    }
+    if (!formData.province.trim() || !thaiOnlyRegex.test(formData.province)) {
+      errors.push("กรุณากรอกจังหวัด (ห้ามใช้อักษรอังกฤษ)");
+    }
+
+    // 7. ตรวจรหัสไปรษณีย์ (5 หลัก และต้องกรอก)
+    if (formData.postalCode.length !== 5) {
+      errors.push("รหัสไปรษณีย์ต้องมี 5 หลัก");
+    }
+
+    // 🆗 หมู่ ซอย ถนน ไม่ต้องกรอก — ไม่มี validation เพิ่ม
 
     if (errors.length > 0) {
       alert("กรุณากรอกข้อมูลให้ถูกต้อง:\n\n" + errors.map((e) => `- ${e}`).join("\n"));
       return;
     }
+
+
 
 
     // 🧹 เคลียร์ errors และทำการ save
@@ -357,33 +388,162 @@ const ManageParentDepartment = () => {
               <input className="text-input" disabled value={formData.hn} />
 
               {/* ✅ แถวที่ 2: คำนำหน้า + ชื่อ + นามสกุล + เบอร์โทร */}
+              {/* ✅ แถวที่ 2: คำนำหน้า + ชื่อ + นามสกุล + เบอร์โทร */}
               <div className="input-row">
-                <select className="form-input spacing-item short" value={formData.prefix} onChange={(e) => setFormData({ ...formData, prefix: e.target.value })}>
+                <select
+                  className="form-input spacing-item short"
+                  value={formData.prefix}
+                  onChange={(e) =>
+                    setFormData({ ...formData, prefix: e.target.value })
+                  }
+                >
                   <option value="">คำนำหน้า</option>
                   <option value="นาย">นาย</option>
                   <option value="นาง">นาง</option>
                   <option value="นางสาว">นางสาว</option>
                 </select>
-                <input className="text-input spacing-item name-input" placeholder="ชื่อ" value={formData.name} onChange={(e) => setFormData({ ...formData, name: e.target.value.replace(/[^ก-๙a-zA-Z\s]/g, "") })} />
-                <input className="text-input spacing-item name-input" placeholder="นามสกุล" value={formData.lastName} onChange={(e) => setFormData({ ...formData, lastName: e.target.value.replace(/[^ก-๙a-zA-Z\s]/g, "") })} />
-                <input className="text-input spacing-item name-input" placeholder="เบอร์โทร (เช่น 081-234-5678)" value={formatPhoneNumber(formData.phone)} maxLength={12} onChange={(e) => setFormData({ ...formData, phone: e.target.value.replace(/\D/g, "").slice(0, 10) })} />
+
+                <input
+                  className="text-input spacing-item name-input"
+                  placeholder="ชื่อ"
+                  value={formData.name}
+                  onChange={(e) =>
+                    setFormData({
+                      ...formData,
+                      name: e.target.value.replace(/[A-Za-z]/g, ""),
+                    })
+                  }
+                />
+
+                <input
+                  className="text-input spacing-item name-input"
+                  placeholder="นามสกุล"
+                  value={formData.lastName}
+                  onChange={(e) =>
+                    setFormData({
+                      ...formData,
+                      lastName: e.target.value.replace(/[A-Za-z]/g, ""),
+                    })
+                  }
+                />
+
+                <input
+                  className="text-input spacing-item name-input"
+                  placeholder="เบอร์โทร (เช่น 081-234-5678)"
+                  value={formatPhoneNumber(formData.phone)}
+                  maxLength={12}
+                  onChange={(e) =>
+                    setFormData({
+                      ...formData,
+                      phone: e.target.value.replace(/\D/g, "").slice(0, 10),
+                    })
+                  }
+                />
               </div>
 
               {/* ✅ แถวที่ 3: บ้านเลขที่ + หมู่ + ซอย + ถนน */}
               <div className="input-row">
-                <input className="text-input spacing-item" placeholder="บ้านเลขที่" value={formData.houseNo} onChange={(e) => setFormData({ ...formData, houseNo: e.target.value.replace(/[^0-9/]/g, "") })} />
-                <input className="text-input spacing-item short" placeholder="หมู่" value={formData.moo} onChange={(e) => setFormData({ ...formData, moo: e.target.value.replace(/\D/g, "") })} />
-                <input className="text-input spacing-item" placeholder="ซอย" value={formData.alley} onChange={(e) => setFormData({ ...formData, alley: e.target.value })} />
-                <input className="text-input spacing-item" placeholder="ถนน" value={formData.street} onChange={(e) => setFormData({ ...formData, street: e.target.value })} />
+                <input
+                  className="text-input spacing-item"
+                  placeholder="บ้านเลขที่"
+                  value={formData.houseNo}
+                  onChange={(e) =>
+                    setFormData({
+                      ...formData,
+                      houseNo: e.target.value.replace(/[A-Za-z]/g, ""),
+                    })
+                  }
+                />
+
+                <input
+                  className="text-input spacing-item short"
+                  placeholder="หมู่"
+                  value={formData.moo}
+                  onChange={(e) =>
+                    setFormData({
+                      ...formData,
+                      moo: e.target.value.replace(/[A-Za-z]/g, ""),
+                    })
+                  }
+                />
+
+                <input
+                  className="text-input spacing-item"
+                  placeholder="ซอย"
+                  value={formData.alley}
+                  onChange={(e) =>
+                    setFormData({
+                      ...formData,
+                      alley: e.target.value.replace(/[A-Za-z]/g, ""),
+                    })
+                  }
+                />
+
+                <input
+                  className="text-input spacing-item"
+                  placeholder="ถนน"
+                  value={formData.street}
+                  onChange={(e) =>
+                    setFormData({
+                      ...formData,
+                      street: e.target.value.replace(/[A-Za-z]/g, ""),
+                    })
+                  }
+                />
               </div>
 
               {/* ✅ แถวที่ 4: ตำบล + อำเภอ + จังหวัด + รหัสไปรษณีย์ */}
               <div className="input-row">
-                <input className="text-input spacing-item" placeholder="ตำบล" value={formData.subDistrict} onChange={(e) => setFormData({ ...formData, subDistrict: e.target.value })} />
-                <input className="text-input spacing-item" placeholder="อำเภอ" value={formData.district} onChange={(e) => setFormData({ ...formData, district: e.target.value })} />
-                <input className="text-input spacing-item" placeholder="จังหวัด" value={formData.province} onChange={(e) => setFormData({ ...formData, province: e.target.value })} />
-                <input className="text-input spacing-item" placeholder="รหัสไปรษณีย์" value={formData.postalCode} maxLength={5} onChange={(e) => setFormData({ ...formData, postalCode: e.target.value.replace(/\D/g, "") })} />
+                <input
+                  className="text-input spacing-item"
+                  placeholder="ตำบล"
+                  value={formData.subDistrict}
+                  onChange={(e) =>
+                    setFormData({
+                      ...formData,
+                      subDistrict: e.target.value.replace(/[A-Za-z]/g, ""),
+                    })
+                  }
+                />
+
+                <input
+                  className="text-input spacing-item"
+                  placeholder="อำเภอ"
+                  value={formData.district}
+                  onChange={(e) =>
+                    setFormData({
+                      ...formData,
+                      district: e.target.value.replace(/[A-Za-z]/g, ""),
+                    })
+                  }
+                />
+
+                <input
+                  className="text-input spacing-item"
+                  placeholder="จังหวัด"
+                  value={formData.province}
+                  onChange={(e) =>
+                    setFormData({
+                      ...formData,
+                      province: e.target.value.replace(/[A-Za-z]/g, ""),
+                    })
+                  }
+                />
+
+                <input
+                  className="text-input spacing-item"
+                  placeholder="รหัสไปรษณีย์"
+                  value={formData.postalCode}
+                  maxLength={5}
+                  onChange={(e) =>
+                    setFormData({
+                      ...formData,
+                      postalCode: e.target.value.replace(/\D/g, "").slice(0, 5),
+                    })
+                  }
+                />
               </div>
+
 
               {errorMessages.length > 0 && (
                 <div className="error-box">
