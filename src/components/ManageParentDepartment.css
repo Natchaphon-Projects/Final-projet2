@@ -444,12 +444,14 @@
   max-width: 300px; /* จำกัดความกว้าง (ปรับได้) */
 }
 
+.input-row,
 .address-row {
   display: flex;
   flex-wrap: wrap;
-  gap: 8px;
-  margin-bottom: 10px;
+  gap: 16px;            /* ✅ ปรับให้ช่องว่างเท่ากันแนวนอน */
+  margin-bottom: 16px;  /* ✅ เพิ่มระยะห่างแนวตั้ง */
 }
+
 
 .address-row .text-input {
   flex: 1 1 20%;
@@ -722,7 +724,28 @@
   display: flex;
   flex-wrap: wrap;
   gap: 12px;
-  margin-bottom: 16px;
+  margin-bottom: 12px;
+}
+
+.input-row .text-input,
+.input-row .form-input,
+.input-row input,
+.input-row select {
+  flex: 1;
+  min-width: 140px;
+}
+
+.input-row .short {
+  flex: 0 0 100px;
+}
+
+.input-row .name-input {
+  flex: 1;
+}
+
+.modal-content input,
+.modal-content select {
+  height: 44px;
 }
 
 .spacing-item {
@@ -765,3 +788,44 @@
   min-width: 700px; /* หรือ 600px ตามความเหมาะสมกับจำนวนคอลัมน์ */
 }
 
+.title-and-buttons {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 10px;
+  flex-wrap: wrap; /* รองรับหน้าจอแคบ */
+  gap: 16px;
+}
+
+.table-title h3 {
+  font-size: 20px;
+  color: #064e3b;
+}
+
+.table-title span {
+  background-color: #d1fae5;
+  color: #065f46;
+  padding: 6px 12px;
+  border-radius: 999px;
+  font-size: 16px;
+  margin-left: 8px;
+}
+
+.button-right-group {
+  display: flex;
+  gap: 16px;
+}
+
+.error-box {
+  background-color: #fff0f0;
+  border: 1px solid #ef4444;
+  padding: 12px 16px;
+  border-radius: 8px;
+  margin-bottom: 16px;
+  color: #b91c1c;
+  font-size: 14px;
+}
+.error-box ul {
+  margin: 0;
+  padding-left: 20px;
+}

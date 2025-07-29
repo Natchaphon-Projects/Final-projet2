@@ -27,6 +27,7 @@ const ManageParentDepartment = () => {
   const [showApprovalModal, setShowApprovalModal] = useState(false);
   const [selectedRegister, setSelectedRegister] = useState(null);
   const [selectedRegisterDetail, setSelectedRegisterDetail] = useState(null);
+  const [errorMessages, setErrorMessages] = useState([]);
 
 
 
@@ -62,21 +63,35 @@ const ManageParentDepartment = () => {
   };
 
   const handleSave = async () => {
-    if (!formData.hn ||
-      !formData.prefix ||
-      !formData.name ||
-      !formData.lastName ||
-      !formData.phone ||
-      !formData.houseNo ||
-      !formData.moo ||
-      !formData.subDistrict ||
-      !formData.district ||
-      !formData.province ||
-      !formData.postalCode
-    ) {
-      alert("กรุณากรอกข้อมูลให้ครบถ้วน");
+    const errors = [];
+
+    const thaiRegex = /^[ก-๙\s]+$/;
+    const phoneDigits = formData.phone.replace(/\D/g, "");
+
+    if (!formData.name || !thaiRegex.test(formData.name)) {
+      errors.push("กรุณากรอกชื่อเป็นภาษาไทยเท่านั้น");
+    }
+
+    if (!formData.lastName || !thaiRegex.test(formData.lastName)) {
+      errors.push("กรุณากรอกนามสกุลเป็นภาษาไทยเท่านั้น");
+    }
+
+    if (phoneDigits.length !== 10 || !phoneDigits.startsWith("0")) {
+      errors.push("กรุณากรอกเบอร์โทรให้ถูกต้อง (ต้องขึ้นต้นด้วย 0 และมี 10 หลัก)");
+    }
+
+    if (!formData.prefix || !formData.houseNo || !formData.moo || !formData.subDistrict || !formData.district || !formData.province || !formData.postalCode) {
+      errors.push("กรุณากรอกข้อมูลที่อยู่ให้ครบถ้วน");
+    }
+
+    if (errors.length > 0) {
+      alert("กรุณากรอกข้อมูลให้ถูกต้อง:\n\n" + errors.map((e) => `- ${e}`).join("\n"));
       return;
     }
+
+
+    // 🧹 เคลียร์ errors และทำการ save
+    setErrorMessages([]);
 
     const payload = {
       hn_number: formData.hn,
@@ -110,6 +125,7 @@ const ManageParentDepartment = () => {
       alert("เกิดข้อผิดพลาดในการบันทึกข้อมูล");
     }
   };
+
 
   const handleRejectRegister = async (reg) => {
     if (!window.confirm("❌ คุณแน่ใจหรือไม่ว่าต้องการปฏิเสธคำขอนี้?")) return;
@@ -233,7 +249,7 @@ const ManageParentDepartment = () => {
               <Search className="search-icon" />
               <input
                 type="text"
-                placeholder="ค้นหาชื่อ, นามสกุล, หรือเบอร์โทร..."
+                placeholder="ค้นหาชื่อ, เบอร์โทร..."
                 value={searchTerm}
                 onChange={(e) => setSearchTerm(e.target.value)}
               />
@@ -241,19 +257,20 @@ const ManageParentDepartment = () => {
           </div>
         </div>
 
-        <div className="table-title">
-          <h3>รายชื่อผู้ปกครอง <span>ทั้งหมด {filteredParents.length} คน</span></h3>
-
+        <div className="title-and-buttons">
+          <div className="table-title">
+            <h3>รายชื่อผู้ปกครอง <span>ทั้งหมด {filteredParents.length} คน</span></h3>
+          </div>
+          <div className="button-right-group">
+            <button className="add-btn" onClick={handleAdd}>
+              <Plus /> เพิ่มผู้ปกครองใหม่
+            </button>
+            <button className="add-btn" onClick={() => setShowApprovalModal(true)}>
+              📥 อนุมัติคำขอสมัคร
+            </button>
+          </div>
         </div>
 
-        <div className="button-right-group">
-          <button className="add-btn" onClick={handleAdd}>
-            <Plus /> เพิ่มผู้ปกครองใหม่
-          </button>
-          <button className="add-btn" onClick={() => setShowApprovalModal(true)}>
-            📥 อนุมัติคำขอสมัคร
-          </button>
-        </div>
 
 
         <div className="table-wrapper">
@@ -336,121 +353,47 @@ const ManageParentDepartment = () => {
 
               {/* ✅ แถวที่ 1: HN */}
 
+              {/* ✅ แถวที่ 1: HN (disabled) */}
               <input className="text-input" disabled value={formData.hn} />
 
-
               {/* ✅ แถวที่ 2: คำนำหน้า + ชื่อ + นามสกุล + เบอร์โทร */}
-              <div className="form-row">
-                <select
-                  className="form-input prefix-select"
-                  value={formData.prefix}
-                  onChange={(e) => setFormData({ ...formData, prefix: e.target.value })}
-                >
-                  <option value="">เลือกคำนำหน้า</option>
+              <div className="input-row">
+                <select className="form-input spacing-item short" value={formData.prefix} onChange={(e) => setFormData({ ...formData, prefix: e.target.value })}>
+                  <option value="">คำนำหน้า</option>
                   <option value="นาย">นาย</option>
                   <option value="นาง">นาง</option>
                   <option value="นางสาว">นางสาว</option>
                 </select>
-
-                <input
-                  className="text-input name-input"
-                  placeholder="ชื่อ"
-                  value={formData.name}
-                  onChange={(e) => {
-                    const value = e.target.value.replace(/[^ก-๙a-zA-Z\s]/g, "");
-                    setFormData({ ...formData, name: value });
-                  }}
-                />
-
-                <input
-                  className="text-input name-input"
-                  placeholder="นามสกุล"
-                  value={formData.lastName}
-                  onChange={(e) => {
-                    const value = e.target.value.replace(/[^ก-๙a-zA-Z\s]/g, "");
-                    setFormData({ ...formData, lastName: value });
-                  }}
-                />
-
-                <input
-                  className="text-input name-input"
-                  placeholder="เบอร์โทร (เช่น 081-234-5678)"
-                  value={formatPhoneNumber(formData.phone)}
-                  maxLength={12}
-                  onChange={(e) => {
-                    const digits = e.target.value.replace(/\D/g, "").slice(0, 10);
-                    setFormData({ ...formData, phone: digits });
-                  }}
-                />
+                <input className="text-input spacing-item name-input" placeholder="ชื่อ" value={formData.name} onChange={(e) => setFormData({ ...formData, name: e.target.value.replace(/[^ก-๙a-zA-Z\s]/g, "") })} />
+                <input className="text-input spacing-item name-input" placeholder="นามสกุล" value={formData.lastName} onChange={(e) => setFormData({ ...formData, lastName: e.target.value.replace(/[^ก-๙a-zA-Z\s]/g, "") })} />
+                <input className="text-input spacing-item name-input" placeholder="เบอร์โทร (เช่น 081-234-5678)" value={formatPhoneNumber(formData.phone)} maxLength={12} onChange={(e) => setFormData({ ...formData, phone: e.target.value.replace(/\D/g, "").slice(0, 10) })} />
               </div>
 
-
-              <div className="address-row">
-                <input
-                  className="text-input"
-                  placeholder="บ้านเลขที่"
-                  value={formData.houseNo}
-                  onChange={(e) => {
-                    const onlyValid = e.target.value.replace(/[^0-9/]/g, ""); // ✅ อนุญาตเฉพาะเลขกับ "/"
-                    setFormData({ ...formData, houseNo: onlyValid });
-                  }}
-                />
-
-
-                <input
-                  className="text-input"
-                  placeholder="หมู่"
-                  value={formData.moo}
-                  onChange={(e) => {
-                    const digitsOnly = e.target.value.replace(/\D/g, ""); // เอาเฉพาะตัวเลข
-                    setFormData({ ...formData, moo: digitsOnly });
-                  }}
-                />
-
-                <input
-                  className="text-input"
-                  placeholder="ซอย"
-                  value={formData.alley}
-                  onChange={(e) => setFormData({ ...formData, alley: e.target.value })}
-                />
-                <input
-                  className="text-input"
-                  placeholder="ถนน"
-                  value={formData.street}
-                  onChange={(e) => setFormData({ ...formData, street: e.target.value })}
-                />
+              {/* ✅ แถวที่ 3: บ้านเลขที่ + หมู่ + ซอย + ถนน */}
+              <div className="input-row">
+                <input className="text-input spacing-item" placeholder="บ้านเลขที่" value={formData.houseNo} onChange={(e) => setFormData({ ...formData, houseNo: e.target.value.replace(/[^0-9/]/g, "") })} />
+                <input className="text-input spacing-item short" placeholder="หมู่" value={formData.moo} onChange={(e) => setFormData({ ...formData, moo: e.target.value.replace(/\D/g, "") })} />
+                <input className="text-input spacing-item" placeholder="ซอย" value={formData.alley} onChange={(e) => setFormData({ ...formData, alley: e.target.value })} />
+                <input className="text-input spacing-item" placeholder="ถนน" value={formData.street} onChange={(e) => setFormData({ ...formData, street: e.target.value })} />
               </div>
-              <div className="address-row">
-                <input
-                  className="text-input"
-                  placeholder="ตำบล"
-                  value={formData.subDistrict}
-                  onChange={(e) => setFormData({ ...formData, subDistrict: e.target.value })}
-                />
-                <input
-                  className="text-input"
-                  placeholder="อำเภอ"
-                  value={formData.district}
-                  onChange={(e) => setFormData({ ...formData, district: e.target.value })}
-                />
-                <input
-                  className="text-input"
-                  placeholder="จังหวัด"
-                  value={formData.province}
-                  onChange={(e) => setFormData({ ...formData, province: e.target.value })}
-                />
-                <input
-                  className="text-input"
-                  placeholder="รหัสไปรษณีย์"
-                  value={formData.postalCode}
-                  maxLength={5}
-                  onChange={(e) => {
-                    const digitsOnly = e.target.value.replace(/\D/g, ""); // เอาเฉพาะตัวเลข
-                    setFormData({ ...formData, postalCode: digitsOnly });
-                  }}
-                />
 
+              {/* ✅ แถวที่ 4: ตำบล + อำเภอ + จังหวัด + รหัสไปรษณีย์ */}
+              <div className="input-row">
+                <input className="text-input spacing-item" placeholder="ตำบล" value={formData.subDistrict} onChange={(e) => setFormData({ ...formData, subDistrict: e.target.value })} />
+                <input className="text-input spacing-item" placeholder="อำเภอ" value={formData.district} onChange={(e) => setFormData({ ...formData, district: e.target.value })} />
+                <input className="text-input spacing-item" placeholder="จังหวัด" value={formData.province} onChange={(e) => setFormData({ ...formData, province: e.target.value })} />
+                <input className="text-input spacing-item" placeholder="รหัสไปรษณีย์" value={formData.postalCode} maxLength={5} onChange={(e) => setFormData({ ...formData, postalCode: e.target.value.replace(/\D/g, "") })} />
               </div>
+
+              {errorMessages.length > 0 && (
+                <div className="error-box">
+                  <ul>
+                    {errorMessages.map((msg, i) => (
+                      <li key={i}>❌ {msg}</li>
+                    ))}
+                  </ul>
+                </div>
+              )}
 
               <div className="button-group">
                 <button className="confirm-btn" onClick={handleSave}>บันทึก</button>

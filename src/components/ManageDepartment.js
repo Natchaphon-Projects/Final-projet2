@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from "react";
 import axios from "axios";
-import { Search, Edit, Trash2, Plus, X } from "lucide-react";
+import { Search, Edit, Trash2, Plus } from "lucide-react";
 import "./ManageDepartment.css";
 import Header from "../components/layout/Header";
 import Footer from "../components/layout/Footer";
@@ -276,7 +276,7 @@ const ManageDepartment = () => {
             <Search className="search-icon" />
             <input
               type="text"
-              placeholder="ค้นหา HN, ชื่อ, หรือผู้ปกครอง..."
+              placeholder="ค้นหา HN, ชื่อ..."
               value={searchTerm}
               onChange={(e) => setSearchTerm(e.target.value)}
             />
