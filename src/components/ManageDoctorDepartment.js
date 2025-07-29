@@ -178,12 +178,7 @@ const ManageDoctorDepartment = () => {
           </div>
         </div>
 
-        <div className="table-title">
-          <h3>รายชื่อหมอ <span>ทั้งหมด {filteredDoctors.length} คน</span></h3>
-          <button className="add-btn" onClick={handleAdd}>
-            <FaPlus /> เพิ่มหมอใหม่
-          </button>
-        </div>
+      
         <div className="table-title">
           <h3>รายชื่อหมอ <span>ทั้งหมด {filteredDoctors.length} คน</span></h3>
           <button className="add-btn" onClick={handleAdd}>
