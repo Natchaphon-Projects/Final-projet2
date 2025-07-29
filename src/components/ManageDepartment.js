@@ -336,11 +336,11 @@ const ManageDepartment = () => {
                       <span style={{ color: "#999" }}>ตอนนี้ยังไม่มีผู้ปกครองดูแล</span>
                     )}
                   </td>
-                  <td className="actions">
-                    <button className="icon edit" onClick={() => handleEdit(child)}>
+                  <td className="actions-child">
+                    <button className="icon edit-child" onClick={() => handleEdit(child)}>
                       <Edit />
                     </button>
-                    <button className="icon delete" onClick={() => handleDelete(child.id)}>
+                    <button className="icon delete-child" onClick={() => handleDelete(child.id)}>
                       <Trash2 />
                     </button>
                   </td>

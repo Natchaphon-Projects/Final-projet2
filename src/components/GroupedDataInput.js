@@ -164,7 +164,7 @@ function Groupdatainput() {
     if (progress > 0)
       return {
         icon: <img src={clockwiseIcon} alt="loading" style={{ width: "24px", height: "24px" }} />,
-        text: <span style={{ color: "yellow" }}>กำลังกรอกข้อมูล</span>,
+        text: <span className="status-progressing">กำลังกรอกข้อมูล</span>,
       };
     return {
       icon: <span style={{ fontSize: "24px" }}>❌</span>,
@@ -181,12 +181,11 @@ function Groupdatainput() {
       <main className="dashboard-main center-content">
 
         {childData && (
-          <div style={{ textAlign: "center", marginBottom: "1rem" }}>
+          <div className="inline-header" style={{ marginBottom: "1rem" }}>
             <h2>แบบประเมินสำหรับ:</h2>
-            <h3 style={{ color: "#0ea5e9" }}>
+            <h2 style={{ color: "black", marginLeft: "12px" }}>
               {childData.prefix_name_child} {childData.first_name_child} {childData.last_name_child}
-            </h3>
-            <p>HN: {childData.hn_number}</p>
+            </h2>
           </div>
         )}
 
@@ -199,7 +198,7 @@ function Groupdatainput() {
           กรอกข้อมูลให้ครบถ้วนเพื่อประเมินสถานการณ์ได้อย่างแม่นยำ
         </p>
 
-        <div className="overall-progress">
+        <div className="overall-progress-group">
           <div className="progress-info">
             <span className="progress-label-main">ความคืบหน้าโดยรวม</span>
             <span className="progress-percentage">{Math.round(totalProgress)}%</span>
@@ -257,7 +256,7 @@ function Groupdatainput() {
             );
           })}
         </div>
-        
+
 
 
       </main>

@@ -276,9 +276,9 @@ const ManageDoctorDepartment = () => {
                     })()}
                   </td>
                   <td>{d.phone_number?.replace(/^(\d{3})(\d{3})(\d+)/, "$1-$2-$3")}</td>
-                  <td className="actions">
-                    <button className="icon edit" onClick={() => handleEdit(d)}><Edit /></button>
-                    <button className="icon delete" onClick={() => handleDelete(d.doctor_id)}><Trash2 /></button>
+                  <td className="actions-doctor">
+                    <button className="icon edit-doctor" onClick={() => handleEdit(d)}><Edit /></button>
+                    <button className="icon delete-doctor" onClick={() => handleDelete(d.doctor_id)}><Trash2 /></button>
                   </td>
                 </tr>
               ))}

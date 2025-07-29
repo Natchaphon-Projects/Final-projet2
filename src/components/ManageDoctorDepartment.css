@@ -200,10 +200,13 @@
 }
 
 /* ACTION ICONS */
-.actions {
+.actions-doctor {
   display: flex;
   gap: 8px;
   justify-content: center;
+}
+.actions-doctor .icon.edit-doctor+ .icon.delete-doctor {
+  margin-left: -40px;
 }
 
 .icon {
@@ -229,13 +232,13 @@
   border-color: #bfdbfe;
 }
 
-.icon.edit {
+.icon.edit-doctor {
   background: #e6fce8;
   color: #22c55e;
   border-color: #bbf7d0;
 }
 
-.icon.delete {
+.icon.delete-doctor {
   background: #ffe5e9;
   color: #ef4444;
   border-color: #fecaca;
@@ -841,6 +844,9 @@
     width: 16px;
     height: 16px;
   }
+  .actions-doctor .icon.edit-doctor+ .icon.delete-doctor {
+  margin-left: 1px;
+}
 }
 
 
@@ -867,7 +873,7 @@
     line-height: 1.4;
   }
 
-  .actions {
+  .actions-doctor {
     flex-wrap: wrap;            /* ✅ ถ้าจอเล็กเกินให้ไอคอนเรียงลง */
     gap: 6px;
   }

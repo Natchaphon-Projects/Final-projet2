@@ -228,13 +228,13 @@
   border-color: #bfdbfe;
 }
 
-.icon.edit {
+.icon.edit-child {
   background: #e6fce8;
   color: #22c55e;
   border-color: #bbf7d0;
 }
 
-.icon.delete {
+.icon.delete-child {
   background: #ffe5e9;
   color: #ef4444;
   border-color: #fecaca;
@@ -401,7 +401,7 @@
   text-align: center;
 }
 
-.actions {
+.actions-child {
   display: flex;
   gap: 8px;
   justify-content: center;
@@ -409,8 +409,8 @@
 }
 
 /* ให้ edit/delete icon ติดกันมากขึ้น */
-.actions .icon.edit + .icon.delete {
-  margin-left: -50px;
+.actions-child .icon.edit-child + .icon.delete-child {
+  margin-left: -40px;
 }
 
 
@@ -759,3 +759,9 @@
   min-width: 700px; /* หรือ 600px ตามความเหมาะสมกับจำนวนคอลัมน์ */
 }
 
+@media (max-width: 600px) {
+.actions-child .icon.edit-child + .icon.delete-child {
+  margin-left: 1px;
+}
+
+}

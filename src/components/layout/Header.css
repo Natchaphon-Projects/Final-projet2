@@ -9,6 +9,7 @@
   flex-wrap: wrap;
   min-height: 48px;
   gap: 12px;
+
 }
 
 /* ด้านซ้าย (โลโก้ + ชื่อ) */
@@ -116,23 +117,31 @@
   margin-right: 8px;
   margin-top: 15px;
 }
+
 @media (max-width: 768px) {
   .custom-header {
     flex-direction: column;
-    align-items: center;       /* ✅ จัดให้อยู่ตรงกลาง */
+    align-items: center;
+    /* ✅ จัดให้อยู่ตรงกลาง */
     padding: 6px 12px;
     min-height: auto;
+    position: sticky;
+    top: 0;
+    z-index: 1000;
   }
 
   .header-left {
-    justify-content: center;   /* ✅ จัด logo ให้อยู่กลาง */
-    width: 100%;               /* ✅ เต็มแถวเพื่อให้จัดกลางได้ */
+    justify-content: center;
+    /* ✅ จัด logo ให้อยู่กลาง */
+    width: 100%;
+    /* ✅ เต็มแถวเพื่อให้จัดกลางได้ */
     margin-top: 8px;
   }
 
   .header-right {
     width: 100%;
-    justify-content: center;   /* ✅ ปุ่มก็อยู่กลาง */
+    justify-content: center;
+    /* ✅ ปุ่มก็อยู่กลาง */
     flex-wrap: wrap;
     gap: 12px;
   }

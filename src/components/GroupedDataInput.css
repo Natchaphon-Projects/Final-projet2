@@ -1,3 +1,15 @@
+/* สถานะกำลังกรอกข้อมูล */
+.status-progressing {
+  color: #FFA500;
+  font-size: 1.1rem;
+  font-weight: 500;
+}
+
+@media (max-width: 600px) {
+  .status-progressing {
+    font-size: 0.8rem;
+  }
+}
 /* กล่อง Grid แสดงการ์ดกลุ่มข้อมูล */
 .groups-grid {
   display: grid;
@@ -93,9 +105,9 @@
 }
 
 /* ความคืบหน้าโดยรวม */
-.overall-progress {
+.overall-progress-group {
   width: 100%;               /* ใช้ 100% ของความกว้างของ parent */
-  max-width: none;           /* ลบ max-width เพื่อให้มันยืดเต็มที่ */
+  max-width: 1200px;           /* ลบ max-width เพื่อให้มันยืดเต็มที่ */
   margin: 2rem auto;         /* ค่ามาร์จิ้นเพื่อจัดตำแหน่งกลาง */
   padding: 1.5rem;           /* เพิ่ม padding ตามต้องการ */
   background: white;
@@ -183,6 +195,17 @@
 .action-button:hover .arrow {
   transform: translateX(0.25rem);
 }
+.inline-header {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-wrap: wrap; /* ถ้าชื่อยาวจะขึ้นบรรทัดใหม่ */
+}
+.inline-header h2,
+.inline-header h3 {
+  margin: 0;
+  padding: 0 2px;
+}
 
 /* ข้อความหัวเรื่อง */
 .main-title {
@@ -210,6 +233,9 @@
 @media (max-width: 600px) {
   .groups-grid {
     grid-template-columns: 1fr; /* เปลี่ยนเป็นแนวตั้งบนจอมือถือ */
+  }
+  .status-progressing {
+    font-size: 0.8rem;
   }
 }
 

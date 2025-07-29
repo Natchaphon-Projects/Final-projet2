@@ -41,7 +41,7 @@ function Header({ currentPage }) {
     <header className="custom-header">
       <div className="header-left" onClick={handleLogoClick} style={{ cursor: "pointer" }}>
         <FaHospitalSymbol className="hospital-icon" />
-        <span className="hospital-name">Healthy Kid</span>
+        <span className="hospital-name">Guardian of the Child</span>
       </div>
 
       <div className="header-right">

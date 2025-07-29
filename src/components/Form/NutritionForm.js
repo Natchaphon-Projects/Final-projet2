@@ -441,10 +441,9 @@ function NutritionForm() {
                       </button>
 
                       {(completedGroups.length < nutritionGroups.length - 1 || !formData.Number_of_Times_Eaten_Solid_Food) && (
-                        <span className="warning-inline">
-
+                        <div className="warning-message">
                           ⚠️ กรุณาทำแบบสอบถามให้ครบทุกกลุ่ม และกรอก “จำนวนมื้ออาหารแข็ง” ก่อนกดบันทึก
-                        </span>
+                        </div>
                       )}
 
 
