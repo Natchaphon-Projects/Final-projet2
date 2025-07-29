@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from "react";
 import axios from "axios";
 import { Search, Edit, Trash2, Plus } from "lucide-react";
-import "./ManageDepartment.css";
+import "./ManageParentDepartment.css";
 import Header from "../components/layout/Header";
 import Footer from "../components/layout/Footer";
 
@@ -256,65 +256,67 @@ const ManageParentDepartment = () => {
         </div>
 
 
-        <table className="modern-table">
-          <thead>
-            <tr>
-              <th>User ID</th>
-              <th>ชื่อผู้ปกครอง</th>
-              <th>เบอร์โทร</th>
-              <th>เด็กในความดูแล</th>
-              <th>ที่อยู่</th>
-              <th>การจัดการ</th>
-            </tr>
-          </thead>
-          <tbody>
-            {currentParents.map((p) => {
-              // แปลง children และ relationships จาก string เป็น array
-              const childrenArray = p.children ? p.children.split(", ").filter(Boolean) : [];
-              const relationshipsArray = p.relationships ? p.relationships.split(", ").filter(Boolean) : [];
+        <div className="table-wrapper">
+          <table className="modern-table">
+            <thead>
+              <tr>
+                <th>User ID</th>
+                <th>ชื่อผู้ปกครอง</th>
+                <th>เบอร์โทร</th>
+                <th>เด็กในความดูแล</th>
+                <th>ที่อยู่</th>
+                <th>การจัดการ</th>
+              </tr>
+            </thead>
+            <tbody>
+              {currentParents.map((p) => {
+                const childrenArray = p.children ? p.children.split(", ").filter(Boolean) : [];
+                const relationshipsArray = p.relationships ? p.relationships.split(", ").filter(Boolean) : [];
 
-              return (
-                <tr key={p.parent_id}>
-                  <td>{p.hn_number}</td>
-                  <td>{p.parent_name}</td>
-                  <td>{p.phone_number?.replace(/^(\d{3})(\d{3})(\d+)/, "$1-$2-$3")}</td>
-                  <td>
-                    {childrenArray.length > 0 ? (
-                      childrenArray.map((child, index) => {
-                        const rel = relationshipsArray[index] || "ตอนนี้ยังไม่มีเด็กในความดูแล";
-                        return (
-                          <div key={index}>
-                            <strong> {rel}</strong> ของ <strong>{child}</strong>
-                          </div>
-                        );
-                      })
-                    ) : (
-                      <span style={{ color: "#999" }}>ตอนนี้ยังไม่มีเด็กในความดูแล</span>
-                    )}
-                  </td>
-                  <td>
-                    <div>
-                      {p.houseNo && `บ้านเลขที่ ${p.houseNo} `}
-                      {p.moo && `หมู่ ${p.moo} `}
-                      {p.alley && `ซอย ${p.alley} `}
-                      {p.street && `ถนน ${p.street} `}
-                    </div>
-                    <div>
-                      {p.subDistrict && `ตำบล ${p.subDistrict} `}
-                      {p.district && `อำเภอ ${p.district} `}
-                      {p.province && `จังหวัด ${p.province} `}
-                      {p.postalCode && `รหัสไปรษณีย์ ${p.postalCode}`}
-                    </div>
-                  </td>
-                  <td className="actions">
-                    <button className="icon edit" onClick={() => handleEdit(p)}><Edit /></button>
-                    <button className="icon delete" onClick={() => handleDelete(p.parent_id)}><Trash2 /></button>
-                  </td>
-                </tr>
-              );
-            })}
-          </tbody>
-        </table>
+                return (
+                  <tr key={p.parent_id}>
+                    <td>{p.hn_number}</td>
+                    <td>{p.parent_name}</td>
+                    <td>{p.phone_number?.replace(/^(\d{3})(\d{3})(\d+)/, "$1-$2-$3")}</td>
+                    <td>
+                      {childrenArray.length > 0 ? (
+                        childrenArray.map((child, index) => {
+                          const rel = relationshipsArray[index] || "ตอนนี้ยังไม่มีเด็กในความดูแล";
+                          return (
+                            <div key={index}>
+                              <strong>{rel}</strong> ของ <strong>{child}</strong>
+                            </div>
+                          );
+                        })
+                      ) : (
+                        <span style={{ color: "#999" }}>ตอนนี้ยังไม่มีเด็กในความดูแล</span>
+                      )}
+                    </td>
+                    <td>
+                      <div>
+                        {p.houseNo && `บ้านเลขที่ ${p.houseNo} `}
+                        {p.moo && `หมู่ ${p.moo} `}
+                        {p.alley && `ซอย ${p.alley} `}
+                        {p.street && `ถนน ${p.street} `}
+                      </div>
+                      <div>
+                        {p.subDistrict && `ตำบล ${p.subDistrict} `}
+                        {p.district && `อำเภอ ${p.district} `}
+                        {p.province && `จังหวัด ${p.province} `}
+                        {p.postalCode && `รหัสไปรษณีย์ ${p.postalCode}`}
+                      </div>
+                    </td>
+                    <td className="actions">
+                      <button className="icon edit" onClick={() => handleEdit(p)}><Edit /></button>
+                      <button className="icon delete" onClick={() => handleDelete(p.parent_id)}><Trash2 /></button>
+                    </td>
+                  </tr>
+                );
+              })}
+            </tbody>
+          </table>
+        </div>
+
 
         <div className="pagination-container">
           <button onClick={() => setCurrentPage((p) => Math.max(p - 1, 1))} disabled={currentPage === 1}>ย้อนกลับ</button>

@@ -1197,23 +1197,29 @@ app.get("/registers", (req, res) => {
     res.json(result);
   });
 });
-// ✅ GET: ดึงหมายเลข HN ล่าสุด
-app.get("/last-parent-hn", (req, res) => {
-  const sql = `
-    SELECT hn_number FROM register
-    WHERE hn_number IS NOT NULL
-    ORDER BY CAST(hn_number AS UNSIGNED) DESC
-    LIMIT 1
+
+app.get("/api/last-parent-hn", async (req, res) => {
+  const query = `
+    SELECT MAX(hn_number_num) AS max_hn FROM (
+      SELECT CAST(NULLIF(hn_number, '') AS UNSIGNED) AS hn_number_num FROM users
+      UNION ALL
+      SELECT CAST(NULLIF(hn_number, '') AS UNSIGNED) FROM patient
+      UNION ALL
+      SELECT CAST(NULLIF(hn_number, '') AS UNSIGNED) FROM parent 
+      UNION ALL
+      SELECT CAST(NULLIF(hn_number, '') AS UNSIGNED) FROM register
+    ) AS all_hn
   `;
 
-  db.query(sql, (err, results) => {
+  db.query(query, (err, results) => {
     if (err) {
-      console.error("❌ SQL Error:", err);
-      return res.status(500).json({ message: "Database error" });
+      console.error("❌ ไม่สามารถดึง hn_number ได้:", err);
+      return res.status(500).json({ message: "ดึง hn_number ไม่สำเร็จ" });
     }
 
-    const lastHN = results.length > 0 ? results[0].hn_number : null;
-    res.json({ last_hn: lastHN });
+    const maxHN = results[0]?.max_hn || 0;
+    const newHN = (maxHN + 1).toString().padStart(5, "0"); // ปรับ padding ตามต้องการ เช่น 6 ถ้าใช้ '01012'
+    res.json({ last_hn: newHN });
   });
 });
 

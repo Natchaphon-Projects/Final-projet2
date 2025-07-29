@@ -5,6 +5,7 @@ import "./ManageDepartment.css";
 import Header from "../components/layout/Header";
 import Footer from "../components/layout/Footer";
 
+
 const API_URL = "/api/patients";
 
 const ManageDepartment = () => {
@@ -270,19 +271,20 @@ const ManageDepartment = () => {
       <div className="manage-wrapper">
 
         <div className="search-header">
-          <div className="left">
-            <h2>ค้นหาข้อมูลเด็ก</h2>
-            <div className="search-box">
-              <Search className="search-icon" />
-              <input
-                type="text"
-                placeholder="ค้นหา HN, ชื่อ, หรือผู้ปกครอง..."
-                value={searchTerm}
-                onChange={(e) => setSearchTerm(e.target.value)}
-              />
-            </div>
+          <h2 className="search-title">ค้นหาข้อมูลเด็ก</h2>
+          <div className="search-box">
+            <Search className="search-icon" />
+            <input
+              type="text"
+              placeholder="ค้นหา HN, ชื่อ, หรือผู้ปกครอง..."
+              value={searchTerm}
+              onChange={(e) => setSearchTerm(e.target.value)}
+            />
           </div>
         </div>
+
+
+
 
         <div className="table-title">
           <h3>รายชื่อเด็ก <span>ทั้งหมด {sortedGroupedPatients.length} คน</span></h3>
@@ -291,49 +293,52 @@ const ManageDepartment = () => {
           </button>
         </div>
 
-        <table className="modern-table">
-          <thead>
-            <tr>
-              <th>HN</th>
-              <th>ชื่อ</th>
-              <th>อายุ</th>
-              <th>เพศ</th>
-              <th>ผู้ปกครอง</th>
-              <th>การจัดการ</th>
-            </tr>
-          </thead>
-          <tbody>
-            {currentPatients.map((child) => (
-              <tr key={child.id}>
-                <td>{child.hn_number}</td>
-                <td>{`${child.childPrefix || ""} ${child.name}`}</td>
-                <td>{formatAgeText(child.age)}</td>
-                <td>{child.gender}</td>
-                <td>
-                  {child.parents && child.parents.length > 0 && child.parents.some(p => p.name) ? (
-                    child.parents.map((parent, idx) =>
-                      parent.name ? (
-                        <div key={idx}>
-                          {parent.name} ({parent.relationship || "-"})
-                        </div>
-                      ) : null
-                    )
-                  ) : (
-                    <span style={{ color: "#999" }}>ตอนนี้ยังไม่มีผู้ปกครองดูแล</span>
-                  )}
-                </td>
-                <td className="actions">
-                  <button className="icon edit" onClick={() => handleEdit(child)}>
-                    <Edit />
-                  </button>
-                  <button className="icon delete" onClick={() => handleDelete(child.id)}>
-                    <Trash2 />
-                  </button>
-                </td>
+        <div className="table-scroll-wrapper">
+          <table className="modern-table">
+            <thead>
+              <tr>
+                <th>HN</th>
+                <th>ชื่อ</th>
+                <th>อายุ</th>
+                <th>เพศ</th>
+                <th>ผู้ปกครอง</th>
+                <th>การจัดการ</th>
               </tr>
-            ))}
-          </tbody>
-        </table>
+            </thead>
+            <tbody>
+              {currentPatients.map((child) => (
+                <tr key={child.id}>
+                  <td>{child.hn_number}</td>
+                  <td>{`${child.childPrefix || ""} ${child.name}`}</td>
+                  <td>{formatAgeText(child.age)}</td>
+                  <td>{child.gender}</td>
+                  <td>
+                    {child.parents && child.parents.length > 0 && child.parents.some(p => p.name) ? (
+                      child.parents.map((parent, idx) =>
+                        parent.name ? (
+                          <div key={idx}>
+                            {parent.name} ({parent.relationship || "-"})
+                          </div>
+                        ) : null
+                      )
+                    ) : (
+                      <span style={{ color: "#999" }}>ตอนนี้ยังไม่มีผู้ปกครองดูแล</span>
+                    )}
+                  </td>
+                  <td className="actions">
+                    <button className="icon edit" onClick={() => handleEdit(child)}>
+                      <Edit />
+                    </button>
+                    <button className="icon delete" onClick={() => handleDelete(child.id)}>
+                      <Trash2 />
+                    </button>
+                  </td>
+                </tr>
+              ))}
+            </tbody>
+          </table>
+        </div>
+
 
         <div className="pagination-container">
           <button onClick={() => setCurrentPage((p) => Math.max(p - 1, 1))} disabled={currentPage === 1}>ย้อนกลับ</button>
@@ -345,45 +350,26 @@ const ManageDepartment = () => {
 
         {showModal && (
           <div className="modal">
-            <div className="modal-content">
-              <h3 style={{ textAlign: "center" }}>
+            <div className="modal-content styled-modal">
+              <h3 className="modal-title">
                 {editingPatient ? "✏️ แก้ไขข้อมูลเด็ก" : "➕ เพิ่มเด็กใหม่"}
               </h3>
 
-              <input className="text-input" disabled value={formData.hn} />
-
-              <div className="form-row" style={{ display: "flex", alignItems: "center", gap: "10px" }}>
-
-                <select
-                  className="form-input"
-                  style={{ flex: "1" }}
-                  value={formData.childPrefix}
-                  onChange={(e) => {
-                    const prefix = e.target.value;
-                    let gender = formData.gender;
-
-                    if (prefix === "ด.ช.") gender = "ชาย";
-                    else if (prefix === "ด.ญ.") gender = "หญิง";
-
-                    setFormData({ ...formData, childPrefix: prefix, gender });
-                  }}
-                >
-                  <option value="">คำนำหน้า</option>
-                  <option value="ด.ช.">ด.ช.</option>
-                  <option value="ด.ญ.">ด.ญ.</option>
-                </select>
+              <div className="form-row input-row spacing-row">
+                <input
+                  className="text-input short spacing-item"
+                  value={formData.hn}
+                  disabled
+                />
 
                 <select
-                  className="form-input"
-                  style={{ flex: "1" }}
+                  className="form-input spacing-item"
                   value={formData.gender}
                   onChange={(e) => {
                     const gender = e.target.value;
                     let prefix = formData.childPrefix;
-
                     if (gender === "ชาย") prefix = "ด.ช.";
                     else if (gender === "หญิง") prefix = "ด.ญ.";
-
                     setFormData({ ...formData, gender, childPrefix: prefix });
                   }}
                 >
@@ -392,27 +378,44 @@ const ManageDepartment = () => {
                   <option value="หญิง">หญิง</option>
                 </select>
 
-                <input
-                  className="text-input name-input"
-                  style={{ flex: "2" }}
-                  placeholder="ชื่อเด็ก"
-                  value={formData.name}
-                  onChange={(e) => setFormData({ ...formData, name: e.target.value })}
-                />
+                <select
+                  className="form-input spacing-item"
+                  value={formData.childPrefix}
+                  onChange={(e) => {
+                    const prefix = e.target.value;
+                    let gender = formData.gender;
+                    if (prefix === "ด.ช.") gender = "ชาย";
+                    else if (prefix === "ด.ญ.") gender = "หญิง";
+                    setFormData({ ...formData, childPrefix: prefix, gender });
+                  }}
+                >
+                  <option value="">คำนำหน้า</option>
+                  <option value="ด.ช.">ด.ช.</option>
+                  <option value="ด.ญ.">ด.ญ.</option>
+                </select>
+                <div className="form-row-equal">
+                  <input
+                    className="text-input spacing-item"
+                    placeholder="ชื่อเด็ก"
+                    value={formData.name}
+                    onChange={(e) => setFormData({ ...formData, name: e.target.value })}
+                  />
 
-                <input
-                  className="text-input name-input"
-                  style={{ flex: "2" }}
-                  placeholder="นามสกุลเด็ก"
-                  value={formData.lastName}
-                  onChange={(e) => setFormData({ ...formData, lastName: e.target.value })}
-                />
+                  <input
+                    className="text-input spacing-item"
+                    placeholder="นามสกุลเด็ก"
+                    value={formData.lastName}
+                    onChange={(e) => setFormData({ ...formData, lastName: e.target.value })}
+                  />
+                </div>
+
               </div>
 
-              <div className="form-row">
+
+              <div className="form-row spacing-row">
                 <input
                   type="date"
-                  className="form-input"
+                  className="form-input spacing-item"
                   value={birthDate}
                   onChange={(e) => {
                     const dob = e.target.value;
@@ -421,10 +424,10 @@ const ManageDepartment = () => {
                     setFormData({ ...formData, age: ageText });
                   }}
                   min={new Date(new Date().setFullYear(new Date().getFullYear() - 5)).toISOString().split("T")[0]}
-                  max={new Date(new Date().setFullYear(new Date().getFullYear() - 0)).toISOString().split("T")[0]}
+                  max={new Date().toISOString().split("T")[0]}
                 />
                 <input
-                  className="form-input age-display"
+                  className="form-input age-display spacing-item"
                   type="text"
                   value={formData.age || ""}
                   disabled
@@ -432,10 +435,7 @@ const ManageDepartment = () => {
                 />
               </div>
 
-
-
               {parentRelations.map((relation, index) => {
-
                 const selectedParent = parents.find((p) => p.id === relation.parentId);
                 const parentPrefix = relation.parentPrefix || selectedParent?.prefix || "";
                 let relationshipOptions = [];
@@ -445,17 +445,16 @@ const ManageDepartment = () => {
                 } else if (parentPrefix === "นาง" || parentPrefix === "นางสาว") {
                   relationshipOptions = ["แม่", "ย่า", "ยาย", "อื่นๆ"];
                 }
+
                 return (
-                  <div key={index} className="form-row" style={{ display: "flex", alignItems: "center" }}>
+                  <div key={index} className="form-row spacing-row parent-row">
                     <select
-                      className="form-input"
-                      style={{ flex: "2" }}
+                      className="form-input spacing-item"
                       value={relation.parentId || ""}
                       onChange={(e) => {
                         const selectedId = parseInt(e.target.value);
                         const parent = parents.find((p) => p.id === selectedId);
                         const prefix = parent?.prefix || "";
-
                         const updated = [...parentRelations];
                         updated[index] = { ...updated[index], parentId: selectedId, relationship: "", customRelationship: "", parentPrefix: prefix };
                         setParentRelations(updated);
@@ -470,8 +469,7 @@ const ManageDepartment = () => {
                     </select>
 
                     <select
-                      className="form-input"
-                      style={{ flex: "1" }}
+                      className="form-input spacing-item"
                       value={relation.relationship || ""}
                       onChange={(e) => {
                         const updated = [...parentRelations];
@@ -485,10 +483,10 @@ const ManageDepartment = () => {
                         <option key={option} value={option}>{option}</option>
                       ))}
                     </select>
+
                     {relation.relationship === "อื่นๆ" && (
                       <input
-                        className="text-input"
-                        style={{ flex: "1" }}
+                        className="text-input spacing-item"
                         placeholder="กรอกความสัมพันธ์อื่นๆ"
                         value={relation.customRelationship || ""}
                         onChange={(e) => {
@@ -500,16 +498,11 @@ const ManageDepartment = () => {
                     )}
 
                     {parentRelations.length > 1 && (
-                      <button
-                        type="button"
-                        onClick={() => {
-                          const updated = [...parentRelations];
-                          updated.splice(index, 1);
-                          setParentRelations(updated);
-                        }}
-                        className="icon delete"
-
-                      >
+                      <button type="button" className="icon delete remove-btn" onClick={() => {
+                        const updated = [...parentRelations];
+                        updated.splice(index, 1);
+                        setParentRelations(updated);
+                      }}>
                         <Trash2 size={20} />
                       </button>
                     )}
@@ -519,25 +512,19 @@ const ManageDepartment = () => {
 
               <button
                 type="button"
-                onClick={() => {
-                  setParentRelations([...parentRelations, { parentId: "", relationship: "", customRelationship: "", parentPrefix: "" }]);
-                }}
-                className="text-green-600 hover:text-green-800"
-                style={{ marginTop: "5px", fontWeight: "bold" }}
+                className="add-parent-btn"
+                onClick={() => setParentRelations([...parentRelations, { parentId: "", relationship: "", customRelationship: "", parentPrefix: "" }])}
               >
                 + เพิ่มผู้ปกครอง
               </button>
 
-              <div className="button-group">
-                <button className="confirm-btn" onClick={handleSave}>บันทึก</button>
-                <button
-                  className="cancel-btn"
-                  onClick={() => {
-                    resetForm();
-                    setEditingPatient(null);
-                    setShowModal(false);
-                  }}
-                >
+              <div className="button-group spacing-row">
+                <button className="confirm-btn">บันทึก</button>
+                <button className="cancel-btn" onClick={() => {
+                  resetForm();
+                  setEditingPatient(null);
+                  setShowModal(false);
+                }}>
                   ยกเลิก
                 </button>
               </div>

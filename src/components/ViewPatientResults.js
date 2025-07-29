@@ -133,8 +133,8 @@ function ViewPatientResults() {
             value={sortOrder}
             onChange={(e) => setSortOrder(e.target.value)}
           >
-            <option value="desc">จากล่าสุด</option>
-            <option value="asc">จากก่อนหน้า</option>
+            <option value="desc">ข้อมูลล่าสุด</option>
+            <option value="asc">ข้อมูลเก่าที่สุด</option>
           </select>
         </div>
       </div>

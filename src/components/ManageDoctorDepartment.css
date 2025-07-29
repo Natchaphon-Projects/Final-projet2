@@ -765,3 +765,71 @@
   min-width: 700px; /* หรือ 600px ตามความเหมาะสมกับจำนวนคอลัมน์ */
 }
 
+.table-wrapper {
+  width: 100%;
+  overflow-x: auto;
+  margin-top: 20px;
+}
+
+.modern-table {
+  width: 100%;
+  border-collapse: collapse;
+  min-width: 800px; /* ✅ ช่วยให้ scroll ได้บนจอเล็ก */
+}
+
+.modern-table th,
+.modern-table td {
+  padding: 12px 16px;
+  text-align: left;
+  vertical-align: top;
+  font-size: 14px;
+}
+
+@media (max-width: 768px) {
+  .modern-table th,
+  .modern-table td {
+    font-size: 12px;
+    padding: 8px;
+  }
+
+  .table-wrapper {
+    margin: 0;
+  }
+}
+.table-scroll-wrapper {
+  width: 100%;
+  overflow-x: auto;
+  -webkit-overflow-scrolling: touch;
+  margin-bottom: 20px;
+}
+
+.modern-table {
+  width: 100%;
+  border-collapse: collapse;
+  min-width: 800px; /* 👈 ปรับตรงนี้เพื่อให้ scroll ได้บนมือถือ */
+  background: white;
+  border-radius: 16px;
+  overflow: hidden;
+  box-shadow: 0 8px 20px rgba(0, 0, 0, 0.05);
+}
+
+.modern-table thead tr {
+  background: linear-gradient(to right, #059669, #10b981);
+}
+
+.modern-table th,
+.modern-table td {
+  padding: 16px;
+  text-align: left;
+  font-size: 15px;
+  vertical-align: top;
+  white-space: nowrap; /* 👈 ป้องกันขึ้นบรรทัด */
+}
+
+@media (max-width: 768px) {
+  .modern-table th,
+  .modern-table td {
+    font-size: 12px;
+    padding: 8px;
+  }
+}

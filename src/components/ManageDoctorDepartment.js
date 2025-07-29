@@ -2,7 +2,7 @@
 import React, { useState, useEffect } from "react";
 import { FaEdit, FaTrashAlt, FaSearch, FaPlus } from "react-icons/fa";
 import axios from "axios";
-import "./ManageDepartment.css";
+import "./ManageDoctorDepartment.css";
 import Header from "../components/layout/Header";
 import Footer from "../components/layout/Footer";
 
@@ -43,15 +43,15 @@ const ManageDoctorDepartment = () => {
   };
 
   const formatPhoneNumber = (value) => {
-  const digits = value.replace(/\D/g, "").slice(0, 10);
-  if (digits.length >= 7) {
-    return `${digits.slice(0, 3)}-${digits.slice(3, 6)}-${digits.slice(6)}`;
-  } else if (digits.length >= 4) {
-    return `${digits.slice(0, 3)}-${digits.slice(3)}`;
-  } else {
-    return digits;
-  }
-};
+    const digits = value.replace(/\D/g, "").slice(0, 10);
+    if (digits.length >= 7) {
+      return `${digits.slice(0, 3)}-${digits.slice(3, 6)}-${digits.slice(6)}`;
+    } else if (digits.length >= 4) {
+      return `${digits.slice(0, 3)}-${digits.slice(3)}`;
+    } else {
+      return digits;
+    }
+  };
 
   const handleRemoveSchedule = (index) => {
     const newSchedules = [...formData.workSchedules];
@@ -184,48 +184,57 @@ const ManageDoctorDepartment = () => {
             <FaPlus /> เพิ่มหมอใหม่
           </button>
         </div>
+        <div className="table-title">
+          <h3>รายชื่อหมอ <span>ทั้งหมด {filteredDoctors.length} คน</span></h3>
+          <button className="add-btn" onClick={handleAdd}>
+            <FaPlus /> เพิ่มหมอใหม่
+          </button>
+        </div>
 
-        <table className="modern-table">
-          <thead>
-            <tr>
-              <th>HN</th>
-              <th>ชื่อ</th>
-              <th>ความเชี่ยวชาญ</th>
-              <th>วัน/เวลาเข้าทำงาน</th>
-              <th>เบอร์โทร</th>
-              <th>การจัดการ</th>
-            </tr>
-          </thead>
-          <tbody>
-            {filteredDoctors.map((d) => (
-              <tr key={d.doctor_id}>
-                <td>{d.hn_number}</td>
-                <td>{d.prefix_name_doctor} {d.first_name_doctor} {d.last_name_doctor}</td>
-                <td>{d.specialist}</td>
-                <td>
-                  {(() => {
-                    const days = d.work_day?.split(" , ") || [];
-                    const times = d.work_time?.split(" , ") || [];
-                    const combined = days.map((day, i) => ({ day, time: times[i] || "" }));
-
-                    const sorted = combined.sort((a, b) => {
-                      return weekdaysOrder.indexOf(a.day) - weekdaysOrder.indexOf(b.day);
-                    });
-
-                    return sorted.map((item, i) => (
-                      <div key={i}>{item.day} {item.time}</div>
-                    ));
-                  })()}
-                </td>
-                <td>{d.phone_number?.replace(/^(\d{3})(\d{3})(\d+)/, "$1-$2-$3")}</td>
-                <td className="actions">
-                  <button className="icon edit" onClick={() => handleEdit(d)}><FaEdit /></button>
-                  <button className="icon delete" onClick={() => handleDelete(d.doctor_id)}><FaTrashAlt /></button>
-                </td>
+        <div className="table-scroll-wrapper">
+          <table className="modern-table">
+            <thead>
+              <tr>
+                <th>HN</th>
+                <th>ชื่อ</th>
+                <th>ความเชี่ยวชาญ</th>
+                <th>วัน/เวลาเข้าทำงาน</th>
+                <th>เบอร์โทร</th>
+                <th>การจัดการ</th>
               </tr>
-            ))}
-          </tbody>
-        </table>
+            </thead>
+            <tbody>
+              {filteredDoctors.map((d) => (
+                <tr key={d.doctor_id}>
+                  <td>{d.hn_number}</td>
+                  <td>{d.prefix_name_doctor} {d.first_name_doctor} {d.last_name_doctor}</td>
+                  <td>{d.specialist}</td>
+                  <td>
+                    {(() => {
+                      const days = d.work_day?.split(" , ") || [];
+                      const times = d.work_time?.split(" , ") || [];
+                      const combined = days.map((day, i) => ({ day, time: times[i] || "" }));
+
+                      const sorted = combined.sort((a, b) => {
+                        return weekdaysOrder.indexOf(a.day) - weekdaysOrder.indexOf(b.day);
+                      });
+
+                      return sorted.map((item, i) => (
+                        <div key={i}>{item.day} {item.time}</div>
+                      ));
+                    })()}
+                  </td>
+                  <td>{d.phone_number?.replace(/^(\d{3})(\d{3})(\d+)/, "$1-$2-$3")}</td>
+                  <td className="actions">
+                    <button className="icon edit" onClick={() => handleEdit(d)}><FaEdit /></button>
+                    <button className="icon delete" onClick={() => handleDelete(d.doctor_id)}><FaTrashAlt /></button>
+                  </td>
+                </tr>
+              ))}
+            </tbody>
+          </table>
+        </div>
+
 
         {showModal && (
           <div className="modal">
