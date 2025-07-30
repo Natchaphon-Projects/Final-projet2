@@ -348,13 +348,20 @@ function NutritionForm() {
             <ul className="popup-list">
               {nutritionGroups.flatMap(group => group.questions).map(({ key, label, type }) => {
                 const value = formData[key];
-                const getDisplayText = (key, value) => value
-                  ? "✅ บริโภค"
-                  : "❌ ไม่ได้บริโภค";
+                const getDisplayText = (key, value) => {
+                  return (value === true || value === "yes")
+                    ? "✅ บริโภค"
+                    : "❌ ไม่ได้บริโภค";
+                };
+
                 return (
                   <li key={key} className="popup-row">
                     <span className="popup-label">{label}</span>
-                    <span className={`popup-value ${type === "checkbox" ? (value ? "success" : "error") : ""}`}>
+                    <span className={`popup-value ${type === "checkbox"
+                        ? (value === true || value === "yes" ? "success" : "error")
+                        : ""
+                      }`}>
+
                       {type === "checkbox"
                         ? getDisplayText(key, value)
                         : key === "Number_of_Times_Eaten_Solid_Food"
