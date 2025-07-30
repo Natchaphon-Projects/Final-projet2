@@ -120,11 +120,16 @@ function PredictionModel() {
     };
 
     const inputData = customData || getRandomData();
+    // ✅ Fix: แก้ชื่อ key ที่ผิดจาก localStorage (Food_allergies → Food_allergy)
+    if ("Food_allergies" in inputData) {
+      inputData.Food_allergy = inputData.Food_allergies;
+      delete inputData.Food_allergies;
+    }
 
     const extraMedicalData = {
       Weight: inputData.Weight || null,
       Height: inputData.Height || null,
-      Food_allergy: inputData.Food_allergies || "",
+      Food_allergy: inputData.Food_allergy || "", // ✅ key นี้ต้องไม่มี s
       Drug_allergy: inputData.Drug_allergy || "",
       congenital_disease: inputData.congenital_disease || "",
     };

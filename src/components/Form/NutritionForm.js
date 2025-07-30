@@ -358,8 +358,8 @@ function NutritionForm() {
                   <li key={key} className="popup-row">
                     <span className="popup-label">{label}</span>
                     <span className={`popup-value ${type === "checkbox"
-                        ? (value === true || value === "yes" ? "success" : "error")
-                        : ""
+                      ? (value === true || value === "yes" ? "success" : "error")
+                      : ""
                       }`}>
 
                       {type === "checkbox"
@@ -565,6 +565,10 @@ function NutritionForm() {
                   ...nutrition,
                   ...sanitation,
                 };
+
+                delete allData.Food_allergies;
+                delete allData.Drug_allergies;
+                delete allData.Underlying_disease;
 
                 // ✅ รายการ field ที่ต้องกรอก
                 const requiredKeys = [

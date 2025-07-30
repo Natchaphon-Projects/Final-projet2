@@ -21,7 +21,7 @@ const nutritionGroups = [
     groupTitle: "โรคประจำตัวและอาการแพ้",
     groupNote: "✏️ โปรดกรอกโรคประจำตัวและอาการแพ้",
     questions: [
-      { key: "Food_allergies", label: "แพ้อาหาร", type: "text" },
+      { key: "Food_allergy", label: "แพ้อาหาร", type: "text" },
       { key: "Drug_allergy", label: "แพ้ยา", type: "text" },
       { key: "congenital_disease", label: "โรคประจำตัว", type: "text" },
     ],
