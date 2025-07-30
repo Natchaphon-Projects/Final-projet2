@@ -163,7 +163,7 @@ function PredictionModel() {
       const patientId = localStorage.getItem("childId");
       await axios.post("/api/predictions/combined", {
         patient_id: patientId,
-        ...reversePreprocessData(filteredData),
+        ...inputData,
         ...extraMedicalData,
         Status_personal: result,
       });
@@ -188,6 +188,7 @@ function PredictionModel() {
   useEffect(() => {
     if (!hasPredicted) {
       const data = localStorage.getItem("latestPredictionData");
+      console.log(data);
       if (data) {
         handlePredict(JSON.parse(data));
         setHasPredicted(true);

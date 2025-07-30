@@ -47,7 +47,7 @@ app.get("/doctors/:hn", (req, res) => {
 
 app.get("/patients", (req, res) => {
   const order = req.query.order === "asc" ? "ASC" : "DESC";
-  
+
   const query = `
     SELECT 
       p.patient_id AS id,
@@ -419,9 +419,46 @@ app.post("/predictions/combined", (req, res) => {
       .map((key) => `\`${key}\``)
       .join(", ");
 
+    const numericFields = new Set([
+      "Breastfeeding_Count_DayandNight",
+      "Infant_Formula_Intake_Count_Yesterday",
+      "Received_Animal_Milk_Count",
+    ]);
+
+    const booleanTrueFalseFields = new Set([
+      "Sanitary_Disposal",
+      "Child_wash_hand_before_or_after_eating_food",
+      "Child_wash_hand_before_or_after_visiting_the_toilet",
+      "Still_Breastfeeding",
+    ]);
+
+    const normalizeValueForDB = (key, value) => {
+      // ✅ ถ้าเป็น field ที่ต้องเป็น True/False string
+      if (booleanTrueFalseFields.has(key)) {
+        if (typeof value === "boolean") return value ? "True" : "False";
+        if (value === 1 || value === "1" || value === "yes" || value === "true") return "True";
+        return "False";
+      }
+
+      // ✅ ถ้าเป็น field ที่ต้องเป็นตัวเลข
+      if (numericFields.has(key)) {
+        return value === "" || value === null || value === undefined ? 0 : Number(value);
+      }
+
+      // ✅ default: yes/no สำหรับ checkbox ทั่วไป
+      if (typeof value === "boolean") {
+        return value ? "yes" : "no";
+      }
+
+      if (value === 1) return "yes";
+      if (value === 0) return "no";
+
+      return value;
+    };
+
     const values = Object.keys(data)
       .filter((key) => key !== "patient_id")
-      .map((key) => mysql.escape(data[key]))
+      .map((key) => mysql.escape(normalizeValueForDB(key, data[key])))
       .join(", ");
 
     const query = `
@@ -943,7 +980,7 @@ app.put("/patients/:id/records/public_note", (req, res) => {
 
 app.put("/patients/:id/records/private_note", (req, res) => {
   const { id } = req.params;
-  const { created_at, private_note,  } = req.body; // ✅ เพิ่ม review_by
+  const { created_at, private_note, } = req.body; // ✅ เพิ่ม review_by
 
   const sql = `
     UPDATE medical_records
@@ -954,7 +991,7 @@ app.put("/patients/:id/records/private_note", (req, res) => {
   `;
 
   // ✅ ส่งค่าครบทั้ง 4 ตัว
-  db.query(sql, [private_note,  id, created_at], (err, result) => {
+  db.query(sql, [private_note, id, created_at], (err, result) => {
     if (err) {
       console.error("❌ Error updating notes:", err);
       return res.status(500).json({ message: "Error updating notes" });

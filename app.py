@@ -70,10 +70,11 @@ try:
     if 'Number_of_Times_Eaten_Solid_Food' in df_features:
         df_features['Number_of_Times_Eaten_Solid_Food'] = df_features[
             'Number_of_Times_Eaten_Solid_Food'].replace({
-                '1-2 meals': 1,
-                '3-4 meals': 2,
-                'more than 4 meals': 3,
-                'dont eat': 0
+                '1-2 meals': 0,
+                '3-4 meals': 1,
+                'dont eat': 2,
+                'more than 4 meals': 3
+                
             })
 
     for col in df_features.columns:
@@ -161,3 +162,7 @@ async def get_prediction(input_data: PredictionInput):
     except Exception as e:
         print("❌ Error:", str(e))
         return {"error": str(e)}
+
+@app.get("/test")
+async def test():
+    print("Hello")

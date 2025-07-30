@@ -87,6 +87,9 @@ function SanitationForm() {
       return;
     }
 
+
+    
+
     setCompletedGroups((prevCompletedGroups) => {
       let newCompleted = prevCompletedGroups;
 
@@ -332,6 +335,7 @@ function SanitationForm() {
                   ...sanitation,
                 };
 
+                // ✅ รายการ field ที่ต้องกรอก
                 const requiredKeys = [
                   "Vitamin_A_Intake_First_8_Weeks",
                   "Sanitary_Disposal",
@@ -358,13 +362,31 @@ function SanitationForm() {
                   "Number_of_Times_Eaten_Solid_Food"
                 ];
 
-
-                // เติมค่าที่ขาด = 0
+                // ✅ เติมค่าที่ขาด
                 requiredKeys.forEach((key) => {
                   if (!(key in allData)) {
-                    allData[key] = 0;
+                    // ✅ เงื่อนไขเฉพาะบาง field
+                    if (
+                      key === "Still_Breastfeeding" ||
+                      key === "Sanitary_Disposal" ||
+                      key === "Child_wash_hand_before_or_after_eating_food" ||
+                      key === "Child_wash_hand_before_or_after_visiting_the_toilet"
+                    ) {
+                      allData[key] = false;
+                    } else if (
+                      key === "Breastfeeding_Count_DayandNight" ||
+                      key === "Infant_Formula_Intake_Count_Yesterday" ||
+                      key === "Received_Animal_Milk_Count"
+                    ) {
+                      allData[key] = 0;
+                    } else if (key === "Number_of_Times_Eaten_Solid_Food") {
+                      allData[key] = "dont eat";
+                    } else {
+                      allData[key] = "no";
+                    }
                   }
                 });
+
 
                 localStorage.setItem("latestPredictionData", JSON.stringify(allData));
                 localStorage.setItem("isSubmitting", "false");

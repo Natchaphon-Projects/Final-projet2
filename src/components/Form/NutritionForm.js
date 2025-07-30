@@ -70,6 +70,18 @@ const nutritionGroups = [
   },
 ];
 
+const revertMealValue = (eng) => {
+  switch (eng) {
+    case "1-2 meals": return "1-2 มื้อ";
+    case "3-4 meals": return "3-4 มื้อ";
+    case "more than 4 meals": return "4 มื้อขึ้นไป";
+    case "dont eat": return "ไม่ได้บริโภค";
+    default: return eng;
+  }
+};
+
+
+
 function NutritionForm() {
   const navigate = useNavigate();
   const location = useLocation();
@@ -80,6 +92,27 @@ function NutritionForm() {
     "/form/nutrition",
     "/form/sanitation",
   ];
+  const revertMealValue = (eng) => {
+    switch (eng) {
+      case "1-2 meals": return "1-2 มื้อ";
+      case "3-4 meals": return "3-4 มื้อ";
+      case "more than 4 meals": return "4 มื้อขึ้นไป";
+      case "dont eat": return "ไม่ได้บริโภค";
+      default: return eng;
+    }
+  };
+
+  const [formData, setFormData] = useState(() => {
+    const saved = localStorage.getItem("nutritionFormData");
+    if (saved) {
+      const parsed = JSON.parse(saved);
+      if (parsed.Number_of_Times_Eaten_Solid_Food) {
+        parsed.Number_of_Times_Eaten_Solid_Food = revertMealValue(parsed.Number_of_Times_Eaten_Solid_Food);
+      }
+      return parsed;
+    }
+    return {};
+  });
 
   const currentIndex = pages.indexOf(location.pathname);
   const nextIndex = (currentIndex + 1) % pages.length;
@@ -94,10 +127,7 @@ function NutritionForm() {
 
   const [finalGroupCompleted, setFinalGroupCompleted] = useState(false);
 
-  const [formData, setFormData] = useState(() => {
-    const saved = localStorage.getItem("nutritionFormData");
-    return saved ? JSON.parse(saved) : {};
-  });
+
   useEffect(() => {
     localStorage.setItem("nutritionFormData", JSON.stringify(formData));
   }, [formData]);
@@ -118,7 +148,7 @@ function NutritionForm() {
   const handleChange = (key, value) => {
     setFormData((prev) => ({
       ...prev,
-      [key]: value,
+      [key]: value, // ✅ ค่านี้จะเป็น true/false
     }));
   };
 
@@ -162,6 +192,40 @@ function NutritionForm() {
       return;
     }
 
+    // ✅ แปลงค่าของคำถามใน group นี้
+    const updatedFormData = { ...formData };
+
+    group.questions.forEach(({ key }) => {
+      const value = formData[key];
+
+      // ไม่แปลงค่าพวกตัวเลขเฉพาะ
+      const numericKeys = [
+        "Infant_Formula_Intake_Count_Yesterday",
+        "Breastfeeding_Count_DayandNight",
+        "Received_Animal_Milk_Count",
+      ];
+
+      if (numericKeys.includes(key)) {
+        updatedFormData[key] = value;
+      } else if (key === "Still_Breastfeeding") {
+        updatedFormData[key] = value === true;
+      } else if (key === "Number_of_Times_Eaten_Solid_Food") {
+        if (value === "1-2 มื้อ") updatedFormData[key] = "1-2 meals";
+        else if (value === "3-4 มื้อ") updatedFormData[key] = "3-4 meals";
+        else if (value === "4 มื้อขึ้นไป") updatedFormData[key] = "more than 4 meals";
+        else if (value === "ไม่ได้บริโภค") updatedFormData[key] = "dont eat";
+        else updatedFormData[key] = value;
+      } else {
+        if (value === true) updatedFormData[key] = "yes";
+        else if (value === false || value === 0 || value === "0") updatedFormData[key] = "no";
+        else updatedFormData[key] = value;
+      }
+    });
+
+    // ✅ เซฟลง state และ localStorage
+    setFormData(updatedFormData);
+    localStorage.setItem("nutritionFormData", JSON.stringify(updatedFormData));
+
     setCompletedGroups((prevCompletedGroups) => {
       let newCompleted = prevCompletedGroups;
 
@@ -195,32 +259,33 @@ function NutritionForm() {
     setExpandedGroup((prev) => (prev === index ? -1 : index));
   };
 
-  const handleSubmit = () => {
-    if (!patientId) {
-      alert("ไม่สามารถระบุรหัสผู้ป่วยได้");
-      return;
-    }
+  // const handleSubmit = () => {
+  //   if (!patientId) {
+  //     alert("ไม่สามารถระบุรหัสผู้ป่วยได้");
+  //     return;
+  //   }
 
-    // กำหนด default เป็น 0 ถ้าเว้นว่าง
-    const dataToSend = {
-      patient_id: patientId,
-      ...formData,
-      Infant_Formula_Intake_Count_Yesterday: formData.Infant_Formula_Intake_Count_Yesterday || 0,
-      Breastfeeding_Count_DayandNight: formData.Breastfeeding_Count_DayandNight || 0,
-      Received_Animal_Milk_Count: formData.Received_Animal_Milk_Count || 0,
-      created_at: new Date().toISOString(),
-    };
+  //   // กำหนด default เป็น 0 ถ้าเว้นว่าง
+  //   const dataToSend = {
+  //     patient_id: patientId,
+  //     ...formData,
+  //     Infant_Formula_Intake_Count_Yesterday: formData.Infant_Formula_Intake_Count_Yesterday || 0,
+  //     Breastfeeding_Count_DayandNight: formData.Breastfeeding_Count_DayandNight || 0,
+  //     Received_Animal_Milk_Count: formData.Received_Animal_Milk_Count || 0,
+  //     created_at: new Date().toISOString(),
+  //   };
 
 
 
-    axios.post("/api/predictions", dataToSend)
-      .then(() => {
-        alert("✅ บันทึกข้อมูลเรียบร้อยแล้ว");
-      })
-      .catch((err) => {
-        console.error("❌ บันทึกข้อมูลล้มเหลว", err);
-      });
-  };
+  //   axios.post("/model/prediction", dataToSend)
+
+  //     .then(() => {
+  //       alert("✅ บันทึกข้อมูลเรียบร้อยแล้ว");
+  //     })
+  //     .catch((err) => {
+  //       console.error("❌ บันทึกข้อมูลล้มเหลว", err);
+  //     });
+  // };
   useEffect(() => {
     const savedCompleted = localStorage.getItem("nutritionCompletedGroups");
     const parsedCompleted = savedCompleted ? JSON.parse(savedCompleted) : [];
@@ -290,7 +355,12 @@ function NutritionForm() {
                   <li key={key} className="popup-row">
                     <span className="popup-label">{label}</span>
                     <span className={`popup-value ${type === "checkbox" ? (value ? "success" : "error") : ""}`}>
-                      {type === "checkbox" ? getDisplayText(key, value) : value || "-"}
+                      {type === "checkbox"
+                        ? getDisplayText(key, value)
+                        : key === "Number_of_Times_Eaten_Solid_Food"
+                          ? revertMealValue(value)
+                          : value || "-"
+                      }
                     </span>
                   </li>
                 );
@@ -302,7 +372,7 @@ function NutritionForm() {
               <button className="confirm" onClick={() => {
                 setShowConfirmPopup(false);
                 handleGroupComplete(pendingSubmitGroup);
-                handleSubmit();
+                // handleSubmit();
                 navigate(nextPage); // ✅ เพิ่มเพื่อไปหน้าถัดไปอัตโนมัติ
               }}>
 
@@ -357,7 +427,7 @@ function NutritionForm() {
                           <input
                             type="checkbox"
                             id={key}
-                            checked={formData[key] || false}
+                            checked={formData[key] === true || formData[key] === "yes"}
                             onChange={(e) => handleChange(key, e.target.checked)}
                           />
                           <label htmlFor={key}>{label}</label>
@@ -489,6 +559,7 @@ function NutritionForm() {
                   ...sanitation,
                 };
 
+                // ✅ รายการ field ที่ต้องกรอก
                 const requiredKeys = [
                   "Vitamin_A_Intake_First_8_Weeks",
                   "Sanitary_Disposal",
@@ -515,13 +586,33 @@ function NutritionForm() {
                   "Number_of_Times_Eaten_Solid_Food"
                 ];
 
-
-                // เติมค่าที่ขาด = 0
+                // ✅ เติมค่าที่ขาด
                 requiredKeys.forEach((key) => {
                   if (!(key in allData)) {
-                    allData[key] = 0;
+                    // ✅ เงื่อนไขเฉพาะบาง field
+                    if (
+                      key === "Still_Breastfeeding" ||
+                      key === "Sanitary_Disposal" ||
+                      key === "Child_wash_hand_before_or_after_eating_food" ||
+                      key === "Child_wash_hand_before_or_after_visiting_the_toilet"
+                    ) {
+                      allData[key] = false;
+                    } else if (
+                      key === "Breastfeeding_Count_DayandNight" ||
+                      key === "Infant_Formula_Intake_Count_Yesterday" ||
+                      key === "Received_Animal_Milk_Count"
+                    ) {
+                      allData[key] = 0;
+                    } else if (key === "Number_of_Times_Eaten_Solid_Food") {
+                      allData[key] = "dont eat";
+                    } else {
+                      allData[key] = "no";
+                    }
                   }
                 });
+
+
+
 
                 localStorage.setItem("latestPredictionData", JSON.stringify(allData));
                 localStorage.setItem("isSubmitting", "false");
