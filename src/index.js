@@ -4,6 +4,9 @@ import App from './App';
 import './index.css'; // หากมีไฟล์ CSS
 import './styles.css';
 
+console.log = () => {};
+console.warn = () => {};
+console.error = () => {};
 
 const root = ReactDOM.createRoot(document.getElementById('root'));
 root.render(
